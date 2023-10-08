@@ -64,7 +64,9 @@
         <el-table-column prop="subscribe_info.subscribe_url" label="通用订阅url" show-overflow-tooltip width="400">
           <template #default="scope">
             <el-tag type="info">
-              {{serverStore.publicServerConfig.sub_url_pre}}user/getSub?link={{ scope.row.subscribe_info.subscribe_url }}&type=1
+              {{ serverStore.publicServerConfig.sub_url_pre }}user/getSub?link={{
+                scope.row.subscribe_info.subscribe_url
+              }}&type=1
             </el-tag>
           </template>
         </el-table-column>
@@ -120,31 +122,28 @@
 </template>
 
 <script setup lang="ts" name="systemUser">
-import {defineAsyncComponent, nextTick, onMounted, reactive, ref, watch} from 'vue';
-import {ElMessageBox, ElMessage} from 'element-plus';
+import {defineAsyncComponent, onMounted, reactive, ref} from 'vue';
+import {ElMessageBox} from 'element-plus';
 
 
 //store
 import {storeToRefs} from 'pinia';
 import {useUserStore} from '/@/stores/userStore'
-//server store
 import {useServerStore} from "/@/stores/serverStore";
-const serverStore= useServerStore()
-const userStore = useUserStore()
-const {userManageData} = storeToRefs(userStore)
-//report store
 import {useReportStore} from "/@/stores/reportStore"
 
-
-const reportStore = useReportStore()
-const {reportTable} = storeToRefs(reportStore)
-//时间格式化
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 import {DateStrtoTime} from "../../../utils/formatTime";
 
-//report api
-import {useReportApi} from "/@/api/report";
+const serverStore = useServerStore()
+const userStore = useUserStore()
+const {userManageData} = storeToRefs(userStore)
 
-const reportApi = useReportApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+const reportStore = useReportStore()
+const {reportTable} = storeToRefs(reportStore)
 
 // 引入组件
 const UserDialog = defineAsyncComponent(() => import('/@/views/admin/user/dialog.vue'));
@@ -192,7 +191,7 @@ const onRowDel = (row: SysUser) => {
 // 分页改变
 const onHandleSizeChange = (val: number) => {
   if (state.isShowCollapse) {
-    getReportDataHandler(reportTable.value)
+    getReportDataHandler()
   } else {
     state.params.page_size = val;
     userStore.getUserList(state.params)
@@ -201,7 +200,7 @@ const onHandleSizeChange = (val: number) => {
 // 分页改变
 const onHandleCurrentChange = (val: number) => {
   if (state.isShowCollapse) {
-    getReportDataHandler(reportTable.value)
+    getReportDataHandler()
   } else {
     state.params.page_num = val;
     userStore.getUserList(state.params)
@@ -223,16 +222,15 @@ const onShowCollapse = () => {
   }, 500)
 }
 //请求数据
-const getReportDataHandler = (data?: any) => {
+const getReportDataHandler = () => {
   //拼接分页参数
   reportTable.value.pagination_params = state.params;
   // console.log("参数：",reportTable.value)
   //请求数据
-  reportApi.submitReportApi(reportTable.value).then((res) => {
-    if (res.code === 0) {
-      userManageData.value.users.user_list = res.data.table_data
-      userManageData.value.users.total = res.data.total
-    }
+  // reportApi.submitReportApi(reportTable.value).then((res) => {
+  request(apiStoreData.api.value.report_reportSubmit, reportTable.value).then((res) => {
+    userManageData.value.users.user_list = res.data.table_data
+    userManageData.value.users.total = res.data.total
   })
 }
 

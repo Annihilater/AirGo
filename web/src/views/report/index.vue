@@ -120,6 +120,9 @@ import {onMounted, reactive, watch} from "vue";
 //report store
 import {useReportStore} from "/@/stores/reportStore"
 import {storeToRefs} from "pinia";
+import {ElMessage} from "element-plus";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
 const reportStore = useReportStore()
 const {
@@ -131,11 +134,9 @@ const {
   sqliteColumn,
   sqliteColumnTypeMap
 } = storeToRefs(reportStore)
-//report api
-import {useReportApi} from "/@/api/report";
-import {ElMessage} from "element-plus";
 
-const reportApi = useReportApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 //定义的参数
 const state = reactive({
   //选中的数据库，库表;获取数据库的数据表的所有字段名,类型值 请求参数
@@ -166,16 +167,14 @@ const onGetColumn = (params?: object) => {
   reportStore.getColumn(params)
 }
 //提交
-const onSubmit = (params?: object) => {
+const onSubmit = (data?: object) => {
   if (state.checkedDbInfo.table_name === '') {
     return
   }
   state.reportTable.table_name = state.checkedDbInfo.table_name
-  reportApi.submitReportApi(state.reportTable).then((res) => {
-    if (res.code === 0) {
-      state.tableData = res.data
-    }
-
+  // reportApi.submitReportApi(state.reportTable).then((res) => {
+  request(apiStoreData.api.value.report_reportSubmit, data).then((res) => {
+    state.tableData = res.data
   })
 }
 

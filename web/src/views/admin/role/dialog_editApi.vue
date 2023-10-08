@@ -21,7 +21,7 @@
 import {storeToRefs} from 'pinia';
 // role store
 import {useRoleStore} from "/@/stores/roleStore";
-import {reactive, ref} from "vue";
+import {reactive} from "vue";
 
 const roleStore = useRoleStore()
 const {dialogEditApi} = storeToRefs(roleStore)

@@ -14,12 +14,12 @@
                          inactive-text="关闭"
                          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
             </el-form-item>
-            <el-form-item label="登录邮箱验证码">
-              <el-switch v-model="serverConfig.system.enable_login_email_code" inline-prompt active-text="开启"
-                         inactive-text="关闭"
-                         style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
-              <el-tag type="info" style="margin-left: 10px">最好不要开启，配置不正确你自己都登录不上</el-tag>
-            </el-form-item>
+            <!--            <el-form-item label="登录邮箱验证码">-->
+            <!--              <el-switch v-model="serverConfig.system.enable_login_email_code" inline-prompt active-text="开启"-->
+            <!--                         inactive-text="关闭"-->
+            <!--                         style="&#45;&#45;el-switch-on-color: #13ce66; &#45;&#45;el-switch-off-color: #ff4949"></el-switch>-->
+            <!--              <el-tag type="info" style="margin-left: 10px">最好不要开启，配置不正确你自己都登录不上</el-tag>-->
+            <!--            </el-form-item>-->
 
 
             <el-divider></el-divider>
@@ -50,22 +50,22 @@
 
             <el-divider></el-divider>
             <el-form-item label="通信密钥">
-              <el-col :span="12">
-                <el-input v-model="serverConfig.system.muKey" placeholder="务必前后端保持一致！"/>
-              </el-col>
-
+              <el-input v-model="serverConfig.system.muKey" placeholder="务必前后端保持一致！"/>
+              <div style="color: #9b9da1;display:block">XrayR等配置的密钥</div>
             </el-form-item>
             <el-form-item label="订阅名称">
               <el-col :span="12">
                 <el-input v-model="serverConfig.system.sub_name"/>
+                <div style="color: #9b9da1;display:block">更新订阅时显示的名字</div>
               </el-col>
             </el-form-item>
-            <el-form-item label="订阅url前缀">
-              <el-col :span="12">
-                <el-input v-model="serverConfig.system.sub_url_pre"/>
-              </el-col>
+            <el-form-item label="AirGo后端地址">
+              <el-input v-model="serverConfig.system.backend_url"/>
+              <div style="color: #9b9da1">
+                该地址与更新订阅、支付回调有关，请认真填写，一般和.env中的VITE_API_URL保持一致即可。例如：http://abc.com:8899
+              </div>
             </el-form-item>
-
+            <el-divider></el-divider>
             <el-form-item label="新注册分配套餐">
               <el-select v-model="serverConfig.system.default_goods" class="m-2" placeholder="选择套餐">
                 <el-option
@@ -99,7 +99,7 @@
                 <el-input v-model.number="serverConfig.system.deduction_threshold" type="number"></el-input>
               </el-col>
               <el-col :span="2" style="text-align: center">-</el-col>
-              <el-col :span="18">  (范围0~1)</el-col>
+              <el-col :span="18"> (范围0~1)</el-col>
             </el-form-item>
 
             <el-divider></el-divider>
@@ -111,25 +111,40 @@
 
 
         <el-tab-pane label="支付">
-          <el-divider content-position="left">支付宝 支付</el-divider>
-          <el-form :model="serverConfig" label-width="120px">
-            <el-form-item label="支付宝appID">
-              <el-input v-model="serverConfig.pay.app_id" type="password"/>
-            </el-form-item>
-            <el-form-item label="支付宝应用私钥">
-              <el-input v-model="serverConfig.pay.private_key" type="password" autosize/>
-            </el-form-item>
-            <el-form-item label="支付宝公钥">
-              <el-input v-model="serverConfig.pay.ali_public_key" type="password" autosize/>
-            </el-form-item>
-            <el-form-item label="支付宝加密密钥">
-              <el-input v-model="serverConfig.pay.encrypt_key" type="password"/>
-            </el-form-item>
-            <el-divider content-position="left">微信 支付(暂不考虑接入)</el-divider>
-            <el-form-item>
-              <el-button @click="onSubmit" type="primary">保存</el-button>
-            </el-form-item>
-          </el-form>
+          <div>
+            <el-button size="default" type="primary" class="ml10" @click="openPayDialog('add')">
+              <el-icon>
+                <ele-FolderAdd/>
+              </el-icon>
+              新增支付
+            </el-button>
+          </div>
+          <div>
+            <el-table :data="payStoreData.payList.value" stripe style="width: 100%;flex: 1;">
+              <el-table-column type="index" label="序号" fixed show-overflow-tooltip width="60px"/>
+              <!--              <el-table-column prop="id" label="ID" fixed show-overflow-tooltip width="60px"/>-->
+              <el-table-column prop="name" label="别名" fixed show-overflow-tooltip width="120px"/>
+              <el-table-column prop="pay_type" label="类型" show-overflow-tooltip fixed width="80px"/>
+              <el-table-column prop="pay_logo_url" label="logo" fixed show-overflow-tooltip width="120px">
+                <template #default="{row}">
+                  <el-image :src="row.pay_logo_url" style="width: 40px;height: 40px"></el-image>
+                </template>
+              </el-table-column>
+              <el-table-column prop="status" label="状态" fixed show-overflow-tooltip width="80px">
+                <template #default="{row}">
+                  <el-button v-if="row.status" type="warning">启用</el-button>
+                  <el-button v-else type="info">禁用</el-button>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="操作">
+                <template #default="scope">
+                  <el-button text @click="openPayDialog('edit',scope.row)" type="primary">编辑</el-button>
+                  <el-button text @click="deletePay(scope.row)" type="primary">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
 
         </el-tab-pane>
         <el-tab-pane label="邮件">
@@ -179,25 +194,45 @@
           </el-form>
         </el-tab-pane>
       </el-tabs>
+      <PayDialog ref="PayDialogRef" @refresh="payStore.getPayList()"></PayDialog>
     </el-card>
 
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ElMessage} from 'element-plus';
-import {onMounted} from "vue";
-//server store
+import {defineAsyncComponent, onMounted, ref} from "vue";
+
 import {useServerStore} from "/@/stores/serverStore";
 import {storeToRefs} from "pinia";
+import {useShopStore} from "/@/stores/shopStore";
+import {usePayStore} from "/@/stores/payStore";
+
+import {ElMessage} from "element-plus";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
+const PayDialog = defineAsyncComponent(() => import("/@/views/admin/system/dialog_pay.vue"))
+const PayDialogRef = ref()
 
 const serverStore = useServerStore()
 const {serverConfig} = storeToRefs(serverStore)
-//shop store
-import {useShopStore} from "/@/stores/shopStore";
 
 const shopStore = useShopStore()
 const {goodsList} = storeToRefs(shopStore)
+
+const payStore = usePayStore()
+const payStoreData = storeToRefs(payStore)
+
+
+//打开支付编辑
+const openPayDialog = (type: string, row?: PayInfo) => {
+  PayDialogRef.value.openDialog(type, row)
+}
+
 //保存提交
 const onSubmit = () => {
   serverStore.updateServerConfig(serverConfig.value)
@@ -205,10 +240,21 @@ const onSubmit = () => {
     serverStore.getServerConfig()
   }, 1000)
 }
-onMounted(() => {
-  serverStore.getServerConfig()
-  shopStore.getAllGoods() //用来设置新注册分配套餐
+//删除支付
+const deletePay = (data: PayInfo) => {
+  // payApi.deletePayApi(data).then((res) => {
+  request(apiStoreData.api.value.pay_deletePay, data).then((res) => {
+    ElMessage.success(res.msg)
+    setTimeout(() => {
+      payStore.getPayList(); //获取支付列表
+    }, 500);
+  })
 
+}
+onMounted(() => {
+  serverStore.getServerConfig() //获取设置参数
+  shopStore.getAllGoods()       //获取全部商品，用来设置新注册分配套餐
+  payStore.getPayList()         //获取支付列表
 });
 
 </script>

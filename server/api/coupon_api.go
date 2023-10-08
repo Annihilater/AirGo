@@ -17,15 +17,13 @@ func NewCoupon(ctx *gin.Context) {
 		response.Fail("新建折扣参数错误"+err.Error(), nil, ctx)
 		return
 	}
-	//fmt.Println("新建折扣", coupon)
-	err = service.NewCoupon(coupon)
+	err = service.CommonSqlCreate[model.Coupon](coupon)
 	if err != nil {
 		global.Logrus.Error("新建折扣错误", err.Error())
 		response.Fail("新建折扣错误"+err.Error(), nil, ctx)
 		return
 	}
 	response.OK("新建折扣成功", nil, ctx)
-
 }
 
 // 删除折扣
@@ -37,14 +35,13 @@ func DeleteCoupon(ctx *gin.Context) {
 		response.Fail("删除折扣参数错误"+err.Error(), nil, ctx)
 		return
 	}
-	err = service.DeleteCoupon(coupon)
+	err = service.CommonSqlDelete[model.Coupon, model.Coupon](model.Coupon{}, coupon)
 	if err != nil {
 		global.Logrus.Error("删除折扣错误", err.Error())
 		response.Fail("删除折扣错误"+err.Error(), nil, ctx)
 		return
 	}
 	response.OK("删除折扣成功", nil, ctx)
-
 }
 
 // 更新折扣
@@ -56,28 +53,22 @@ func UpdateCoupon(ctx *gin.Context) {
 		response.Fail("更新折扣参数错误"+err.Error(), nil, ctx)
 		return
 	}
-	err = service.UpdateCoupon(coupon)
+	err = service.CommonSqlSave[model.Coupon](coupon)
 	if err != nil {
 		global.Logrus.Error("更新折扣错误", err.Error())
 		response.Fail("更新折扣错误"+err.Error(), nil, ctx)
 		return
 	}
 	response.OK("更新折扣成功", nil, ctx)
-
 }
 
 // 获取折扣列表
 func GetCoupon(ctx *gin.Context) {
-	couponArr, err := service.GetCoupon()
+	res, err := service.CommonSqlFind[model.Coupon, string, []model.Coupon](model.Coupon{}, "")
 	if err != nil {
 		global.Logrus.Error("获取折扣列表错误", err.Error())
 		response.Fail("获取折扣列表错误"+err.Error(), nil, ctx)
 		return
 	}
-	response.OK("获取折扣列表成功", couponArr, ctx)
-}
-
-// 验证折扣是否有效
-func VerifyCoupon(ctx *gin.Context) {
-
+	response.OK("获取折扣列表成功", res, ctx)
 }

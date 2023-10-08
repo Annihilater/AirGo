@@ -44,11 +44,12 @@
 import {reactive} from "vue";
 
 import {ElMessage} from "element-plus";
-//api
-import {useCouponApi} from "/@/api/coupon";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
 
-const couponApi = useCouponApi()
-
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 const state = reactive({
   type: '',
   isShowDialog: false,
@@ -82,25 +83,20 @@ const closeDialog = () => {
 const onSubmit = (params: object) => {
   switch (state.type) {
     case "add":
-      couponApi.newCouponApi(params).then((res) => {
-        if (res.code === 0) {
-          ElMessage.success(res.msg)
-          emits('refresh')
-        }
+      // couponApi.newCouponApi(params).then((res) => {
+      request(apiStoreData.api.value.coupon_newCoupon, params).then((res) => {
+        ElMessage.success(res.msg)
+        emits('refresh')
       })
       break
     case "edit":
-      couponApi.updateCouponApi(params).then((res) => {
-        if (res.code === 0) {
-          ElMessage.success(res.msg)
-          emits('refresh')
-        }
+      // couponApi.updateCouponApi(params).then((res) => {
+      request(apiStoreData.api.value.coupon_updateCoupon, params).then((res) => {
+        ElMessage.success(res.msg)
+        emits('refresh')
       })
       break
-
   }
-
-
   closeDialog()
 }
 //子组件调用父组件

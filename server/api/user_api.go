@@ -125,7 +125,7 @@ func Login(c *gin.Context) {
 			return
 		} else {
 			token = tokenNew
-			fmt.Println("tokenNew:", tokenNew)
+			//fmt.Println("tokenNew:", tokenNew)
 			go func(l *model.UserLogin, token string) {
 				global.LocalCache.Set(l.UserName+"token", token, ep)
 			}(&l, token)

@@ -42,20 +42,17 @@
     </div>
     <LayoutFooter class="login-footer" v-if="isFooter"/>
   </div>
-<!--  <Muyu></Muyu>-->
+  ->
 </template>
 
 <script setup lang="ts" name="loginIndex">
-import {defineAsyncComponent, onMounted, reactive, ref, computed} from 'vue';
+import {computed, defineAsyncComponent, onMounted, reactive} from 'vue';
 import {storeToRefs} from 'pinia';
-//store
+
 import {useThemeConfig} from '/@/stores/themeConfig';
 import {NextLoading} from '/@/utils/loading';
-
-//import logoMini from '/@/assets/logo.png';
-
-import loginMain from '/@/assets/login-main.svg';
-import loginBg from '/@/assets/login-bg.svg';
+import loginMain from '/@/assets/bgc/login-main.svg';
+import loginBg from '/@/assets/bgc/login-bg.svg';
 import {useRoute} from "vue-router";
 import {Local} from "/@/utils/storage";
 
@@ -64,7 +61,7 @@ const Account = defineAsyncComponent(() => import('/@/views/login/component/acco
 const Register = defineAsyncComponent(() => import('/@/views/login/component/register.vue'));
 const Scan = defineAsyncComponent(() => import('/@/views/login/component/scan.vue'));
 const LayoutFooter = defineAsyncComponent(() => import('/@/layout/footer/index.vue'));
-// const Muyu = defineAsyncComponent(() => import('/@/views/login/component/muyu.vue'));
+
 // 定义变量内容
 const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
@@ -86,7 +83,7 @@ const isFooter = computed(() => {
 // 页面加载时
 onMounted(() => {
   // console.log("route.query",  route.query.i)
-  Local.set('invitation',route.query.i)
+  Local.set('invitation', route.query.i)
   NextLoading.done();
 });
 </script>

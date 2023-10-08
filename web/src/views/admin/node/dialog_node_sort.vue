@@ -30,15 +30,16 @@
 <script lang="ts" setup>
 import {nextTick, reactive} from "vue";
 import Sortable from "sortablejs";
-//store
-import {storeToRefs} from "pinia";
 import {useNodeStore} from "/@/stores/node";
-const nodeStore = useNodeStore()
-//api
-import {useNodeApi} from "/@/api/node/index";
 import {ElMessage} from "element-plus";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
 
-const nodeApi = useNodeApi()
+const nodeStore = useNodeStore()
+
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
 //定义参数
 const state = reactive({
@@ -50,11 +51,10 @@ const state = reactive({
 // 打开弹窗
 const openDialog = () => {
   state.isShowDialog = true
-  nodeApi.getAllNodeApi().then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      state.node_list = res.data
-    }
+  // nodeApi.getAllNodeApi().then((res) => {
+  request(apiStoreData.api.value.node_getAllNode).then((res) => {
+    ElMessage.success(res.msg)
+    state.node_list = res.data
   })
   nextTick(() => {
     initSortable("nodeSort")
@@ -74,11 +74,10 @@ const nodeSortHandler = (data: Array<any>) => {
 //确认提交
 const onSubmit = () => {
   state.isShowDialog = false
-  nodeApi.nodeSortApi(nodeSortHandler(state.node_list)).then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      nodeStore.getAllNode()
-    }
+  // nodeApi.nodeSortApi(nodeSortHandler(state.node_list)).then((res) => {
+  request(apiStoreData.api.value.node_nodeSort, nodeSortHandler(state.node_list)).then((res) => {
+    ElMessage.success(res.msg)
+    nodeStore.getNodeWithTraffic({search: '', page_num: 1, page_size: 30, date: [],})
   })
 }
 

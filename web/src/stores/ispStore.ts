@@ -1,11 +1,14 @@
-import {defineStore} from "pinia";
-import {useISPApi} from "/@/api/isp";
+import {defineStore, storeToRefs} from "pinia";
 import {ElMessage} from "element-plus";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
-const ispApi = useISPApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
 export const useISPStore = defineStore("ispStore", {
     state: () => ({
-        isp:{
+        isp: {
             user_id: 0,
             isp_type: '',
             status: false,
@@ -17,7 +20,7 @@ export const useISPStore = defineStore("ispStore", {
                 unicomMobile: '',
                 password: '',
             },
-            telecom_config:{
+            telecom_config: {
                 phoneNum: '',
                 telecomPassword: '',
                 timestamp: '',
@@ -32,27 +35,25 @@ export const useISPStore = defineStore("ispStore", {
     }),
     actions: {
         async sendCode(params?: object) {
-            const res = await ispApi.sendCodeApi(params)
+            // const res = await ispApi.sendCodeApi(params)
+            const res = await request(apiStoreData.api.value.isp_sendCode, params)
             ElMessage.success(res.msg)
 
         },
         async ispLogin(params?: object) {
-            const res = await ispApi.ispLoginApi(params)
-            if (res.msg==='获取成功'){
-                this.isp=res.data
+            // const res = await ispApi.ispLoginApi(params)
+            const res = await request(apiStoreData.api.value.isp_ispLogin, params)
+            if (res.msg === '获取成功') {
+                this.isp = res.data
                 return
             }
             this.getMonitorByUserID()
         },
-        async queryPackage(params?: object) {
-            const res = await ispApi.queryPackageApi(params)
-            ElMessage.success(res.msg)
 
-        },
         async getMonitorByUserID(params?: object) {
-            const res = await ispApi.getMonitorByUserIDApi(params)
+            const res = await await request(apiStoreData.api.value.isp_getMonitorByUserID, params)
             ElMessage.success(res.msg)
-            this.isp=res.data
+            this.isp = res.data
 
         },
     }

@@ -17,20 +17,21 @@ func NewNodeShared(ctx *gin.Context) {
 		response.Fail("NewNodeShared"+err.Error(), nil, ctx)
 		return
 	}
-	err = service.NewNodeShared(service.ParseUrl(url.Url))
-	if err != nil {
-		global.Logrus.Error("NewNodeShared", err.Error())
-		response.Fail("NewNodeShared"+err.Error(), nil, ctx)
-		return
+	nodeArr := service.ParseUrl(url.Url)
+	if nodeArr != nil {
+		err = service.CommonSqlCreate[[]model.NodeShared](*nodeArr)
+		if err != nil {
+			global.Logrus.Error("NewNodeShared", err.Error())
+			response.Fail("NewNodeShared"+err.Error(), nil, ctx)
+			return
+		}
+		response.OK("新增节点成功", nil, ctx)
 	}
-	response.OK("新增节点成功", nil, ctx)
-
 }
 
 // 获取节点列表
 func GetNodeSharedList(ctx *gin.Context) {
-
-	nodeArr, err := service.GetNodeSharedList()
+	nodeArr, err := service.CommonSqlFind[model.NodeShared, string, []model.Node](model.NodeShared{}, "")
 	if err != nil {
 		global.Logrus.Error("GetNodeSharedList", err.Error())
 		response.Fail("GetNodeSharedList"+err.Error(), nil, ctx)
@@ -49,12 +50,11 @@ func DeleteNodeShared(ctx *gin.Context) {
 		response.Fail("DeleteNodeShared"+err.Error(), nil, ctx)
 		return
 	}
-	err = service.DeleteNodeShared(&node)
+	err = service.CommonSqlDelete[model.Node, model.NodeShared](model.Node{}, node)
 	if err != nil {
 		global.Logrus.Error("DeleteNodeShared", err.Error())
 		response.Fail("DeleteNodeShared"+err.Error(), nil, ctx)
 		return
 	}
 	response.OK("删除节点成功", nil, ctx)
-
 }

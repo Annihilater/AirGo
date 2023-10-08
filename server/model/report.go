@@ -12,7 +12,7 @@ type DbInfoReq struct {
 
 // 查询参数 请求
 type FieldParamsReq struct {
-	TableName        string            `json:"table_name" binding:"required,max=20,min=4"`
+	TableName        string            `json:"table_name" binding:"required"`
 	FieldParamsList  []FieldParamsItem `json:"field_params_list"`
 	PaginationParams PaginationParams  `json:"pagination_params"` //分页参数
 }

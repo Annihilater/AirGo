@@ -17,9 +17,9 @@
           <el-table-column prop="discount_rate" label="折扣率" width="60"/>
           <el-table-column prop="limit" label="限制次数" width="100"/>
           <el-table-column prop="expired_at" label="到期时间" width="180">
-          <template #default="{row}">
-            {{DateStrtoTime(row.expired_at)}}
-          </template>
+            <template #default="{row}">
+              {{ DateStrtoTime(row.expired_at) }}
+            </template>
           </el-table-column>
           <el-table-column label="操作" width="150">
             <template #default="scope">
@@ -37,35 +37,36 @@
 <script lang="ts" setup>
 
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
-//引入组件
-const CouponDialog = defineAsyncComponent(()=>import('/@/views/admin/coupon/dialog.vue'))
-const couponDialogRef=ref()
-//api
-import {useCouponApi} from "/@/api/coupon";
 import {DateStrtoTime} from "/@/utils/formatTime";
 import {ElMessage, ElMessageBox} from "element-plus";
-const couponApi =useCouponApi()
-//时间
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
+//引入组件
+const CouponDialog = defineAsyncComponent(() => import('/@/views/admin/coupon/dialog.vue'))
+const couponDialogRef = ref()
 
-
-const state =reactive({
-  isShowDialog:false,
-  couponList:[] as Coupon[],
-  coupon:{} as Coupon,
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+const state = reactive({
+  isShowDialog: false,
+  couponList: [] as Coupon[],
+  coupon: {} as Coupon,
 })
 //
-const getCoupon=()=>{
-  couponApi.getCouponApi().then((res)=>{
-    state.couponList=res.data
+const getCoupon = () => {
+  // couponApi.getCouponApi().then((res)=>{
+  request(apiStoreData.api.value.coupon_getCoupon).then((res) => {
+    state.couponList = res.data
   })
 }
 
 //
-const openDialog=(type:string,data:Coupon)=>{
-  couponDialogRef.value.openDialog(type,data)
+const openDialog = (type: string, data: Coupon) => {
+  couponDialogRef.value.openDialog(type, data)
 }
 //
-const opDeleteCoupon=(row:Coupon)=>{
+const opDeleteCoupon = (row: Coupon) => {
   ElMessageBox.confirm(`此操作将永久删除折扣：${row.name}, 是否继续?`, '提示', {
     confirmButtonText: '删除',
     cancelButtonText: '取消',
@@ -73,7 +74,8 @@ const opDeleteCoupon=(row:Coupon)=>{
   })
       .then(() => {
         //逻辑
-        couponApi.deleteCouponApi(row).then((res)=>{
+        // couponApi.deleteCouponApi(row).then((res)=>{
+        request(apiStoreData.api.value.coupon_deleteCoupon, row).then((res) => {
           ElMessage.success(res.msg);
         })
         setTimeout(() => {
@@ -86,7 +88,7 @@ const opDeleteCoupon=(row:Coupon)=>{
 
 }
 //
-onMounted(()=>{
+onMounted(() => {
   getCoupon()
 
 });
@@ -101,6 +103,7 @@ onMounted(()=>{
     flex-direction: column;
     flex: 1;
     overflow: auto;
+
     .el-table {
       flex: 1;
     }

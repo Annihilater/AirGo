@@ -75,13 +75,7 @@ func TelecomCode(isp *model.ISP) (string, error) {
 
 // 电信登录
 func TelecomLogin(isp *model.ISP) (string, error) {
-	//if isp.TelecomConfig.DeviceUid == "" {
-	//	isp.TelecomConfig.DeviceUid = encrypt_plugin.RandomString2(16)
-	//}
-
 	client := net_plugin.ClientWithDNS("114.114.114.114", 10*time.Second)
-	//timestamp := time.Now().Format("20060102150405")
-
 	var jsonMap = map[string]interface{}{
 		"headerInfos": map[string]interface{}{
 			"code":           "userLoginNormal",

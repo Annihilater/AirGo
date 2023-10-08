@@ -1,9 +1,10 @@
-import {defineStore} from "pinia";
+import {defineStore, storeToRefs} from "pinia";
 import {ElMessage} from "element-plus";
-//api
-import {useNodeApi} from "/@/api/node/index";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
-const nodeApi = useNodeApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
 export const useNodeStore = defineStore("nodeStore", {
     state: () => ({
@@ -81,61 +82,61 @@ export const useNodeStore = defineStore("nodeStore", {
     actions: {
         //获取全部节点
         async getAllNode(params?: object) {
-            const res = await nodeApi.getAllNodeApi()
-            if (res.code === 0) {
-                ElMessage.success(res.msg)
-                this.nodeManageData.nodes.node_list = res.data
-            }
+            // const res = await nodeApi.getAllNodeApi()
+            const res = await request(apiStoreData.api.value.node_getAllNode)
+            ElMessage.success(res.msg)
+            this.nodeManageData.nodes.node_list = res.data
         },
         //获取全部节点 with Traffic,分页
         async getNodeWithTraffic(params?: object) {
-            const res = await nodeApi.getNodeWithTrafficApi(params)
-            if (res.code === 0) {
-                ElMessage.success(res.msg)
-                this.nodeManageData.nodes = res.data
-            }
+            // const res = await nodeApi.getNodeWithTrafficApi(params)
+            const res = await request(apiStoreData.api.value.node_getTraffic, params)
+            ElMessage.success(res.msg)
+            this.nodeManageData.nodes = res.data
         },
         //获取节点 with Traffic(营收概览)
         async getNodeStatistics(params?: object) {
-            const res = await nodeApi.getNodeWithTrafficApi(params)
+            // const res = await nodeApi.getNodeWithTrafficApi(params)
+            const res = await request(apiStoreData.api.value.node_getTraffic, params)
             return res
         },
         //更新节点
         async updateNode(params?: object) {
-            const res = await nodeApi.updateNodeApi(params)
-            if (res.code === 0) {
-                ElMessage.success(res.msg)
-            }
+            // const res = await nodeApi.updateNodeApi(params)
+            const res = await request(apiStoreData.api.value.node_updateNode, params)
+            ElMessage.success(res.msg)
+
         },
         //删除节点
         async deleteNode(params: object) {
-            const res = await nodeApi.deleteNodeApi(params)
-            if (res.code === 0) {
-                ElMessage.success(res.msg)
-            }
+            // const res = await nodeApi.deleteNodeApi(params)
+            const res = await request(apiStoreData.api.value.node_deleteNode, params)
+            ElMessage.success(res.msg)
         },
         //新建节点
         async newNode(params?: object) {
-            const res = await nodeApi.newNodeApi(params)
-            if (res.code === 0) {
-                ElMessage.success("新建节点成功")
-            }
+            // const res = await nodeApi.newNodeApi(params)
+            const res = await request(apiStoreData.api.value.node_newNode, params)
+            ElMessage.success("新建节点成功")
         },
 
         //新建共享节点
         async newNodeShared(data: object) {
-            const res = nodeApi.newNodeSharedApi(data)
+            // const res = nodeApi.newNodeSharedApi(data)
+            const res = await request(apiStoreData.api.value.node_newNodeShared, data)
             return res
         },
         //获取共享节点列表
         async getNodeSharedList() {
-            const res = await nodeApi.getNodeSharedListApi()
+            // const res = await nodeApi.getNodeSharedListApi()
+            const res = await request(apiStoreData.api.value.node_getNodeSharedList)
             this.nodeSharedData.nodeList = res.data
 
         },
         //删除共享节点
         async deleteNodeShared(data: object) {
-            const res = await nodeApi.deleteNodeSharedApi(data)
+            // const res = await nodeApi.deleteNodeSharedApi(data)
+            const res = await request(apiStoreData.api.value.node_deleteNodeShared, data)
             return res
         }
     }

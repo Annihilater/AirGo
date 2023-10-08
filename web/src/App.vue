@@ -8,17 +8,17 @@
 </template>
 
 <script setup lang="ts" name="app">
-import {defineAsyncComponent, computed, ref, onBeforeMount, onMounted, onUnmounted, nextTick, watch} from 'vue';
+import {computed, defineAsyncComponent, nextTick, onBeforeMount, onMounted, onUnmounted, ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import {storeToRefs} from 'pinia';
 import {useTagsViewRoutes} from '/@/stores/tagsViewRoutes';
 import {useThemeConfig} from '/@/stores/themeConfig';
 import other from '/@/utils/other';
-import {Local, Session} from '/@/utils/storage';
+import {Session} from '/@/utils/storage';
 import mittBus from '/@/utils/mitt';
 import setIntroduction from '/@/utils/setIconfont';
-import router from "/@/router";
+import {useServerStore} from "/@/stores/serverStore";
 
 // 引入组件
 
@@ -32,9 +32,7 @@ const route = useRoute();
 const stores = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
-//server store
-import {useServerStore} from "/@/stores/serverStore";
-const serverStore=useServerStore()
+const serverStore = useServerStore()
 
 // 设置锁屏时组件显示隐藏
 const setLockScreen = computed(() => {
@@ -56,7 +54,7 @@ onBeforeMount(() => {
   setIntroduction.jsCdn();
 });
 
-//组件被挂载之前,获取布局配置,公共配置
+//组件被挂载之前,获取布局配置,公共配置,
 onBeforeMount(() => {
   storesThemeConfig.getThemeConfig()
   serverStore.getPublicServerConfig();//获取public config

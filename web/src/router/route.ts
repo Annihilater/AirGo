@@ -46,7 +46,9 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         meta: {
             isKeepAlive: true,
         },
-        children: [],
+        children: [
+
+        ],
     },
 
 ];
@@ -90,5 +92,19 @@ export const staticRoutes: Array<RouteRecordRaw> = [
         meta: {
             title: '登录',
         },
+    },
+    {
+        path: '/public',
+        name: 'public',
+        children:[
+            {
+                path: 'epayReturn',
+                name: 'epayReturn',
+                component: () => import('/@/views/public/order_info.vue'),
+                meta: {
+                    title: '订单详情',
+                },
+            },
+        ],
     },
 ];

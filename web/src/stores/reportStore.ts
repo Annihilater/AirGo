@@ -1,9 +1,9 @@
-import {defineStore} from "pinia";
-//report api
-import {useReportApi} from "/@/api/report";
-import {ElMessage} from "element-plus";
+import {defineStore, storeToRefs} from "pinia";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
-const reportApi = useReportApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 export const useReportStore = defineStore("reportStore", {
     state: () => ({
 
@@ -26,31 +26,35 @@ export const useReportStore = defineStore("reportStore", {
         },
 
         //字段信息
-        fieldData:{
-            field_list:[],
-            field_chinese_name_list:{} as {[key:string]: any;},
-            field_type_list:{} as {[key:string]: any;},
+        fieldData: {
+            field_list: [],
+            field_chinese_name_list: {} as { [key: string]: any; },
+            field_type_list: {} as { [key: string]: any; },
         },
 
     }),
     actions: {
         // 获取数据库的所有数据库名
         async getDB(params?: object) {
-            const res = await reportApi.getDBApi()
+            // const res = await reportApi.getDBApi()
+            const res = await request(apiStoreData.api.value.report_getDB)
             if (res.code === 0) {
                 this.dbInfo = res.data
             }
         },
         // 获取数据库的所有表名，参数：{"database":"xxxx}
         async getTables(params?: object) {
-            const res = await reportApi.getTablesApi(params)
+            // const res = await reportApi.getTablesApi(params)
+            const res = await request(apiStoreData.api.value.report_getTables, params)
 
         },
         // 获取字段名,类型值
         // 参数：{"table_name":"xxx}
         async getColumn(params?: object) {
-            const res = await reportApi.getColumnApi(params)
-            this.fieldData=res.data
+            // const res = await reportApi.getColumnApi(params)
+            console.log(params)
+            const res = await request(apiStoreData.api.value.report_getColumn, params)
+            this.fieldData = res.data
 
 
         },

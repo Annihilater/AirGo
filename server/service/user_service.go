@@ -18,9 +18,7 @@ import (
 
 // 注册,角色对应如下
 // {ID: 1, RoleName: "admin", Description: "超级管理员"},
-// {ID: 2, RoleName: "客服", Description: "客服"},
-// {ID: 3, RoleName: "合作伙伴", Description: "合作伙伴"},
-// {ID: 4, RoleName: "普通用户", Description: "普通用户"},
+// {ID: 2, RoleName: "普通用户", Description: "普通用户"},
 func Register(u *model.User) error {
 	//判断是否存在
 	var user model.User
@@ -33,7 +31,7 @@ func Register(u *model.User) error {
 			UserName:       u.UserName,
 			NickName:       u.UserName,
 			Password:       encrypt_plugin.BcryptEncode(u.Password),
-			RoleGroup:      []model.Role{{ID: 4}}, //默认角色
+			RoleGroup:      []model.Role{{ID: 2}}, //默认角色
 			InvitationCode: encrypt_plugin.RandomString(8),
 			ReferrerCode:   u.ReferrerCode,
 		}
@@ -78,13 +76,13 @@ func NewUserSubscribe(u *model.User) *model.User {
 	var goods = model.Goods{
 		Subject: global.Server.System.DefaultGoods,
 	}
-	g, err := FindGoods(&goods)
+	//查询默认套餐
+	g, err := CommonSqlFind[model.Goods, model.Goods, model.Goods](model.Goods{}, goods)
 	if err != nil {
 		return u
 	}
 	// 处理用户订阅信息
-	return HandleUserSubscribe(u, g)
-
+	return HandleUserSubscribe(u, &g)
 }
 
 // 用户登录
@@ -128,12 +126,6 @@ func FindUserByID(id int64) (*model.User, error) {
 	var u model.User
 	err := global.DB.First(&u, id).Error
 	return &u, err
-}
-
-// 查询用户 by user_name(邮箱)
-func FindUserByEmail(u *model.User) (*model.User, error) {
-	err := global.DB.Where("user_name = ?", u.UserName).First(&u).Error
-	return u, err
 }
 
 // 更新用户订阅信息

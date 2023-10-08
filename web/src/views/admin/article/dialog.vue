@@ -24,16 +24,17 @@
 </template>
 
 <script setup lang="ts">
-//markdown
-
 // 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
 
 import {reactive} from "vue";
-//api
-import {useArticleApi} from "/@/api/article/index"
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
 
-const articleApi = useArticleApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
 //定义参数
 const state = reactive({
   type: "",
@@ -64,12 +65,15 @@ const closeDialog = () => {
 //确认提交
 function onSubmit() {
   if (state.type === 'add') {
-    articleApi.newArticleApi(state.article)
+    // articleApi.newArticleApi(state.article)
+    request(apiStoreData.api.value.article_newArticle, state.article)
+
     setTimeout(() => {
       emit('refresh');
     }, 1000);       //延时。防止没新建完成就重新请求
   } else {
-    articleApi.updaterticleApi(state.article)
+    // articleApi.updaterticleApi(state.article)
+    request(apiStoreData.api.value.article_updateArticle, state.article)
     setTimeout(() => {
       emit('refresh');
     }, 1000);

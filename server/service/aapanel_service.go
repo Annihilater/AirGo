@@ -94,9 +94,9 @@ func GetUserSub(url string, subType string) string {
 	copy(goods.Nodes[1:], goods.Nodes[0:])
 	goods.Nodes[0] = firstSubNode
 	//再插入共享的节点
-	nodeList, err := GetNodeSharedList()
+	nodeList, err := CommonSqlFind[model.NodeShared, string, []model.Node](model.NodeShared{}, "")
 	if err == nil {
-		for _, v := range *nodeList {
+		for _, v := range nodeList {
 			goods.Nodes = append(goods.Nodes, v)
 		}
 	}
@@ -119,9 +119,7 @@ func GetUserSub(url string, subType string) string {
 
 // v2rayNG 订阅
 func V2rayNGSubscribe(nodes *[]model.Node, uuid, host string) string {
-	// 遍历，根据node sort 节点类型 生成订阅
 	var subArr []string
-
 	for _, v := range *nodes {
 		//剔除禁用节点
 		if !v.Enabled {
@@ -321,14 +319,12 @@ func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
 		proxy.H2Opts.Path = v.Path
 		proxy.H2Opts.Host = append(proxy.H2Opts.Host, v.Host)
 	}
-
 	switch v.Security {
 	case "tls":
 		proxy.Tls = true
 		proxy.Servername = v.Sni
 		proxy.ClientFingerprint = v.Fingerprint
 		proxy.Alpn = append(proxy.Alpn, v.Alpn)
-
 	case "reality":
 		proxy.Tls = true
 		proxy.Servername = v.Sni
@@ -336,8 +332,6 @@ func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
 		proxy.RealityOpts.ShortID = v.ShortId
 		proxy.ClientFingerprint = v.Fingerprint
 		proxy.Alpn = append(proxy.Alpn, v.Alpn)
-
 	}
-
 	return proxy
 }

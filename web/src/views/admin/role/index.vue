@@ -59,18 +59,18 @@
 
 <script setup lang="ts" name="systemRole">
 import {defineAsyncComponent, onMounted, reactive, ref} from 'vue';
-import {ElMessageBox, ElMessage} from 'element-plus';
-//导入 role store
+import {ElMessage, ElMessageBox} from 'element-plus';
+
 import {storeToRefs} from 'pinia';
 import {useRoleStore} from "/@/stores/roleStore";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
 const roleStore = useRoleStore()
 const {roleManageData} = storeToRefs(roleStore)
 
-//role api
-import {useRoleApi} from "/@/api/role/index";
-
-const roleApi = useRoleApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
 // 引入组件
 const RoleDialog = defineAsyncComponent(() => import('/@/views/admin/role/dialog_editRole.vue'));
@@ -107,13 +107,11 @@ const onRowDel = (row: RowRoleType) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    roleApi.delRoleApi({id: row.id}).then((res) => {
-      if (res.code != 0) {
-        ElMessage.success('删除失败');
-      } else {
-        //
-        onSearch(state.params)
-      }
+    // roleApi.delRoleApi({id: row.id}).then((res) => {
+    request(apiStoreData.api.value.role_delRole, {id: row.id}).then((res) => {
+      ElMessage.success('删除失败');
+    }).catch(() => {
+      onSearch(state.params)
     })
   })
 };

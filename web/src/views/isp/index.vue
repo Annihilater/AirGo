@@ -1,7 +1,8 @@
 <template>
   <div class="container layout-padding">
     <!--    登录卡片-->
-    <el-card shadow="hover" class="layout-padding-auto" v-if="ispStoreData.isp.value.unicom_config.cookie==='' && ispStoreData.isp.value.telecom_config.telecomToken===''">
+    <el-card shadow="hover" class="layout-padding-auto"
+             v-if="ispStoreData.isp.value.unicom_config.cookie==='' && ispStoreData.isp.value.telecom_config.telecomToken===''">
       <div>
         <el-tabs type="border-card">
           <el-tab-pane label="联通">
@@ -34,8 +35,8 @@
                 <el-input v-model="ispStoreData.isp.value.mobile" placeholder="输入电信手机号"></el-input>
               </el-form-item>
               <el-form-item>
-                  <el-input v-model="ispStoreData.isp.value.telecom_config.telecomPassword"
-                            placeholder="输入登录密码"></el-input>
+                <el-input v-model="ispStoreData.isp.value.telecom_config.telecomPassword"
+                          placeholder="输入登录密码"></el-input>
               </el-form-item>
               <el-form-item>
                 <div style="text-align: center;width: 100%">
@@ -48,7 +49,8 @@
       </div>
     </el-card>
     <!--    监控卡片-->
-    <el-card shadow="hover" class="layout-padding-auto" v-if="ispStoreData.isp.value.unicom_config.cookie !=='' || ispStoreData.isp.value.telecom_config.telecomToken !==''">
+    <el-card shadow="hover" class="layout-padding-auto"
+             v-if="ispStoreData.isp.value.unicom_config.cookie !=='' || ispStoreData.isp.value.telecom_config.telecomToken !==''">
       <div class="card-text">
         <el-tag class="card-text-left" type="warning">运营商</el-tag>
         <span class="card-text-right" v-if="ispStoreData.isp.value.isp_type==='unicom'">联通</span>
@@ -83,6 +85,9 @@ const {copyText} = commonFunction();
 
 const ispStore = useISPStore()
 const ispStoreData = storeToRefs(ispStore)
+import {useApiStore} from "/@/stores/apiStore";
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
 //获取验证码
 const sendCode = (params: Isp, isp_type: string) => {
@@ -103,22 +108,21 @@ const sendCode = (params: Isp, isp_type: string) => {
 }
 
 // 电信loginAuthCipherAsymmertric字段解密感谢 huangqikang511@github 技术指导
-// 登录
 const ispLogin = (params: Isp, isp_type: string) => {
   params.isp_type = isp_type
   switch (params.isp_type) {
     case "unicom":
     case "telecom":
       // 判断是否有deviceUid
-        if (params.telecom_config.deviceUid===''){
-          // console.log("deviceUid为空")
-          params.telecom_config.deviceUid=randomString(16)
-        }
+      if (params.telecom_config.deviceUid === '') {
+        // console.log("deviceUid为空")
+        params.telecom_config.deviceUid = randomString(16)
+      }
       //处理手机号
       params.telecom_config.phoneNum = TelecomMobileHandler(params.mobile)
       //处理loginAuthCipherAsymmertric
       const tm = getFormatDate("yyyyMMddHHmm00")
-      const au = `iPhone 14 15.4.${params.telecom_config.deviceUid.slice(0,12)}${params.mobile}${tm}${params.telecom_config.telecomPassword}0$$$0.`
+      const au = `iPhone 14 15.4.${params.telecom_config.deviceUid.slice(0, 12)}${params.mobile}${tm}${params.telecom_config.telecomPassword}0$$$0.`
       // console.log("au:",au)
       params.telecom_config.loginAuthCipherAsymmertric = TelecomRSAEncrypt(au)
       //时间戳
@@ -126,12 +130,12 @@ const ispLogin = (params: Isp, isp_type: string) => {
 
   }
   // console.log("登录:", params)
-   ispStore.ispLogin(params)
+  ispStore.ispLogin(params)
 }
 //复制url
 const copyUrl = () => {
-  const url = import.meta.env.VITE_API_URL + "isp/queryPackage?id=" + Local.get("token")
-  console.log("url:", url)
+  const url = import.meta.env.VITE_API_URL + apiStoreData.staticApi.value.public_queryPackage.path + "?id=" + Local.get("token")
+  // console.log("url:", url)
   copyText(url)
 }
 //重新登录

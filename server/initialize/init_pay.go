@@ -2,11 +2,11 @@ package initialize
 
 import (
 	"AirGo/global"
-	"AirGo/utils/alipay_plugin"
+	"AirGo/service"
 )
 
 func InitAlipayClient() {
-	client, err := alipay_plugin.InitAlipayClient()
+	client, err := service.InitAlipayClient()
 	if err != nil {
 		global.Logrus.Error("init alipay client error:", err)
 		return

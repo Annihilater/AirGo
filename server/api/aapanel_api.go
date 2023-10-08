@@ -165,7 +165,8 @@ func SSUsersTraffic(ctx *gin.Context) {
 
 	}(node_id, int64(len(userIds)), trafficLog.U, trafficLog.D)
 	//插入流量统计统计
-	err = service.NewTrafficLog(&trafficLog)
+	err = service.CommonSqlCreate[model.TrafficLog](trafficLog)
+
 	if err != nil {
 		global.Logrus.Error("插入流量统计统计error:", err)
 		return

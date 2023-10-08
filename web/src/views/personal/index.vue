@@ -40,45 +40,49 @@
             <div class="personal-edit-safe-item">
               <div class="personal-edit-safe-item-left">
                 <div class="personal-edit-safe-item-left-label">账户密码</div>
-<!--                <div class="personal-edit-safe-item-left-value">当前密码强度：强</div>-->
+                <!--                <div class="personal-edit-safe-item-left-value">当前密码强度：强</div>-->
               </div>
               <div class="personal-edit-safe-item-right">
                 <el-button text type="primary" @click="onOpenPWDialog">立即修改</el-button>
               </div>
             </div>
           </div>
-<!--          <div class="personal-edit-safe-box">-->
-<!--            <div class="personal-edit-safe-item">-->
-<!--              <div class="personal-edit-safe-item-left">-->
-<!--                <div class="personal-edit-safe-item-left-label">邮箱</div>-->
-<!--                <div class="personal-edit-safe-item-left-value">已绑定邮箱：</div>-->
-<!--              </div>-->
-<!--              <div class="personal-edit-safe-item-right">-->
-<!--                <el-button text type="primary">立即修改</el-button>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-          <div class="personal-edit-title">我的邀请（佣金率：{{serverConfig.publicServerConfig.value.rebate_rate*100}}%）</div>
+          <!--          <div class="personal-edit-safe-box">-->
+          <!--            <div class="personal-edit-safe-item">-->
+          <!--              <div class="personal-edit-safe-item-left">-->
+          <!--                <div class="personal-edit-safe-item-left-label">邮箱</div>-->
+          <!--                <div class="personal-edit-safe-item-left-value">已绑定邮箱：</div>-->
+          <!--              </div>-->
+          <!--              <div class="personal-edit-safe-item-right">-->
+          <!--                <el-button text type="primary">立即修改</el-button>-->
+          <!--              </div>-->
+          <!--            </div>-->
+          <!--          </div>-->
+          <div class="personal-edit-title">
+            我的邀请（佣金率：{{ serverConfig.publicServerConfig.value.rebate_rate * 100 }}%）
+          </div>
           <div class="personal-edit-safe-box">
             <div class="personal-edit-safe-item">
               <div class="personal-edit-safe-item-left">
                 <div class="personal-edit-safe-item-left-label">专属邀请链接</div>
-                <div class="personal-edit-safe-item-left-value">{{state.url}}/#/login?i={{userInfos.invitation_code}}</div>
+                <div class="personal-edit-safe-item-left-value">
+                  {{ state.url }}/#/login?i={{ userInfos.invitation_code }}
+                </div>
               </div>
-<!--              <div class="personal-edit-safe-item-right">-->
-<!--                <el-button text type="primary" @click="onOpenPWDialog">复制</el-button>-->
-<!--              </div>-->
+              <!--              <div class="personal-edit-safe-item-right">-->
+              <!--                <el-button text type="primary" @click="onOpenPWDialog">复制</el-button>-->
+              <!--              </div>-->
             </div>
           </div>
           <div class="personal-edit-safe-box">
             <div class="personal-edit-safe-item">
               <div class="personal-edit-safe-item-left">
                 <div class="personal-edit-safe-item-left-label">余额</div>
-                <div class="personal-edit-safe-item-left-value">¥{{userInfos.remain}}</div>
+                <div class="personal-edit-safe-item-left-value">¥{{ userInfos.remain }}</div>
               </div>
-<!--              <div class="personal-edit-safe-item-right">-->
-<!--                <el-button text type="primary" @click="onOpenPWDialog">复制</el-button>-->
-<!--              </div>-->
+              <!--              <div class="personal-edit-safe-item-right">-->
+              <!--                <el-button text type="primary" @click="onOpenPWDialog">复制</el-button>-->
+              <!--              </div>-->
             </div>
           </div>
 
@@ -90,7 +94,7 @@
 </template>
 
 <script setup lang="ts" name="personal">
-import {ref, computed, defineAsyncComponent, reactive, onMounted} from 'vue';
+import {computed, defineAsyncComponent, onMounted, reactive, ref} from 'vue';
 //时间
 import {formatAxis} from '/@/utils/formatTime';
 // 引入image-conversion
@@ -98,19 +102,21 @@ import * as imageConversion from 'image-conversion'
 //user store
 import {useUserStore} from "/@/stores/userStore";
 import {storeToRefs} from 'pinia';
-const userInfo = useUserStore()
-const {userInfos} = storeToRefs(userInfo)
 //server store
 import {useServerStore} from "/@/stores/serverStore";
-const serverStore=useServerStore()
-const serverConfig=storeToRefs(serverStore)
+
+const userInfo = useUserStore()
+const {userInfos} = storeToRefs(userInfo)
+
+const serverStore = useServerStore()
+const serverConfig = storeToRefs(serverStore)
 
 //引入组件
 const ChangePasswordDialog = defineAsyncComponent(() => import('/@/views/personal/change_password_dialog.vue'));
 const changePasswordDialogRef = ref()
 //定义参数
-const state=reactive({
-  url:'',
+const state = reactive({
+  url: '',
 })
 
 //打开修改密码弹窗
@@ -131,8 +137,9 @@ function beforeUpload(file: any) {
     })
   })
 }
+
 //获取当前url
-const getUrl=()=>{
+const getUrl = () => {
   state.url = window.location.host
 }
 
@@ -141,7 +148,7 @@ const currentTime = computed(() => {
   return formatAxis(new Date());
 });
 
-onMounted(()=>{
+onMounted(() => {
   getUrl(); //获取专属邀请url
   // serverStore.getPublicServerConfig();//获取public config
 });

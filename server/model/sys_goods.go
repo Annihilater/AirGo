@@ -26,6 +26,6 @@ type Goods struct {
 
 // 商品和节点 多对多 表
 type GoodsAndNodes struct {
-	GoodsID int64
-	NodeID  int64
+	GoodsID int64 `gorm:"column:goods_id"`
+	NodeID  int64 `gorm:"column:node_id"`
 }

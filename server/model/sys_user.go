@@ -19,12 +19,12 @@ type User struct {
 	DeletedAt *time.Time `json:"-" gorm:"index"`
 
 	ID       int64     `json:"id"           gorm:"primary_key"`
-	UUID     uuid.UUID `json:"uuid"         gorm:"comment:用户UUID"`                                                                        // 用户UUID
-	UserName string    `json:"user_name"    gorm:"comment:用户登录名"`                                                                         // 用户登录名,邮箱
-	Password string    `json:"password"     gorm:"comment:用户登录密码"`                                                                        // 用户登录密码
-	NickName string    `json:"nick_name"    gorm:"default:系统用户;comment:用户昵称"`                                                             // 用户昵称
-	Avatar   string    `json:"avatar"       gorm:"default:https://telegraph-image.pages.dev/file/28f40afe1021a81434bfa.jpg;comment:用户头像"` // 用户头像
-	Phone    string    `json:"phone"        gorm:"comment:用户手机号"`                                                                         // 用户手机号
+	UUID     uuid.UUID `json:"uuid"         gorm:"comment:用户UUID"`                                    // 用户UUID
+	UserName string    `json:"user_name"    gorm:"comment:用户登录名"`                                     // 用户登录名,邮箱
+	Password string    `json:"password"     gorm:"comment:用户登录密码"`                                    // 用户登录密码
+	NickName string    `json:"nick_name"    gorm:"default:系统用户;comment:用户昵称"`                         // 用户昵称
+	Avatar   string    `json:"avatar"       gorm:"default:/src/assets/icon/avatar.jpeg;comment:用户头像"` // 用户头像
+	Phone    string    `json:"phone"        gorm:"comment:用户手机号"`                                     // 用户手机号
 	//Email  string `json:"email"       gorm:"comment:用户邮箱"`                                                                                             // 用户邮箱
 	Enable         bool    `json:"enable"      gorm:"default:true;comment:用户是否被启用 true正常 false冻结"`
 	InvitationCode string  `json:"invitation_code" gorm:"comment:我的邀请码"`
@@ -83,12 +83,6 @@ type UserRegisterEmail struct {
 	UserName string `json:"user_name" binding:"required,email,max=40,min=4"` // 用户名
 }
 
-// 新建用户/修改用户请求
-type NewUser struct {
-	User     User     `json:"user"      binding:"required"`
-	RoleList []string `json:"check_list" binding:"required"` //选中的角色
-}
-
 // 修改密码 请求
 type UserChangePassword struct {
 	Password   string `json:"password" binding:"required,max=20,min=4"`                     // 密码
@@ -111,46 +105,4 @@ type SSUsers struct {
 	NodeSpeedLimit int64  `json:"node_speedlimit"`
 	NodeConnector  int64  `json:"node_connector"`
 	// IsMultiUser    int64    `json:"is_multi_user"` //用不到
-}
-
-type UserHeader struct {
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	ID        string `json:"id"`
-	UUID      string `json:"uuid"`
-	UserName  string `json:"user_name"`
-	Password  string `json:"password"`
-	Enable    string `json:"enable"`
-
-	Host           string `json:"subscribe_info.host"`
-	SubStatus      string `json:"subscribe_info.sub_status"`
-	SubscribeUrl   string `json:"subscribe_info.subscribe_url"`
-	GoodsID        string `json:"subscribe_info.goods_id"`
-	ExpiredAt      string `json:"subscribe_info.expired_at"`
-	T              string `json:"subscribe_info.t"`
-	U              string `json:"subscribe_info.u"`
-	D              string `json:"subscribe_info.d"`
-	NodeSpeedLimit string `json:"subscribe_info.node_speed_limit"`
-	NodeConnector  string `json:"subscribe_info.node_connector"`
-}
-
-var UserHeaderItem = UserHeader{
-	CreatedAt: "创建日期",
-	UpdatedAt: "更新日期",
-	ID:        "id",
-	UUID:      "uuid",
-	UserName:  "用户名",
-	Password:  "密码",
-	Enable:    "是否启用",
-
-	Host:           "用户混淆",
-	SubStatus:      "订阅是否有效",
-	SubscribeUrl:   "订阅链接",
-	GoodsID:        "商品ID",
-	ExpiredAt:      "过期时间",
-	T:              "总流量",
-	U:              "上行流量",
-	D:              "下行流量",
-	NodeSpeedLimit: "限速Mbps",
-	NodeConnector:  "连接客户端数",
 }

@@ -10,7 +10,8 @@ declare interface Order {
     goods_id: number;
     subject: string;
     price: string;
-    pay_type: string;
+    pay_id: number; //支付方式id
+    pay_type: string; //支付方式，alipay,epay
     coupon: number;
     coupon_name: string;
     coupon_amount: string;

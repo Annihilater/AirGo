@@ -14,9 +14,9 @@
         <el-input v-model="dialogData.nodeInfo.remarks"/>
       </el-form-item>
 
-<!--      <el-form-item label="uuid">-->
-<!--        <el-input v-model="dialogData.nodeInfo.uuid"/>-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="uuid">-->
+      <!--        <el-input v-model="dialogData.nodeInfo.uuid"/>-->
+      <!--      </el-form-item>-->
       <el-form-item label="address">
         <el-input v-model="dialogData.nodeInfo.address"/>
       </el-form-item>

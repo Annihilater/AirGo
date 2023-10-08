@@ -1,15 +1,16 @@
 package service
 
 import (
-	"AirGo/global"
 	"AirGo/model"
 	"AirGo/utils/encrypt_plugin"
+	"AirGo/utils/net_plugin"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // vmess 例子 {"add":"AirGo","aid":"0","alpn":"h2,http/1.1","fp":"qq","host":"www.baidu.com","id":"e0d5fe65-a5d1-4b8a-8d40-ed92a6a35d8b","net":"ws","path":"/path","port":"6666","ps":"到期时间:2024-03-06  |  剩余流量:20.00GB","scy":"auto","sni":"www.baidu.com","tls":"tls","type":"","v":"2"}
@@ -241,51 +242,36 @@ func ParseTrojanLink(link string) *model.NodeShared {
 	return node
 }
 
-// 新增节点
-func NewNodeShared(n *[]model.NodeShared) error {
-	return global.DB.Create(&n).Error
-}
-
-// 获取节点列表
-func GetNodeSharedList() (*[]model.Node, error) {
-	var list []model.Node
-	err := global.DB.Model(&model.NodeShared{}).Find(&list).Error
-	return &list, err
-
-}
-
-// 删除节点
-func DeleteNodeShared(n *model.NodeShared) error {
-	return global.DB.Delete(&n, n.ID).Error
-
-}
-
-func ParseUrl(url string) *[]model.NodeShared {
+func ParseUrl(urlStr string) *[]model.NodeShared {
 	//去掉前后空格
-	url = strings.Trim(url, " \n")
-
-	var data string
-	if strings.HasPrefix(url, "v") || strings.HasPrefix(url, "t") {
-		data = url
-	} else {
-		data = SubBase64Decode(url)
+	urlStr = strings.TrimSpace(urlStr)
+	//订阅url
+	if !strings.HasPrefix(urlStr, "vmess") && !strings.HasPrefix(urlStr, "vless") && !strings.HasPrefix(urlStr, "trojan") {
+		if _, err := url.ParseRequestURI(urlStr); err == nil {
+			rsp, err := net_plugin.ClientWithDNS("223.6.6.6", 5*time.Second).Get(urlStr)
+			if err != nil {
+				return nil
+			}
+			defer rsp.Body.Close()
+			subLink := net_plugin.ReadDate(rsp)
+			if len(subLink) == 0 {
+				return nil
+			}
+			urlStr = subLink
+		}
 	}
-
-	//s := strings.ReplaceAll(data, "\r\n", "\n")
-	//s = strings.ReplaceAll(s, "\r", "\n")
-
-	s := strings.ReplaceAll(data, "\r\n", "")
+	// base64编码
+	if urlStrBase64Decode, err := SubBase64Decode(urlStr); err == nil {
+		urlStr = urlStrBase64Decode
+	}
+	s := strings.ReplaceAll(urlStr, "\r\n", "")
 	s = strings.ReplaceAll(s, "\r", "")
 	s = strings.ReplaceAll(s, "\n", "")
 	s = strings.ReplaceAll(s, "\t", "")
 	s = strings.ReplaceAll(s, "vless", "\nvless")
 	s = strings.ReplaceAll(s, "vmess", "\nvmess")
 	s = strings.ReplaceAll(s, "trojan", "\ntrojan")
-
-	//fmt.Println("s:", s)
 	list := strings.Split(strings.TrimRight(s, "\n"), "\n")
-	//fmt.Println("list:", list)
-
 	var Nodes []model.NodeShared
 	for _, v := range list {
 		data := ParseLink(v)
@@ -322,7 +308,7 @@ func ParseLink(link string) *model.NodeShared {
 }
 
 // 对节点base64格式进行解析
-func SubBase64Decode(str string) string {
+func SubBase64Decode(str string) (string, error) {
 	i := len(str) % 4
 	switch i {
 	case 1:
@@ -340,10 +326,9 @@ func SubBase64Decode(str string) string {
 
 	} else {
 		data, err = base64.StdEncoding.DecodeString(str)
-		//data, err = base64.RawURLEncoding.DecodeString(str)
 	}
 	if err != nil {
 		fmt.Println(err)
 	}
-	return string(data)
+	return string(data), err
 }

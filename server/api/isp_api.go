@@ -10,7 +10,6 @@ import (
 	"AirGo/utils/other_plugin"
 	"AirGo/utils/response"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -219,7 +218,6 @@ func QueryPackage(ctx *gin.Context) {
 	case "unicom":
 		resp, err = isp_plugin.UnicomQueryTraffic(isp)
 	case "telecom":
-		fmt.Println("telecom")
 		resp, err = isp_plugin.TelecomQueryPackage(isp)
 	}
 

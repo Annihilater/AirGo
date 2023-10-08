@@ -88,11 +88,14 @@ func BcryptDecode(password, hash string) error {
 }
 
 // md5 encode
-func Md5Encode(str string) string {
+func Md5Encode(str string, isUpper bool) string {
 	hash := md5.New()
 	hash.Write([]byte(str))
 	res := hex.EncodeToString(hash.Sum(nil))
 	//转大写，strings.ToUpper(res)
+	if isUpper {
+		res = strings.ToUpper(res)
+	}
 	return res
 }
 

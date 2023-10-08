@@ -30,13 +30,17 @@
 <script lang="ts" setup>
 import {nextTick, reactive} from "vue";
 import Sortable from "sortablejs";
-//api
-import {useShopApi} from "/@/api/shop/index";
+
 import {ElMessage} from "element-plus";
 import {useShopStore} from "/@/stores/shopStore";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
 
 const shopStore = useShopStore()
-const shopApi = useShopApi()
+
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
 //定义参数
 const state = reactive({
@@ -48,11 +52,10 @@ const state = reactive({
 // 打开弹窗
 const openDialog = () => {
   state.isShowDialog = true
-  shopApi.getAllGoodsApi().then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      state.list = res.data
-    }
+  // shopApi.getAllGoodsApi().then((res) => {
+  request(apiStoreData.api.value.shop_getAllGoods).then((res) => {
+    ElMessage.success(res.msg)
+    state.list = res.data
   })
   nextTick(() => {
     initSortable("sort")
@@ -72,7 +75,8 @@ const nodeSortHandler = (data: Array<any>) => {
 //确认提交
 const onSubmit = () => {
   state.isShowDialog = false
-  shopApi.goodsSortApi(nodeSortHandler(state.list)).then((res) => {
+  // shopApi.goodsSortApi(nodeSortHandler(state.list)).then((res) => {
+  request(apiStoreData.api.value.shop_goodsSort, nodeSortHandler(state.list)).then((res) => {
     if (res.code === 0) {
       ElMessage.success(res.msg)
       shopStore.getAllGoods() //获取全部商品

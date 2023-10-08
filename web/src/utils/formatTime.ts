@@ -16,17 +16,13 @@ export function DateStrtoTime(strTime: string) {
 //得到标准时区的时间的函数，参数i为时区值数字，比如北京为东八区则输进8,西5输入-5
 export function GetLocalTime(i:number) {
     if (typeof i !== 'number') return;
-
     var d = new Date();
     //得到1970年一月一日到现在的秒数
     var len = d.getTime();
-
     //本地时间与GMT时间的时间偏移差(注意：GMT这是UTC的民间名称。GMT=UTC）
     var offset = d.getTimezoneOffset() * 60000;
-
     //得到现在的格林尼治时间
     var utcTime = len + offset;
-
     return new Date(utcTime + 3600000 * i);
 }
 

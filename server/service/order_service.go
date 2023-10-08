@@ -6,41 +6,14 @@ import (
 	"time"
 )
 
-func CreateOrder(order *model.Orders) (*model.Orders, error) {
-	err := global.DB.Create(&order).Error
-	return order, err
-}
-
 // 更新数据库订单
 func UpdateOrder(order *model.Orders) error {
 	err := global.DB.Save(&order).Error
 	return err
 }
 
-// 更新数据库订单 for epay
-func UpdateOrderForEpay(epayOrder *model.EpayResponse, uIDInt int64) error {
-	//查询原始订单
-	var order = model.Orders{
-		UserID:     uIDInt,
-		OutTradeNo: epayOrder.OutTradeNo,
-	}
-	sysOrder, _ := GetOrderByOrderID(&order)
-
-	//sysOrder.PayType = "epay"
-	sysOrder.TradeNo = epayOrder.TradeNo
-	//sysOrder.OutTradeNo = epayOrder.OutTradeNo
-	//sysOrder.Subject = epayOrder.Name
-	//sysOrder.Price = epayOrder.Money
-	//sysOrder.TotalAmount = epayOrder.Money    //订单金额
-	//sysOrder.ReceiptAmount = epayOrder.Money  //实收金额
-	//sysOrder.BuyerPayAmount = epayOrder.Money //付款金额
-	sysOrder.TradeStatus = epayOrder.TradeStatus
-	return UpdateOrder(sysOrder)
-
-}
-
 // 获取全部订单,分页获取
-func GetAllOrder(orderParams *model.QueryParamsWithDate) (*model.OrdersWithTotal, error) {
+func GetAllOrder(orderParams *model.PaginationParams) (*model.OrdersWithTotal, error) {
 	var startTime, endTime time.Time
 	//时间格式转换
 	if len(orderParams.Date) == 2 {
@@ -63,7 +36,7 @@ func GetAllOrder(orderParams *model.QueryParamsWithDate) (*model.OrdersWithTotal
 }
 
 // 获取订单统计
-func GetMonthOrderStatistics(orderParams *model.QueryParamsWithDate) (*model.OrderStatistics, error) {
+func GetMonthOrderStatistics(orderParams *model.PaginationParams) (*model.OrderStatistics, error) {
 	var startTime, endTime time.Time
 	//时间格式转换
 	if len(orderParams.Date) == 2 {
@@ -81,35 +54,4 @@ func GetMonthOrderStatistics(orderParams *model.QueryParamsWithDate) (*model.Ord
 		return &model.OrderStatistics{}, err
 	}
 	return &orderStatistic, err
-}
-
-// 获取用户订单by user id,限制条数
-func GetOrderByUserID(userID int64, orderParams *model.PaginationParams) (*[]model.Orders, error) {
-	var orderArr []model.Orders
-	if orderParams.PageSize < 0 { //<0则获取全部
-		return &orderArr, global.DB.Where("user_id = ?", userID).Order("id desc").Find(&orderArr).Error
-	} else {
-		return &orderArr, global.DB.Where("user_id = ?", userID).Limit(int(orderParams.PageSize)).Order("id desc").Find(&orderArr).Error
-	}
-}
-
-// 获取用户订单，最新一条
-func GetOrderByUserIDLast(userID int64) (*model.Orders, error) {
-	var order model.Orders
-	err := global.DB.Where("user_id = ?", userID).Last(&order).Error
-	return &order, err
-}
-
-// 获取订单by order id
-func GetOrderByOrderID(order *model.Orders) (*model.Orders, error) {
-	var queryOrder model.Orders
-	err := global.DB.Where(&model.Orders{OutTradeNo: order.OutTradeNo, UserID: order.UserID}).First(&queryOrder).Error
-	return &queryOrder, err
-}
-
-// 获取用户订单by coupon id
-func GetOrderByCouponID(userID, couponID int64) ([]model.Orders, error) {
-	var orderArr []model.Orders
-	err := global.DB.Where(&model.Orders{UserID: userID, Coupon: couponID}).Find(&orderArr).Error
-	return orderArr, err
 }

@@ -12,7 +12,7 @@ type Server struct {
 	JWT             JWT             `json:"jwt"      gorm:"embedded"`
 	System          System          `json:"system"   gorm:"embedded"`
 	Captcha         Captcha         `json:"captcha"  gorm:"embedded"` //验证码
-	Pay             Pay             `json:"pay"      gorm:"embedded"` // 支付相关配置
+	Pay             AliPaySetting   `json:"pay"      gorm:"embedded"` // 支付相关配置
 	Email           Email           `json:"email"    gorm:"embedded"`
 	RateLimitParams RateLimitParams `json:"rate_limit_params"  gorm:"embedded"`
 	//Mysql   Mysql   `json:"mysql"    gorm:"embedded"` // gorm
@@ -38,27 +38,30 @@ type Captcha struct {
 }
 type JWT struct {
 	SigningKey  string `json:"signing_key"  gorm:"default:AirGo"` // jwt签名
-	ExpiresTime string `json:"expires_time" gorm:"default:7d"`    // 过期时间
+	ExpiresTime string `json:"expires_time" gorm:"default:30d"`   // 过期时间
 	BufferTime  string `json:"buffer_time"  gorm:"default:1d"`    // 缓冲时间
 	Issuer      string `json:"issuer"       gorm:"default:AirGo"` // 签发者
 }
 type System struct {
-	EnableRegister       bool    `json:"enable_register"         gorm:"default:true"`           // 是否开启注册
-	EnableEmailCode      bool    `json:"enable_email_code"       gorm:"default:false"`          // 是否开启注册email 验证码
-	EnableLoginEmailCode bool    `json:"enable_login_email_code" gorm:"default:false"`          // 是否开启登录email 验证码
-	IsMultipoint         bool    `json:"is_multipoint"     gorm:"default:true"`                 // 是否多点登录
-	SubName              string  `json:"sub_name"          gorm:"default:AirGo"`                // 订阅名称
-	SubUrlRre            string  `json:"sub_url_pre"`                                           // 订阅前缀
-	MuKey                string  `json:"muKey"             gorm:"comment:前后端通信密钥"`              // 前后端通信密钥
-	DefaultGoods         string  `json:"default_goods"     gorm:"comment:新用户默认套餐"`              //
-	EnabledRebate        bool    `json:"enabled_rebate"    gorm:"default:false;comment:是否开启返利"` //
-	RebateRate           float64 `json:"rebate_rate"       gorm:"default:0.1;comment:返利率"`
-	EnabledDeduction     bool    `json:"enabled_deduction" gorm:"default:false;comment:是否开启旧套餐抵扣"`       //
-	DeductionThreshold   float64 `json:"deduction_threshold" gorm:"default:0.8;comment:旧套餐抵扣阈值,大于该值则抵扣"` //
+	EnableRegister       bool `json:"enable_register"         gorm:"default:true;comment:是否开启注册"`
+	EnableEmailCode      bool `json:"enable_email_code"       gorm:"default:false;comment:是否开启注册email 验证码"`
+	EnableLoginEmailCode bool `json:"enable_login_email_code" gorm:"default:false;comment:是否开启登录email 验证码"`
+
+	IsMultipoint bool   `json:"is_multipoint"     gorm:"default:true;comment:是否多点登录"`
+	BackendUrl   string `json:"backend_url"       gorm:"comment:后端地址"`
+	ApiPrefix    string `json:"api_prefix"        gorm:"default:/api;comment:api前缀"`
+
+	SubName            string  `json:"sub_name"          gorm:"default:AirGo;comment:订阅名称"`
+	MuKey              string  `json:"muKey"             gorm:"comment:前后端通信密钥"`
+	DefaultGoods       string  `json:"default_goods"     gorm:"comment:新用户默认套餐"`
+	EnabledRebate      bool    `json:"enabled_rebate"    gorm:"default:false;comment:是否开启返利"`
+	RebateRate         float64 `json:"rebate_rate"       gorm:"default:0.1;comment:返利率"`
+	EnabledDeduction   bool    `json:"enabled_deduction" gorm:"default:false;comment:是否开启旧套餐抵扣"`
+	DeductionThreshold float64 `json:"deduction_threshold" gorm:"default:0.8;comment:旧套餐抵扣阈值,大于该值则抵扣"`
 }
 
-// Pay 支付相关配置
-type Pay struct {
+// AliPaySetting 支付相关配置
+type AliPaySetting struct {
 	ReturnURL    string `json:"return_url"`
 	AppID        string `json:"app_id"`
 	PrivateKey   string `json:"private_key"    gorm:"size:3000"`
@@ -78,6 +81,6 @@ type PublicSystem struct {
 	EnableEmailCode      bool    `json:"enable_email_code"`       // 是否开启注册email 验证码
 	EnableLoginEmailCode bool    `json:"enable_login_email_code"` // 是否开启登录email 验证码
 	RebateRate           float64 `json:"rebate_rate"`             // 佣金率
-	SubUrlRre            string  `json:"sub_url_pre"`             // 订阅前缀
+	BackendUrl           string  `json:"backend_url"`             // 后端地址
 
 }

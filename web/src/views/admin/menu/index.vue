@@ -52,9 +52,9 @@
 </template>
 
 <script setup lang="ts" name="systemMenu">
-import {defineAsyncComponent, ref, onMounted, reactive} from 'vue';
+import {defineAsyncComponent, onMounted, reactive, ref} from 'vue';
 import {RouteRecordRaw} from 'vue-router';
-import {ElMessageBox, ElMessage} from 'element-plus';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import {storeToRefs} from 'pinia';
 import {useRoutesStore} from '/@/stores/routesStore';
 

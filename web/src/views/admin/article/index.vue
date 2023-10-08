@@ -51,17 +51,17 @@
 
 <script lang="ts" setup>
 
-//api
-import {useArticleApi} from "/@/api/article/index"
-
-const articleApi = useArticleApi()
 import {ElMessage, ElMessageBox} from "element-plus";
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
-//导入组件
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
+
 const ArticleDialog = defineAsyncComponent(() => import('/@/views/admin/article/dialog.vue'))
 const articleDialogRef = ref()
 
-//
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
 //定义变量
 const state = reactive({
@@ -85,7 +85,8 @@ function deleteArticle(row: any) {
   })
       .then(() => {
         //逻辑
-        articleApi.deleteArticleApi(row)
+        // articleApi.deleteArticleApi(row)
+        request(apiStoreData.api.value.article_deleteArticle, row)
         setTimeout(() => {
           //逻辑
           getArticleList(state.params)
@@ -103,10 +104,9 @@ const onOpenDialog = (type: string, row?: any) => {
 };
 //获取article列表
 const getArticleList = (params: object) => {
-  articleApi.getArticleApi(params).then((res) => {
-    if (res.code === 0) {
-      state.articleDate = res.data
-    }
+  // articleApi.getArticleApi(params).then((res) => {
+  request(apiStoreData.api.value.article_getArticle, params).then((res) => {
+    state.articleDate = res.data
   })
 }
 

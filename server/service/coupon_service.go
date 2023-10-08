@@ -5,23 +5,9 @@ import (
 	"AirGo/model"
 	"errors"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
-
-func NewCoupon(coupon model.Coupon) error {
-	return global.DB.Debug().Create(&coupon).Error
-}
-func DeleteCoupon(coupon model.Coupon) error {
-	return global.DB.Delete(&coupon).Error
-}
-func UpdateCoupon(coupon model.Coupon) error {
-	return global.DB.Save(&coupon).Error
-}
-func GetCoupon() (*[]model.Coupon, error) {
-	var couponArr []model.Coupon
-	err := global.DB.Order("id desc").Find(&couponArr).Error
-	return &couponArr, err
-}
 
 func VerifyCoupon(coupon string, userId int64) (model.Coupon, error) {
 	var c model.Coupon
@@ -37,7 +23,7 @@ func VerifyCoupon(coupon string, userId int64) (model.Coupon, error) {
 		return model.Coupon{}, errors.New("优惠码已过期")
 	}
 	//判断使用次数
-	orderArr, err := GetOrderByCouponID(userId, c.ID)
+	orderArr, err := CommonSqlFind[model.Orders, string, []model.Orders](model.Orders{}, "user_id = "+strconv.FormatInt(userId, 10)+" AND coupon_id = "+strconv.FormatInt(c.ID, 10))
 	if err != nil {
 		return model.Coupon{}, errors.New("优惠码错误")
 	}

@@ -1,18 +1,16 @@
 import {RouteRecordRaw} from 'vue-router';
 //import { storeToRefs } from 'pinia';
 import pinia from '/@/stores/index';
-//import { useUserInfo } from '/@/stores/userInfo';
-//import { useRequestOldRoutes } from '/@/stores/requestOldRoutes';
 import {Session, Local} from '/@/utils/storage';
 import {NextLoading} from '/@/utils/loading';
 import {dynamicRoutes, notFoundAndNoPower} from '/@/router/route';
 import {formatTwoStageRoutes, formatFlatteningRoutes, router} from '/@/router/index';
 import {useRoutesStore} from '/@/stores/routesStore';
 import {useTagsViewRoutes} from '/@/stores/tagsViewRoutes';
-// 引入 api 请求接口
-import {useMenuApi} from '/@/api/menu/index';
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
 
-const menuApi = useMenuApi()
 
 /**
  * 获取目录下的 .vue、.tsx 全部文件
@@ -93,7 +91,6 @@ export async function setAddRoute() {    //5
     await setFilterRouteEnd().forEach((route: RouteRecordRaw) => {
         router.addRoute(route);
     });
-    // console.log("添加动态路由",router.getRoutes());
 }
 
 /**
@@ -102,8 +99,11 @@ export async function setAddRoute() {    //5
  * @returns 返回后端路由菜单数据
  */
 export async function getBackEndControlRoutes() {
-    console.log("返回后端路由菜单数据")
-    return menuApi.getRouteListApi();
+    // console.log("返回后端路由菜单数据")
+    // return menuApi.getRouteListApi();
+    const apiStore = useApiStore()
+    const apiStoreData = storeToRefs(apiStore)
+    return request(apiStoreData.api.value.menu_getRouteList)
 
 }
 

@@ -45,26 +45,32 @@
 </template>
 <!--<script setup lang="ts" name="personal">-->
 <script setup lang="ts">
-import {reactive, computed, onMounted, onUnmounted} from "vue";
+import {onMounted, onUnmounted} from "vue";
+import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 
-//node store
+
 import {useNodeStore} from "/@/stores/node";
-import {Session, Local} from "/@/utils/storage";
+import {Local} from "/@/utils/storage";
 
 const nodeStore = useNodeStore()
 const {serverStatusData} = storeToRefs(nodeStore)
 const token = Local.get('token')
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
 
 function getWsUrl(): string {
+
+
   const apiUrl: string = import.meta.env.VITE_API_URL
   const url = apiUrl.slice(apiUrl.indexOf('//') + 2, apiUrl.length)
   const pre_url = apiUrl.slice(0, apiUrl.indexOf('//') + 2)
   //console.log(`pre_url:${pre_url} url:${url}`)
   if (pre_url === 'https://') {
-    return "wss://" + url + 'websocket/msg'
+    return "wss://" + url  + apiStoreData.api.value.websocket_msg.path
   } else {
-    return "ws://" + url + 'websocket/msg'
+    return "ws://" + url  + apiStoreData.api.value.websocket_msg.path
   }
 }
 

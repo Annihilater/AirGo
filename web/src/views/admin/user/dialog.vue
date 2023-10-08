@@ -37,11 +37,11 @@
             </el-form-item>
           </el-col>
 
-<!--          <el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">-->
-<!--            <el-form-item label="订阅url">-->
-<!--              <el-input v-model="userManageData.dialog.user.subscribe_info.subscribe_url"></el-input>-->
-<!--            </el-form-item>-->
-<!--          </el-col>-->
+          <!--          <el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">-->
+          <!--            <el-form-item label="订阅url">-->
+          <!--              <el-input v-model="userManageData.dialog.user.subscribe_info.subscribe_url"></el-input>-->
+          <!--            </el-form-item>-->
+          <!--          </el-col>-->
 
           <el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
             <el-form-item label="分配套餐">
@@ -123,7 +123,6 @@
           </el-col>
 
 
-
         </el-row>
       </el-form>
       <template #footer>
@@ -137,8 +136,15 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive} from 'vue';
-import {ElMessage} from "element-plus";
+import {reactive, ref} from 'vue';
+//user store
+import {useUserStore} from '/@/stores/userStore'
+import {storeToRefs} from 'pinia';
+//role store
+import {useRoleStore} from '/@/stores/roleStore'
+//shop store
+import {useShopStore} from "/@/stores/shopStore";
+import {GetLocalTime} from "/@/utils/formatTime";
 
 const state = reactive({
   isShowDialog: false,
@@ -156,21 +162,13 @@ const state = reactive({
     d: 0,
   }
 })
-//user store
-import {useUserStore} from '/@/stores/userStore'
 
 const userStore = useUserStore()
-import {storeToRefs} from 'pinia';
 
-const {userManageData,userInfos} = storeToRefs(userStore)
-//role store
-import {useRoleStore} from '/@/stores/roleStore'
+const {userManageData, userInfos} = storeToRefs(userStore)
 
 const roleStore = useRoleStore()
 const {roleManageData} = storeToRefs(roleStore)
-//shop store
-import {useShopStore} from "/@/stores/shopStore";
-import {formatDate, GetLocalTime} from "/@/utils/formatTime";
 
 const shopStore = useShopStore()
 const {goodsList} = storeToRefs(shopStore)
@@ -213,10 +211,10 @@ const closeDialog = () => {
 // 提交
 const onSubmit = () => {
   //处理角色
-  userManageData.value.dialog.user.role_group=[];
-  userManageData.value.dialog.check_list.forEach((value: string, index: number, array: string[])=>{
+  userManageData.value.dialog.user.role_group = [];
+  userManageData.value.dialog.check_list.forEach((value: string, index: number, array: string[]) => {
     userManageData.value.dialog.user.role_group.push({
-      role_name:value,
+      role_name: value,
     } as RowRoleType)
   })
   //处理流量

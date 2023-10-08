@@ -17,13 +17,18 @@ func GetArticle(ctx *gin.Context) {
 		response.Fail("获取文章参数错误", nil, ctx)
 		return
 	}
-	Articles, err := service.GetArticle(params)
+	res, err := service.CommonSqlFindWithPagination[model.Article, string, []model.Article](model.Article{}, "title LIKE '%"+params.Search+"%'", params)
 	if err != nil {
 		global.Logrus.Error("获取文章错误:", err)
 		response.Fail("获取文章错误", nil, ctx)
 		return
 	}
-	response.OK("获取文章成功", Articles, ctx)
+	var total = model.ArticleWithTotal{
+		Total:       int64(len(res)),
+		ArticleList: res,
+	}
+
+	response.OK("获取文章成功", total, ctx)
 }
 
 // 新建文章
@@ -35,7 +40,8 @@ func NewArticle(ctx *gin.Context) {
 		response.Fail("新建文章参数错误", nil, ctx)
 		return
 	}
-	err = service.NewArticle(&article)
+	err = service.CommonSqlCreate[model.Article](article)
+
 	if err != nil {
 		global.Logrus.Error("新建文章错误:", err)
 		response.Fail("新建文章错误", nil, ctx)
@@ -46,14 +52,14 @@ func NewArticle(ctx *gin.Context) {
 
 // 删除文章
 func DeleteArticle(ctx *gin.Context) {
-	var Article model.Article
-	err := ctx.ShouldBind(&Article)
+	var article model.Article
+	err := ctx.ShouldBind(&article)
 	if err != nil {
 		global.Logrus.Error("删除文章参数错误:", err)
 		response.Fail("删除文章参数错误", nil, ctx)
 		return
 	}
-	err = service.DeleteArticle(&Article)
+	err = service.CommonSqlDelete[model.Article, model.Article](model.Article{}, article)
 	if err != nil {
 		global.Logrus.Error("删除文章错误:", err)
 		response.Fail("删除文章错误", nil, ctx)
@@ -64,14 +70,14 @@ func DeleteArticle(ctx *gin.Context) {
 
 // 更新文章
 func UpdateArticle(ctx *gin.Context) {
-	var Article model.Article
-	err := ctx.ShouldBind(&Article)
+	var article model.Article
+	err := ctx.ShouldBind(&article)
 	if err != nil {
 		global.Logrus.Error("更新文章参数错误:", err)
 		response.Fail("更新文章参数错误", nil, ctx)
 		return
 	}
-	err = service.UpdateArticle(&Article)
+	err = service.CommonSqlSave[model.Article](article)
 	if err != nil {
 		global.Logrus.Error("更新文章错误:", err)
 		response.Fail("更新文章错误", nil, ctx)

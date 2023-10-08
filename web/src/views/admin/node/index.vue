@@ -1,7 +1,7 @@
 <template>
   <div class="container layout-padding">
     <el-card shadow="hover" class="layout-padding-auto">
-      <el-row gutter="10" style="width: 768px">
+      <el-row :gutter="10" style="width: 768px">
         <el-col :span="4">
           <el-input v-model="state.params.search" size="default" placeholder="请输入名称"
                     style="max-width: 180px"></el-input>
@@ -37,16 +37,16 @@
         </el-col>
         <el-col :span="3">
           <el-button size="default" type="warning" class="ml10" @click="onOpenNodeSortDialog">
-              <el-icon>
-                <DCaret/>
-              </el-icon>
+            <el-icon>
+              <DCaret/>
+            </el-icon>
             排序
           </el-button>
         </el-col>
         <el-col :span="2">
           <el-button size="default" type="primary" class="ml10" @click="onOpenNodeSharedDialog">
             <el-icon>
-             <Share />
+              <Share/>
             </el-icon>
             共享节点管理
           </el-button>
@@ -121,23 +121,20 @@
 <script setup lang="ts" name="NodeManage">
 
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
-
 import {storeToRefs} from "pinia";
-//导入弹出层
+import {useNodeStore} from "/@/stores/node";
+import {useUserStore} from "/@/stores/userStore";
+import {ElMessageBox} from "element-plus";
+
 const NodeDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog.vue'))
 const NodeSortDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_node_sort.vue'))
 const NodeSharedDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_node_shared.vue'))
 const nodeDialogRef = ref()
 const nodeSortDialogRef = ref()
 const nodeSharedDialogRef = ref()
-//node store
-import {useNodeStore} from "/@/stores/node";
 
 const nodeStore = useNodeStore()
 const {nodeManageData} = storeToRefs(nodeStore)
-//user store
-import {useUserStore} from "/@/stores/userStore";
-import {ElMessage, ElMessageBox} from "element-plus";
 
 const userStore = useUserStore()
 const {userInfos} = storeToRefs(userStore)
@@ -191,6 +188,7 @@ function onOpenEditNode(type: string, row?: Object) {
 function onOpenNodeSortDialog() {
   nodeSortDialogRef.value.openDialog()
 }
+
 //打开共享节点弹窗
 function onOpenNodeSharedDialog() {
   nodeSharedDialogRef.value.openDialog()

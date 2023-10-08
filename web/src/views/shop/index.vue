@@ -42,17 +42,16 @@
 </template>
 
 <script setup lang="ts">
-import {defineAsyncComponent, onMounted, reactive, ref} from 'vue';
-//导入store
+import {defineAsyncComponent, onMounted, ref} from 'vue';
 import {storeToRefs} from 'pinia';
 import {useShopStore} from "/@/stores/shopStore";
 
 const shopStore = useShopStore()
 const {goodsList, shopData} = storeToRefs(shopStore)
 //引入弹窗组件
-const SubmitOrderDialog = defineAsyncComponent(() => import('/@/views/shop/submit_order_dialog.vue'))
-const PurchaseDialog = defineAsyncComponent(() => import('/@/views/shop/purchase_dialog.vue'))
-const QRDialog = defineAsyncComponent(() => import('/@/views/shop/QR_dialog.vue'))
+const SubmitOrderDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_submit_order.vue'))
+const PurchaseDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_purchase.vue'))
+const QRDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_QR.vue'))
 const PurchaseDialogRef = ref()
 const QRDialogRef = ref()
 const SubmitOrderDialogRef = ref()

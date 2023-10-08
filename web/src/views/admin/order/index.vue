@@ -44,14 +44,14 @@
             <el-tag type="warning" v-else-if="scope.row.trade_status==='WAIT_BUYER_PAY'">等待买家付款</el-tag>
             <el-tag type="danger" v-else-if="scope.row.trade_status==='TRADE_CLOSED'">交易超时关闭</el-tag>
             <el-tag type="success" v-else-if="scope.row.trade_status==='TRADE_FINISHED'">交易结束</el-tag>
-            <el-tag type="info" v-else-if="scope.row.trade_status==='created'">订单已创建</el-tag>
-            <el-tag type="success" v-else-if="scope.row.trade_status==='completed'">订单已完成</el-tag>
+            <el-tag type="info" v-else-if="scope.row.trade_status==='Created'">订单已创建</el-tag>
+            <el-tag type="success" v-else-if="scope.row.trade_status==='Completed'">订单已完成</el-tag>
             <el-tag type="danger" v-else>未知状态</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="100">
           <template #default="scope">
-            <el-button v-if="scope.row.trade_status === 'WAIT_BUYER_PAY' || scope.row.trade_status ==='created'"
+            <el-button v-if="scope.row.trade_status === 'WAIT_BUYER_PAY' || scope.row.trade_status ==='Created'"
                        size="small" text type="primary"
                        @click="onCompleteOrder(scope.row)">完成
             </el-button>
@@ -73,26 +73,24 @@
 </template>
 
 <script setup lang="ts">
-import {ElMessage} from 'element-plus';
-//store
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import {useOrderStore} from "/@/stores/orderStore";
+import {DateStrtoTime} from "/@/utils/formatTime"
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
+
 
 const orderStore = useOrderStore()
 const {orderManageData} = storeToRefs(orderStore)
 
-//格式化时间
-import {DateStrtoTime} from "/@/utils/formatTime"
-// console.log(DateStrtoTime("2023-05-29T17:28:47.50276+08:00"))
 
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 //组件
 const ReportComponent = defineAsyncComponent(() => import('/@/components/report/index.vue'))
 const reportRef = ref()
-//report api
-import {useReportApi} from "/@/api/report";
 
-const reportApi = useReportApi()
 //定义参数
 const state = reactive({
   params: {
@@ -100,7 +98,7 @@ const state = reactive({
     page_size: 30,
     search: '',
     date: [],
-  } as QueryParams,
+  } as PaginationParams,
   activeCollapseNames: '1', //当前激活的折叠面板
   isShowCollapse: false,
   fieldConditionList: {},
@@ -151,11 +149,10 @@ const getReportDataHandler = (data: any) => {
   (data as any).pagination_params = state.params;
   state.fieldConditionList = data
   //请求数据
-  reportApi.submitReportApi(data).then((res) => {
-    if (res.code === 0) {
-      orderManageData.value.allOrders.order_list = res.data.table_data
-      orderManageData.value.allOrders.total = res.data.total
-    }
+  // reportApi.submitReportApi(data).then((res) => {
+  request(apiStoreData.api.value.report_reportSubmit, data).then((res) => {
+    orderManageData.value.allOrders.order_list = res.data.table_data
+    orderManageData.value.allOrders.total = res.data.total
   })
 }
 

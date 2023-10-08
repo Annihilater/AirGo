@@ -8,7 +8,7 @@
     </div>
 
     <div>
-      <el-input class="input1" v-model="state.galleryData.picUrl" placeholder="粘贴上方url"/>
+      <el-input class="input1" v-model="state.galleryData.picture_url" placeholder="粘贴上方url"/>
       <el-input class="input2" v-model="state.galleryData.subject" placeholder="备注"/>
       <el-button class="button" color="#626aef" @click="savePicture" round>保 存</el-button>
     </div>
@@ -54,18 +54,20 @@
 <script setup lang="ts">
 import {ElMessage} from 'element-plus';
 import {onMounted, reactive} from 'vue';
-//api
-import {useUploadApi} from "/@/api/upload/index"
-
-const uploadApi = useUploadApi()
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
 //复制剪切板
 import commonFunction from '/@/utils/commonFunction';
+
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
 const {copyText} = commonFunction();
 
 const state = reactive({
   galleryData: {
-    picUrl: '',
+    picture_url: '',
     subject: '',
   },
   galleryDialogData: {
@@ -73,33 +75,33 @@ const state = reactive({
     galleryList: [] as UploadPicture[],
     params: {
       search: '',
-    }
+      page_num: 1,
+      page_size: 30,
+    } as PaginationParams,
   },
 
 })
 
 function savePicture() {
-  uploadApi.newPictureUrlApi(state.galleryData).then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      state.galleryData.picUrl = '' //清空输入框
-      state.galleryData.subject = '' //清空输入框
-    }
+  // uploadApi.newPictureUrlApi(state.galleryData).then((res) => {
+  request(apiStoreData.api.value.upload_newPictureUrl, state.galleryData).then((res) => {
+    ElMessage.success(res.msg)
+    state.galleryData.picture_url = '' //清空输入框
+    state.galleryData.subject = '' //清空输入框
   }).catch()
 }
 
 function openDialog() {
   state.galleryDialogData.isShowDialog = true
-  getPictureList()
+  getPictureList(state.galleryDialogData.params)
 
 }
 
 function getPictureList(params?: object) {
-  uploadApi.getPictureListApi(params).then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      state.galleryDialogData.galleryList = res.data
-    }
+  // uploadApi.getPictureListApi(params).then((res) => {
+  request(apiStoreData.api.value.upload_getPictureList, params).then((res) => {
+    ElMessage.success(res.msg)
+    state.galleryDialogData.galleryList = res.data
   }).catch()
 
 }

@@ -77,24 +77,24 @@
 <script setup lang="ts">
 //时间转换
 import {DateStrtoTime} from "/@/utils/formatTime";
-//api
-import {useUserApi} from '/@/api/user/index'
-
-const userApi = useUserApi()
-
-//store
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 import {useUserStore} from "/@/stores/userStore";
 import {onMounted, reactive} from 'vue';
-
-const userStore = useUserStore()
-const {userInfos} = storeToRefs(userStore)
 //ElMessage
 import {ElMessage} from 'element-plus';
-//icon 
+//icon
 import {Select} from '@element-plus/icons-vue'
 //复制剪切板
 import commonFunction from '/@/utils/commonFunction';
+
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
+
+const userStore = useUserStore()
+const {userInfos} = storeToRefs(userStore)
 
 const {copyText} = commonFunction();
 //定义参数
@@ -111,34 +111,33 @@ const onChangeHost = () => {
 }
 //重置订阅
 const onResetSub = () => {
-  userApi.resetSubApi().then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      // window.location.reload()
-      userStore.getUserInfo()
-    }
+  // userApi.resetSubApi().then((res) => {
+  request(apiStoreData.api.value.user_resetSub).then((res) => {
+    ElMessage.success(res.msg)
+    // window.location.reload()
+    userStore.getUserInfo()
   })
 }
 const v2rayNGSub = (type: number) => {
   switch (type) {
     case 1:
       //v2rayNG订阅
-      copyText(userStore.subUrl+"&type=1")
+      copyText(userStore.subUrl + "&type=1")
       break
     case 2:
       //Clash订阅
-      copyText(userStore.subUrl+"&type=2")
+      copyText(userStore.subUrl + "&type=2")
       break
     case 3:
       //ShadowRocket订阅
-      copyText(userStore.subUrl+"&type=3")
+      copyText(userStore.subUrl + "&type=3")
       break
     case 4:
       //Qx订阅
-      copyText(userStore.subUrl+"&type=4")
+      copyText(userStore.subUrl + "&type=4")
       break
     default:
-      copyText(userStore.subUrl+"&type=1")
+      copyText(userStore.subUrl + "&type=1")
       break;
   }
 }

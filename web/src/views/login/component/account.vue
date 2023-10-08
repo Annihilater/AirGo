@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts" name="loginAccount">
-import {reactive, computed, onMounted, ref} from 'vue';
+import {computed, reactive, ref} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 import {Session} from '/@/utils/storage';
 import {formatAxis} from '/@/utils/formatTime';
@@ -89,26 +89,24 @@ import {NextLoading} from '/@/utils/loading';
 import {initBackEndControlRoutes} from '/@/router/backEnd';
 //route
 import {useRoute, useRouter} from 'vue-router';
-
-const route = useRoute();
-const router = useRouter();
 //user store
 import {storeToRefs} from 'pinia';
 import {useUserStore} from "/@/stores/userStore";
+import {useThemeConfig} from '/@/stores/themeConfig';
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+
+const route = useRoute();
+const router = useRouter();
 
 const userStore = useUserStore()
 const {loginData} = storeToRefs(userStore)
 
-//theme store
-import {useThemeConfig} from '/@/stores/themeConfig';
-
 const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
-//api
-import {usePublicApi} from '/@/api/public/index'
-import service from "/@/utils/request";
 
-const publicApi = usePublicApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 //定义参数
 const state = reactive({
   enableResetPassword: false,
@@ -181,7 +179,8 @@ const onGetEmailCode = () => {
     return
   }
   state.isCountDown = true
-  publicApi.getEmailCodeApi(loginData.value).then((res) => {
+  // publicApi.getEmailCodeApi(loginData.value).then((res) => {
+  request(apiStoreData.staticApi.value.user_login, loginData.value).then((res) => {
     if (res.code === 0) {
       state.isCountDown = true
       ElMessage.success(res.msg)
@@ -207,12 +206,12 @@ const handleTimeChange = () => {
 const ruleFormRef = ref<FormInstance>()
 const loginRules = reactive<FormRules<RegisterForm>>({
   user_name: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 4, max: 40, message: '长度4～40', trigger: 'blur' },
+    {required: true, message: '请输入用户名', trigger: 'blur'},
+    {min: 4, max: 40, message: '长度4～40', trigger: 'blur'},
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 4, max: 20, message: '密码长度4～20', trigger: 'blur' },
+    {required: true, message: '请输入密码', trigger: 'blur'},
+    {min: 4, max: 20, message: '密码长度4～20', trigger: 'blur'},
   ],
 })
 
