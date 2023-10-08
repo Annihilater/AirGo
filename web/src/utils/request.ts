@@ -1,12 +1,13 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, {AxiosInstance, AxiosResponse} from 'axios';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {Session, Local} from '/@/utils/storage';
+import {Local} from '/@/utils/storage';
 import qs from 'qs';
+
 let apiUrl = import.meta.env.VITE_API_URL
 
-if (apiUrl===''){
+if (apiUrl === '') {
     // console.log("apiUrl===''")
-    apiUrl= window.location.protocol+"//"+window.location.hostname+":"+window.location.port+"/api/"
+    apiUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
 }
 
 // 配置新建一个 axios 实例
@@ -17,7 +18,6 @@ const service: AxiosInstance = axios.create({
     // headers: {"Content-Type": "application/x-www-form-urlencoded"},
     paramsSerializer: {
         serialize(params) {
-            //return qs.stringify(params, { allowDots: true });//json会插入\ :
             return JSON.stringify(params);//json提交
         },
     },
@@ -26,7 +26,7 @@ const service: AxiosInstance = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
     (config) => {
-        //console.log("请求拦截器 config:", config)
+        // console.log("请求拦截器 config:", config)
         if (Local.get('token')) {
             config.headers!['Authorization'] = `${Local.get('token')}`;
         }
@@ -54,7 +54,7 @@ service.interceptors.response.use(
         console.log("响应数据：", res);
         if (res.code && res.code !== 0) {
             // `token` 过期或者账号已在别处登录
-             if (res.code === 401) {
+            if (res.code === 401) {
                 // Session.clear(); // 清除浏览器全部临时缓存
                 Local.clear()
                 window.location.href = '/'; // 去登录页
@@ -85,5 +85,25 @@ service.interceptors.response.use(
     }
 );
 
+
 // 导出 axios 实例
 export default service;
+
+export function request(apiItem: ApiItem, data?: any):Promise<AxiosResponse<any>> {
+    if (apiItem.method === "get" || apiItem.method === "GET"){
+        return service({
+                        url: apiItem.path,
+                        method: apiItem.method,
+                        params: data,
+                    })
+    }
+    return service({
+        url: apiItem.path,
+        method: apiItem.method,
+        data: data,
+    })
+}
+
+
+
+

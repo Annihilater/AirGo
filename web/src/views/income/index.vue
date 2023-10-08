@@ -93,17 +93,15 @@
 
 <script lang="ts" setup>
 
-import {reactive, onMounted, computed} from 'vue'
+import {onMounted, reactive} from 'vue'
 import {TableColumnCtx} from "element-plus";
 import {formatDate} from "/@/utils/formatTime";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
 
-//api
-import {useNodeApi} from "/@/api/node/index";
-import {useOrderApi} from "/@/api/order/index"
-
-const nodeApi = useNodeApi()
-const orderApi = useOrderApi()
-
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 const state = reactive({
   statisticsData: {
     dayOrderDataCurrent: {
@@ -145,50 +143,30 @@ const state = reactive({
     },
   },
 })
+
 //获取订单统计
 function getMonthOrder(params?: object) {
-  orderApi.getMonthOrderStatisticsApi(state.monthOptions.dateDay).then((res) => {
-    if (res.code === 0) {
-      state.statisticsData.dayOrderDataCurrent = res.data
-      // ElMessage.success(res.msg)
-    } else {
-
-    }
+  request(apiStoreData.api.value.order_getMonthOrderStatistics, state.monthOptions.dateDay).then((res) => {
+    state.statisticsData.dayOrderDataCurrent = res.data
   })
-  orderApi.getMonthOrderStatisticsApi(state.monthOptions.dateCurrent).then((res) => {
-    if (res.code === 0) {
-      state.statisticsData.monthOrderDataCurrent = res.data
-      //ElMessage.success(res.msg)
-    } else {
-
-    }
+  request(apiStoreData.api.value.order_getMonthOrderStatistics, state.monthOptions.dateCurrent).then((res) => {
+    state.statisticsData.monthOrderDataCurrent = res.data
   })
-  orderApi.getMonthOrderStatisticsApi(state.monthOptions.dateLast).then((res) => {
-    if (res.code === 0) {
-      state.statisticsData.monthOrderDataLast = res.data
-      //ElMessage.success(res.msg)
-    } else {
-
-    }
+  request(apiStoreData.api.value.order_getMonthOrderStatistics, state.monthOptions.dateLast).then((res) => {
+    state.statisticsData.monthOrderDataLast = res.data
   })
 }
+
 //获取节点流量统计
 function getMonthNodeInfo(params?: object) {
-  nodeApi.getNodeWithTrafficApi(state.monthOptions.dateCurrent).then((res) => {
-    if (res.code === 0) {
-      state.statisticsData.monthNodeCurrent = res.data
-      //ElMessage.success(res.msg)
-    } else {
+  request(apiStoreData.api.value.node_getTraffic, state.monthOptions.dateCurrent).then((res) => {
+    state.statisticsData.monthNodeCurrent = res.data
+    //ElMessage.success(res.msg)
 
-    }
   })
-  nodeApi.getNodeWithTrafficApi(state.monthOptions.dateLast).then((res) => {
-    if (res.code === 0) {
-      state.statisticsData.monthNodeLast = res.data
-      // ElMessage.success(res.msg)
-    } else {
-
-    }
+  request(apiStoreData.api.value.node_getTraffic, state.monthOptions.dateLast).then((res) => {
+    state.statisticsData.monthNodeLast = res.data
+    // ElMessage.success(res.msg)
   })
 }
 

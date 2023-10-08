@@ -17,6 +17,31 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+const (
+	apiPre = "/api"
+	// 默认邮件验证码样式
+	text1 = `<div >
+  <p >欢迎使用，请及时输入验证码，区分大小写</p>
+  <span style="font-size:30px">emailcode</span>
+</div>`
+	// 商品默认描述
+	text2 = `<h3 style="color:#00BFFF">究竟什么样的终点，才配得上这一路的颠沛流离---管泽元</h3>
+<h3 style="color:#DDA0DD">世界聚焦于你---管泽元</h3>`
+	text3 = `## 软件下载
+- [v2rayNG for Android](https://ghproxy.com/https://github.com/2dust/v2rayNG/releases/latest/download/v2rayNG_1.8.9_arm64-v8a.apk)
+- [Clash Meta for Android](https://ghproxy.com/https://github.com/MetaCubeX/ClashMetaForAndroid/releases/latest/download/cmfa-2.8.9-meta-arm64-v8a-release.apk)
+- [v2rayN for Windows](https://ghproxy.com/https://github.com/2dust/v2rayN/releases/latest/download/v2rayN-With-Core.zip)
+
+## 加入我们
+-[QQ](http://)
+-[Telegram](http://)`
+	text4 = `# 欢迎使用！最新活动如下：
+1. 免费注册体验！注册送流量
+2. 邀请返利
+
+**更多套餐请查看商店**`
+)
+
 // Gorm 初始化数据库并产生数据库全局变量
 // Author SliverHorn
 func Gorm() *gorm.DB {
@@ -76,7 +101,7 @@ func GormMysql() *gorm.DB {
 	}
 }
 
-// RegisterTables 注册数据库表专用
+// RegisterTables 注册数据库表
 func RegisterTables() {
 	err := global.DB.AutoMigrate(
 		// 用户表
@@ -85,6 +110,8 @@ func RegisterTables() {
 		model.DynamicRoute{},
 		//角色表
 		model.Role{},
+		//casbin
+		gormadapter.CasbinRule{},
 		//商品
 		model.Goods{},
 		//订单
@@ -103,8 +130,12 @@ func RegisterTables() {
 		model.Coupon{},
 		//isp
 		model.ISP{},
+		//节点
+		model.Node{},
 		//共享节点
 		model.NodeShared{},
+		//支付
+		model.Pay{},
 	)
 	if err != nil {
 		//os.Exit(0)
@@ -171,6 +202,9 @@ func InsertInto(db *gorm.DB) error {
 		{ParentID: 0, Path: "/gallery", Name: "gallery", Component: "/gallery/index.vue", Meta: model.Meta{Title: "无限图库", Icon: "iconfont icon-step"}},                  //16
 		{ParentID: 0, Path: "/income", Name: "income", Component: "/income/index.vue", Meta: model.Meta{Title: "营收概览", Icon: "iconfont icon-xingqiu"}},                  //17
 		{ParentID: 0, Path: "/isp", Name: "isp", Component: "/isp/index.vue", Meta: model.Meta{Title: "套餐监控", Icon: "iconfont icon-xingqiu"}},                           //18
+
+		{ParentID: 0, Path: "/article/notice", Name: "notice", Component: "/article/index_notice.vue", Meta: model.Meta{Title: "公告", Icon: "ele-ChatLineSquare"}},   //19
+		{ParentID: 0, Path: "/article/knowledge", Name: "knowledge", Component: "/article/index_knowledge.vue", Meta: model.Meta{Title: "知识库", Icon: "fa fa-book"}}, //20
 	}
 	if err := db.Create(&DynamicRouteData).Error; err != nil {
 		return errors.New("sys_dynamic-router_data表数据初始化失败!")
@@ -178,9 +212,7 @@ func InsertInto(db *gorm.DB) error {
 	//插入user_role表
 	sysRoleData := []model.Role{
 		{ID: 1, RoleName: "admin", Description: "超级管理员"},
-		{ID: 2, RoleName: "客服", Description: "客服"},
-		{ID: 3, RoleName: "合作伙伴", Description: "合作伙伴"},
-		{ID: 4, RoleName: "普通用户", Description: "普通用户"},
+		{ID: 2, RoleName: "普通用户", Description: "普通用户"},
 	}
 	if err := db.Create(&sysRoleData).Error; err != nil {
 		return errors.New("user_role表数据初始化失败!")
@@ -188,7 +220,6 @@ func InsertInto(db *gorm.DB) error {
 	//插入user_and_role表
 	userAndRoleData := []model.UserAndRole{
 		{UserID: 1, RoleID: 1},
-		{UserID: 1, RoleID: 2},
 		{UserID: 2, RoleID: 2},
 	}
 	if err := db.Create(&userAndRoleData).Error; err != nil {
@@ -207,50 +238,27 @@ func InsertInto(db *gorm.DB) error {
 		{RoleID: 1, DynamicRouteID: 8},  //系统设置
 		{RoleID: 1, DynamicRouteID: 9},  //文章设置
 		{RoleID: 1, DynamicRouteID: 10}, //折扣码管理
-		{RoleID: 1, DynamicRouteID: 11},
-		{RoleID: 1, DynamicRouteID: 12},
-		{RoleID: 1, DynamicRouteID: 13},
-		{RoleID: 1, DynamicRouteID: 14},
-		{RoleID: 1, DynamicRouteID: 15},
-		{RoleID: 1, DynamicRouteID: 16},
+		{RoleID: 1, DynamicRouteID: 11}, //首页
+		{RoleID: 1, DynamicRouteID: 12}, //商店
+		{RoleID: 1, DynamicRouteID: 13}, //我的订单
+		{RoleID: 1, DynamicRouteID: 14}, //个人信息
+		{RoleID: 1, DynamicRouteID: 15}, //节点状态
+		//{RoleID: 1, DynamicRouteID: 16}, //无限图库
 		{RoleID: 1, DynamicRouteID: 17}, //营收概览
-		{RoleID: 1, DynamicRouteID: 18},
-
-		//客服的权限
-		{RoleID: 2, DynamicRouteID: 1},
-		{RoleID: 2, DynamicRouteID: 4},
-		{RoleID: 2, DynamicRouteID: 5},
-		{RoleID: 2, DynamicRouteID: 7},
-		{RoleID: 2, DynamicRouteID: 9},
-		{RoleID: 2, DynamicRouteID: 10},
-
-		{RoleID: 2, DynamicRouteID: 11},
-		{RoleID: 2, DynamicRouteID: 12},
-		{RoleID: 2, DynamicRouteID: 13},
-		{RoleID: 2, DynamicRouteID: 14},
-		{RoleID: 2, DynamicRouteID: 15},
-		{RoleID: 2, DynamicRouteID: 16},
-		{RoleID: 2, DynamicRouteID: 17},
-		{RoleID: 2, DynamicRouteID: 18},
-
-		//合作伙伴的权限
-		{RoleID: 3, DynamicRouteID: 11},
-		{RoleID: 3, DynamicRouteID: 12},
-		{RoleID: 3, DynamicRouteID: 13},
-		{RoleID: 3, DynamicRouteID: 14},
-		{RoleID: 3, DynamicRouteID: 15},
-		{RoleID: 3, DynamicRouteID: 16},
-		{RoleID: 3, DynamicRouteID: 17},
-		{RoleID: 3, DynamicRouteID: 18},
+		{RoleID: 1, DynamicRouteID: 18}, //套餐监控
+		{RoleID: 1, DynamicRouteID: 19}, //公告
+		{RoleID: 1, DynamicRouteID: 20}, //知识库
 
 		//普通用户的权限
-		{RoleID: 4, DynamicRouteID: 11},
-		{RoleID: 4, DynamicRouteID: 12},
-		{RoleID: 4, DynamicRouteID: 13},
-		{RoleID: 4, DynamicRouteID: 14},
-		{RoleID: 4, DynamicRouteID: 15},
-		{RoleID: 4, DynamicRouteID: 16},
-		{RoleID: 4, DynamicRouteID: 18},
+		{RoleID: 2, DynamicRouteID: 11}, //首页
+		{RoleID: 2, DynamicRouteID: 12}, //商店
+		{RoleID: 2, DynamicRouteID: 13}, //我的订单
+		{RoleID: 2, DynamicRouteID: 14}, //个人信息
+		{RoleID: 2, DynamicRouteID: 15}, //节点状态
+		//{RoleID: 2, DynamicRouteID: 16}, //无限图库
+		{RoleID: 2, DynamicRouteID: 18}, //套餐监控
+		{RoleID: 2, DynamicRouteID: 19}, //公告
+		{RoleID: 2, DynamicRouteID: 20}, //知识库
 	}
 	if err := global.DB.Create(&roleAndMenuData).Error; err != nil {
 		return errors.New("role_and_menu表数据初始化失败!")
@@ -283,134 +291,142 @@ func InsertInto(db *gorm.DB) error {
 	}
 	// 插入casbin_rule
 	casbinRuleData := []gormadapter.CasbinRule{
-		//{Ptype: "p", V0: "1", V1: "/public/getThemeConfig", V2: "GET"},
+		// user
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/changeSubHost", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/getUserInfo", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/changeUserPassword", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/resetSub", V2: "GET"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/register", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/login", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/getSub", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/changeSubHost", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/getUserInfo", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/changeUserPassword", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/resetUserPassword", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/resetSub", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/getUserList", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/newUser", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/updateUser", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/deleteUser", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/user/findUser", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/getUserList", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/newUser", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/updateUser", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/deleteUser", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/user/findUser", V2: "POST"},
+		// role
+		{Ptype: "p", V0: "1", V1: apiPre + "/role/getRoleList", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/role/modifyRoleInfo", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/role/addRole", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/role/delRole", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/role/getRoleList", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/role/modifyRoleInfo", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/role/addRole", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/role/delRole", V2: "DELETE"},
+		// menu
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/getAllRouteList", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/getAllRouteTree", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/newDynamicRoute", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/delDynamicRoute", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/updateDynamicRoute", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/findDynamicRoute", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/getAllRouteList", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/getAllRouteTree", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/newDynamicRoute", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/delDynamicRoute", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/updateDynamicRoute", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/findDynamicRoute", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/getRouteList", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/menu/getRouteTree", V2: "GET"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/getRouteList", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/menu/getRouteTree", V2: "GET"},
+		//shop
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/preCreatePay", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/purchase", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/getAllEnabledGoods", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/getAllGoods", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/findGoods", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/newGoods", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/deleteGoods", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/updateGoods", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/shop/goodsSort", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/preCreatePay", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/purchase", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/getAllEnabledGoods", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/getAllGoods", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/findGoods", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/newGoods", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/deleteGoods", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/updateGoods", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/alipayNotify", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/shop/goodsSort", V2: "POST"},
+		//node
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/getAllNode", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/newNode", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/deleteNode", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/updateNode", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/getTraffic", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/nodeSort", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/getAllNode", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/newNode", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/deleteNode", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/updateNode", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/getTraffic", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/nodeSort", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/newNodeShared", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/getNodeSharedList", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/deleteNodeShared", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/newNodeShared", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/getNodeSharedList", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/node/deleteNodeShared", V2: "POST"},
+		//casbin
+		{Ptype: "p", V0: "1", V1: apiPre + "/casbin/getPolicyByRoleIds", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/casbin/updateCasbinPolicy", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/casbin/getAllPolicy", V2: "GET"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/mod_mu/nodes/:nodeID/info", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/mod_mu/users", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/mod_mu/users/traffic", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/mod_mu/users/aliveip", V2: "POST"},
+		//order
+		{Ptype: "p", V0: "1", V1: apiPre + "/order/getOrderInfo", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/order/getAllOrder", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/order/getOrderByUserID", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/order/completedOrder", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/order/getMonthOrderStatistics", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/casbin/getPolicyByRoleIds", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/casbin/updateCasbinPolicy", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/casbin/updateCasbinPolicyNew", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/casbin/getAllPolicy", V2: "GET"},
+		//system
+		{Ptype: "p", V0: "1", V1: apiPre + "/system/updateThemeConfig", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/system/getSetting", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/system/updateSetting", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/system/createx25519", V2: "GET"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/order/getOrderInfo", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/order/getAllOrder", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/order/getOrderByUserID", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/order/completedOrder", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/order/getMonthOrderStatistics", V2: "POST"},
+		//upload
+		{Ptype: "p", V0: "1", V1: apiPre + "/upload/newPictureUrl", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/upload/getPictureList", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/system/updateThemeConfig", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/system/getSetting", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/system/updateSetting", V2: "POST"},
+		//ws
+		{Ptype: "p", V0: "1", V1: apiPre + "/websocket/msg", V2: "GET"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/upload/newPictureUrl", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/upload/getPictureList", V2: "POST"},
+		//article
+		{Ptype: "p", V0: "1", V1: apiPre + "/article/newArticle", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/article/deleteArticle", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/article/updateArticle", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/article/getArticle", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/websocket/msg", V2: "GET"},
+		//report
+		{Ptype: "p", V0: "1", V1: apiPre + "/report/getDB", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/report/getTables", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/report/getColumn", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/report/reportSubmit", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/article/newArticle", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/article/deleteArticle", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/article/updaterticle", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/article/getArticle", V2: "POST"},
+		//coupon
+		{Ptype: "p", V0: "1", V1: apiPre + "/coupon/newCoupon", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/coupon/deleteCoupon", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/coupon/updateCoupon", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/coupon/getCoupon", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/report/getDB", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/report/getTables", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/report/getColumn", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/report/reportSubmit", V2: "POST"},
+		//isp
+		{Ptype: "p", V0: "1", V1: apiPre + "/isp/sendCode", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/isp/ispLogin", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/isp/getMonitorByUserID", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/coupon/newCoupon", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/coupon/deleteCoupon", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/coupon/updateCoupon", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/coupon/getCoupon", V2: "POST"},
+		//pay
+		{Ptype: "p", V0: "1", V1: apiPre + "/pay/getEnabledPayList", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/pay/getPayList", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/pay/newPay", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/pay/deletePay", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/pay/updatePay", V2: "POST"},
 
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/isp/sendCode", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/isp/ispLogin", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPrefix + "/isp/getMonitorByUserID", V2: "POST"},
-		//{Ptype: "p", V0: "1", V1: apiPrefix+"/isp/queryPackage", V2: "POST"},
+		//普通用户权限
+		{Ptype: "p", V0: "2", V1: apiPre + "/user/changeUserPassword", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/user/getUserInfo", V2: "GET"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/user/resetSub", V2: "GET"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/user/changeSubHost", V2: "POST"},
 
-		//普通用户
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/user/login", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/user/getSub", V2: "GET"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/user/changeUserPassword", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/user/resetUserPassword", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/user/getUserInfo", V2: "GET"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/user/resetSub", V2: "GET"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/user/changeSubHost", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/menu/getRouteList", V2: "GET"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/menu/getRouteTree", V2: "GET"},
 
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/menu/getRouteList", V2: "GET"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/menu/getRouteTree", V2: "GET"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/order/getOrderInfo", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/order/getOrderByUserID", V2: "POST"},
 
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/order/getOrderInfo", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/order/getOrderByUserID", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/shop/preCreatePay", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/shop/purchase", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/shop/getAllEnabledGoods", V2: "GET"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/shop/findGoods", V2: "POST"},
 
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/shop/preCreatePay", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/shop/purchase", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/shop/getAllEnabledGoods", V2: "GET"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/shop/findGoods", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/websocket/msg", V2: "GET"},
 
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/websocket/msg", V2: "GET"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/upload/newPictureUrl", V2: "GET"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/upload/getPictureList", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/upload/newPictureUrl", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/upload/getPictureList", V2: "POST"},
 
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/article/getArticle", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/article/getArticle", V2: "POST"},
 
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/isp/sendCode", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/isp/ispLogin", V2: "POST"},
-		{Ptype: "p", V0: "2", V1: apiPrefix + "/isp/getMonitorByUserID", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/isp/sendCode", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/isp/ispLogin", V2: "POST"},
+		{Ptype: "p", V0: "2", V1: apiPre + "/isp/getMonitorByUserID", V2: "POST"},
+
+		{Ptype: "p", V0: "2", V1: apiPre + "/pay/getEnabledPayList", V2: "GET"},
 	}
 	if err := global.DB.Create(&casbinRuleData).Error; err != nil {
 		return errors.New("casbin_rule表数据初始化失败!")
@@ -428,66 +444,19 @@ func InsertInto(db *gorm.DB) error {
 		ID: 1,
 		Email: model.Email{
 			EmailContent: text1,
+			EmailSubject: "hello，我的宝！",
 		},
 	}
 	if err := global.DB.Create(&settingData).Error; err != nil {
 		return errors.New("server表数据初始化失败!")
 	}
+	//文章
+	articleData := []model.Article{
+		{Type: "home", Title: "首页自定义显示内容", Introduction: "首页自定义显示内容，可编辑，可显示与隐藏，不可删除！", Content: text3},
+		{Type: "home", Title: "首页弹窗内容", Introduction: "首页弹窗，可编辑，可显示与隐藏，不可删除！", Content: text4},
+	}
+	if err := global.DB.Create(&articleData).Error; err != nil {
+		return errors.New("article表数据初始化失败!")
+	}
 	return nil
 }
-
-// 默认邮件验证码样式
-const text1 = `
-<style>
-.cookieCard {
-  margin:auto;
-  width: 300px;
-  height: 200px;
-  background: linear-gradient(to right,rgb(137, 104, 255),rgb(175, 152, 255));
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-}
-.cookieCard::before {
-  width: 150px;
-  height: 150px;
-  content: "";
-  background: linear-gradient(to right,rgb(142, 110, 255),rgb(208, 195, 255));
-  position: absolute;
-  z-index: 1;
-  border-radius: 50%;
-  right: -25%;
-  top: -25%;
-}
-.cookieHeading {
-  font-size: 1.5em;
-  font-weight: 600;
-  z-index: 2;
-}
-
-.cookieDescription {
-  font-size: 0.9em;
-  z-index: 2;
-}
-</style>
-</head>
-<body>
-
-<div class="cookieCard">
-  <p class="cookieHeading">验证码</p>
-  <p class="cookieDescription">欢迎使用，请及时输入验证码</p>
-  <span style="font-size:30px">emailcode</span>
-</div>
-</body>
-`
-
-// 商品默认描述
-const text2 = `
-<h3 style="color:#00BFFF">究竟什么样的终点，才配得上这一路的颠沛流离---管泽元</h3>
-<h3 style="color:#DDA0DD">世界聚焦于你---管泽元</h3>
-`

@@ -43,7 +43,6 @@ func Register(ctx *gin.Context) {
 	//校验邮箱验证码
 	if global.Server.System.EnableEmailCode {
 		cacheEmail, ok := global.LocalCache.Get(u.UserName + "emailcode")
-		global.LocalCache.Delete(u.UserName + "emailcode")
 		if ok {
 			if cacheEmail != u.EmailCode {
 				response.Fail("邮箱验证码校验错误", nil, ctx)
@@ -66,6 +65,7 @@ func Register(ctx *gin.Context) {
 		response.Fail("注册错误"+err.Error(), nil, ctx)
 		return
 	}
+	global.LocalCache.Delete(u.UserName + "emailcode")
 	response.OK("注册成功", nil, ctx)
 }
 
@@ -125,7 +125,7 @@ func Login(c *gin.Context) {
 			return
 		} else {
 			token = tokenNew
-			fmt.Println("tokenNew:", tokenNew)
+			//fmt.Println("tokenNew:", tokenNew)
 			go func(l *model.UserLogin, token string) {
 				global.LocalCache.Set(l.UserName+"token", token, ep)
 			}(&l, token)
@@ -145,7 +145,6 @@ func ChangeSubHost(ctx *gin.Context) {
 		response.Fail("获取信息,uID参数错误", nil, ctx)
 		return
 	}
-
 	var host model.SubHost
 	err := ctx.ShouldBind(&host)
 	if err != nil || len(host.Host) > 100 {
@@ -312,7 +311,6 @@ func ResetUserPassword(ctx *gin.Context) {
 	}
 	//校验邮箱验证码
 	emailcode, _ := global.LocalCache.Get(u.UserName + "emailcode")
-	global.LocalCache.Delete(u.UserName + "emailcode")
 	if emailcode != u.EmailCode {
 		response.Fail("邮箱验证码错误", nil, ctx)
 		return
@@ -328,6 +326,7 @@ func ResetUserPassword(ctx *gin.Context) {
 		response.Fail("重置密码错误"+err.Error(), nil, ctx)
 		return
 	}
+	//global.LocalCache.Delete(u.UserName + "emailcode")
 	response.OK("重置密码成功", nil, ctx)
 
 }

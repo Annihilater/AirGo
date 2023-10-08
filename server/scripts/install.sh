@@ -173,8 +173,11 @@ add_service(){
   Description=$1 Service
   After=network.target
   Wants=network.target
+  StartLimitIntervalSec=0
 
   [Service]
+  Restart=always
+  RestartSec=1
   Type=simple
   WorkingDirectory=/usr/local/$1/
   ExecStart=/usr/local/$1/$1 -start
@@ -375,8 +378,8 @@ acme(){
   httpsPort=$(read_yaml $yamlFile "https-port")
 
   echo -e "${green}操作完成，服务已重启${plain}"
-  echo -e "${green}http公网访问：${ipv4}:${httpPort}${plain}"
-  echo -e "${green}https公网访问：${ipv4}:${httpsPort}${plain}"
+  echo -e "${green}http公网访问：${ipv4}:${domain}${httpPort}${plain}"
+  echo -e "${green}https公网访问：${ipv4}:${domain}${httpsPort}${plain}"
   echo -e "${green}内网访问：${ipv4_local}:${httpPort}${plain}"
   echo
   echo -n -e "${yellow}按回车返回主菜单: ${plain}" && read temp

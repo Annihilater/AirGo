@@ -18,11 +18,8 @@ const (
 	UnicomCodeUrl         = "https://m.client.10010.com/mobileService/sendRadomNum.htm"
 	UnicomLoginUrl        = "https://m.client.10010.com/mobileService/radomLogin.htm"
 	UnicomQueryTrafficUrl = "https://m.client.10010.com/servicequerybusiness/operationservice/queryOcsPackageFlowLeftContentRevisedInJune"
-	//AppId                 = "R361KnMPD1gvwLAVxmC1ZM2ukauKIeLJdjGhuiZ3Bc1lyLToZ6WeHwcYHOpranvQIYbhzgNJFKJIdqcFKizBFT0RM37XFDhpLz3kDxwTbPnQCDu63ovoeqRBXj90IcDXx0lqX5WqFZ6iHbNPcxWqhEyT2CVY4Arw"
-	Version = "iphone_c@10.5"
-	//mobile                = "ow4WeEyOUFmWMPyjeNdHb7UxSAy8JIIO6RfeLSC9qx6SzotoEriYLKHa19xS6Xfq1woY0gtwmGyTOhpN3/z0XWdYYFTqQNGHBmAVXwVL2YaffVSz2iLYdk1SeoSVg/qf8PCojjuolJPM8Gk8y8/vJI+aWp9BCrZEyAKZdMm3jTs="
-	UnicomPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDc+CZK9bBA9IU+gZUOc6FUGu7yO9WpTNB0PzmgFBh96Mg1WrovD1oqZ+eIF4LjvxKXGOdI79JRdve9NPhQo07+uqGQgE4imwNnRx7PFtCRryiIEcUoavuNtuRVoBAm6qdB0SrctgaqGfLgKvZHOnwTjyNqjBUxzMeQlEC2czEMSwIDAQAB"
-	//cookie                = "wo_family=0;a_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTIwODkyMTIsInRva2VuIjp7ImxvZ2luVXNlciI6IjE1NTYzMjM4ODc3IiwicmFuZG9tU3RyIjoieWg0ZjI2YmUxNjkxNDg0NDEyIn0sImlhdCI6MTY5MTQ4NDQxMn0.wfHaBsWrzj5ST0vkWCpJhSQZfUlLqwLxVwiVVNyWg0safeDn0hJJ9_hqDOfZEz-642hgEs961DyCMTBuZpRXTw;city=017%7C153%7C90356341%7C-99;ecs_acc=Jr/0q3sn1j0vcTTnpkZX7AVHniou5aZ2t+lYxE1irzTpKNV2XwtLc+hUUKki37muaYO3lJg6qhK95A1GzJTlMQdWENgu6CNSELV+kop4fP56/l8Og5SpE765ePL8WW7dyUbTafFB/hbiWwJ/brVTDJRKt9X+8IXbUdw1ISmODus=;u_type=11;ecs_token=eyJkYXRhIjoiMTMyYzJlNGFmOTFiOWU0ZTRmMmMyMDQwOWVkNWU5NDI4N2JmZjg4YjJjMjk1NWY3YTgxYWRiYTc4YWYzZDhlYjI0ZGRlNWZjM2MzYzJkMTJlZmRjYTIyYmYzNDViMjI0MTdjMThlOGRiM2E1ZTQzZDk1OTE0NDhmMWNiMmJiZjczZjg0OTUxNDlhNDA5MzU3MzU3MWJiNDE4NjE4NTRjY2NmYjczZDMzZmFkOTYxZTYxNTc2MTJjOGFhOWRjYjBiIiwidmVyc2lvbiI6IjAwIn0=;cw_mutual=7064d003eb3c8934e769e430ecf3d64a67e1af14c007b48658619c331492227488ccb3fe11c3ca694f79d052a27418828277ed9cb5d5b8b03270b9528897ff72;servicequerybusiness=1691484420.175.2499366.62497;random_login=1;c_mobile=15563238877;acw_tc=3df0e21f16914844201452389e79f15de2238aa48bcbc61fe2c8cf3c00;enc_acc=Jr/0q3sn1j0vcTTnpkZX7AVHniou5aZ2t+lYxE1irzTpKNV2XwtLc+hUUKki37muaYO3lJg6qhK95A1GzJTlMQdWENgu6CNSELV+kop4fP56/l8Og5SpE765ePL8WW7dyUbTafFB/hbiWwJ/brVTDJRKt9X+8IXbUdw1ISmODus=;c_id=cd4e72e73493200a06c0dcaa380aa00bc19a0786860be35cda4a416161d14519;SHAREJSESSIONID=7E6E113145B45D772B2E16D5B2BACB25;jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiIxNTU2MzIzODg3NyIsInBybyI6IjAxNyIsImNpdHkiOiIxNTMiLCJpZCI6IjgwNGU5MWM5OTk0YzUyZTkzNzljZGMzMWY4N2U1YWM1In0.sjuglfy39VjJpx4MTV81_3Bpj_OUrWya8bQ9HU4A9uQ;t3_token=784803429999714990bfa8bc7b3717a4;login_type=06;u_account=15563238877;invalid_at=82c0f1eda26ed6d35be6467ce4eea74ccdedc07306fc08ffe4619b38890a52de;newCookie=value;c_sfbm=234g_00;c_version=iphone_c@9.0100;third_token=eyJkYXRhIjoiMTMyYzJlNGFmOTFiOWU0ZTRmMmMyMDQwOWVkNWU5NDI4N2JmZjg4YjJjMjk1NWY3YTgxYWRiYTc4YWYzZDhlYjA3OWFkYzYzYmJmOWYwYzBjZDEwNDcyNmIwMzUwZjg3OTdkNjgyNWVmNjA4MTU2M2RlMmQ5NzY3OTA0ZWNjMTRkNjc3NDE2NzhiNjFiYThjZTQ4YTUyZWJjNTc4OTk2NCIsInZlcnNpb24iOiIwMCJ9s"
+	Version               = "iphone_c@10.5"
+	UnicomPublicKey       = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDc+CZK9bBA9IU+gZUOc6FUGu7yO9WpTNB0PzmgFBh96Mg1WrovD1oqZ+eIF4LjvxKXGOdI79JRdve9NPhQo07+uqGQgE4imwNnRx7PFtCRryiIEcUoavuNtuRVoBAm6qdB0SrctgaqGfLgKvZHOnwTjyNqjBUxzMeQlEC2czEMSwIDAQAB"
 )
 
 func UnicomCode(isp *model.ISP) (string, error) {
@@ -217,6 +214,7 @@ func UnicomQueryTrafficHandler(resp, mobile string) (string, error) {
 	//fmt.Println("out:", out)
 
 	var result = map[string]interface{}{
+		"ispType":     "unicom",
 		"packageName": packageName,
 		"mobile":      newMobile,
 		"date":        date,

@@ -23,17 +23,15 @@ func InitLogrus() *logrus.Logger {
 	src, _ := SetOutputFile()
 	//设置输出
 	logger.Out = src
-	//设置日志级别
-	logger.SetLevel(logrus.DebugLevel)
+	//logger.Out = io.MultiWriter(src, os.Stdout) //同时打印到控制台及日志里
+	//设置最低日志级别
+	//logger.SetLevel(logrus.DebugLevel)
+	logger.SetLevel(logrus.InfoLevel)
 	//设置日志格式
+	//logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
-	/*
-		加个hook形成ELK体系
-	*/
-	//hook := model.EsHookLog()
-	//logger.AddHook(hook)
 	return logger
 }
 

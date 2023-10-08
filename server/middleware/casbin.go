@@ -27,24 +27,15 @@ func Casbin() gin.HandlerFunc {
 		//请求方法
 		act := c.Request.Method
 		// 获取用户的角色组
-		var u model.User
-		err := global.DB.Preload("RoleGroup").First(&u, uIdNew).Error
-		if err != nil {
-			global.Logrus.Error("Casbin,用户查询错误:", err)
-			response.Fail("用户查询错误", nil, c)
-			c.Abort()
-			return
-		}
-		//
 		var roleIds []int64
+		global.DB.Model(&model.UserAndRole{}).Select("role_id").Where("user_id = ?", uIdNew).Find(&roleIds)
+		//fmt.Println("获取用户的角色组:", roleIds)
 		status := false
-		for _, v := range u.RoleGroup {
-			roleIds = append(roleIds, v.ID)
-			roleID := strconv.FormatInt(v.ID, 10)
-			//log.Println("casbin sub:", roleID) //casbin sub: 888
-			//log.Println("casbin obj:", obj)    // casbin obj: /user/getUserInfo
-			//log.Println("casbin act:", act)    //casbin act: GET
-			success, err := global.Casbin.Enforce(roleID, obj, act) // 判断策略中是否存在
+		for _, v := range roleIds {
+			success, err := global.Casbin.Enforce(strconv.FormatInt(v, 10), obj, act) // 判断策略中是否存在
+			//log.Println("casbin sub:", strconv.FormatInt(v, 10))
+			//log.Println("casbin obj:", obj)
+			//log.Println("casbin act:", act)
 			if err != nil {
 				global.Logrus.Error("权限casbin error:", err)
 				response.Fail("权限错误"+err.Error(), nil, c)

@@ -22,8 +22,8 @@ func GetMonitorByUserID(ctx *gin.Context) {
 		response.Fail("获取信息,uID参数错误", nil, ctx)
 		return
 	}
+	isp, _, err := service.CommonSqlFind[model.ISP, string, model.ISP]("user_id = " + fmt.Sprintf("%d", uIDInt))
 
-	isp, err := service.GetMonitorByUserID(uIDInt)
 	if err == gorm.ErrRecordNotFound {
 		//创建新的
 		var ispNew = model.ISP{
@@ -35,8 +35,8 @@ func GetMonitorByUserID(ctx *gin.Context) {
 				DeviceUid: encrypt_plugin.RandomString2(16),
 			},
 		}
-		service.NewMonitor(&ispNew)
-		isp, _ = service.GetMonitorByUserID(uIDInt)
+		service.CommonSqlCreate[model.ISP](ispNew)
+		isp, _, _ = service.CommonSqlFind[model.ISP, string, model.ISP]("user_id = " + fmt.Sprintf("%d", uIDInt))
 	}
 	response.OK("获取成功", isp, ctx)
 
@@ -120,8 +120,7 @@ func ISPLogin(ctx *gin.Context) {
 	//fmt.Println("登录：", isp)
 	if isp.ISPType == "loginAgain" {
 		//清空手机号信息，重新登录
-		//fmt.Println("清空手机号信息，重新登录")
-		isp1, _ := service.GetMonitorByUserID(uIDInt)
+		isp1, _, _ := service.CommonSqlFind[model.ISP, string, model.ISP]("user_id = " + fmt.Sprintf("%d", uIDInt))
 		isp1.UnicomConfig.Cookie = ""
 		isp1.UnicomConfig.Password = ""
 		isp1.UnicomConfig.UnicomMobile = ""
@@ -129,7 +128,7 @@ func ISPLogin(ctx *gin.Context) {
 		isp1.TelecomConfig.TelecomPassword = ""
 		isp1.TelecomConfig.PhoneNum = ""
 		isp1.TelecomConfig.TelecomToken = ""
-		go service.UpdateMonitor(isp1)
+		service.CommonSqlSave[model.ISP](isp1)
 		response.OK("获取成功", isp1, ctx)
 		return
 	}
@@ -169,8 +168,7 @@ func ISPLogin(ctx *gin.Context) {
 		isp.UserID = uIDInt
 		isp.UnicomConfig.Cookie = cookie
 		isp.Status = true
-		go service.UpdateMonitor(&isp)
-
+		service.CommonSqlSave[model.ISP](isp)
 		//response.OK("登录成功", resp, ctx)
 		response.OK("登录成功", string(json.RawMessage(resp)), ctx)
 	case "telecom":
@@ -188,7 +186,7 @@ func ISPLogin(ctx *gin.Context) {
 		isp.UserID = uIDInt
 		isp.TelecomConfig.TelecomToken = cookie
 		isp.Status = true
-		go service.UpdateMonitor(&isp)
+		service.CommonSqlSave[model.ISP](isp)
 		response.OK("登录成功", string(json.RawMessage(resp)), ctx)
 	}
 
@@ -206,7 +204,7 @@ func QueryPackage(ctx *gin.Context) {
 	//设置user id
 	uID := claims.UserID
 	//查询monitor
-	isp, err := service.GetMonitorByUserID(uID)
+	isp, _, err := service.CommonSqlFind[model.ISP, string, model.ISP]("user_id = " + fmt.Sprintf("%d", uID))
 	if err != nil {
 		ctx.JSON(200, gin.H{
 			"packageName": "查询流量失败，请重新登录",
@@ -217,16 +215,14 @@ func QueryPackage(ctx *gin.Context) {
 	var resp string
 	switch isp.ISPType {
 	case "unicom":
-		resp, err = isp_plugin.UnicomQueryTraffic(isp)
+		resp, err = isp_plugin.UnicomQueryTraffic(&isp)
 	case "telecom":
-		fmt.Println("telecom")
-		resp, err = isp_plugin.TelecomQueryPackage(isp)
+		resp, err = isp_plugin.TelecomQueryPackage(&isp)
 	}
-
 	if err != nil {
 		//修改monitor状态
 		isp.Status = false
-		go service.UpdateMonitor(isp)
+		service.CommonSqlSave[model.ISP](isp)
 		ctx.JSON(200, gin.H{
 			"packageName": "查询流量失败，请重新登录",
 			"mobile":      err.Error(),

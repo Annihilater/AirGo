@@ -21,6 +21,7 @@ declare interface SysUser {
         sub_status: boolean;
         subscribe_url: string;
         goods_id: int;
+        goods_subject: string;
         expired_at: string;
         t: number;
         u: number;

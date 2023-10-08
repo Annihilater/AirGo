@@ -43,28 +43,33 @@
   </div>
 
 </template>
-<!--<script setup lang="ts" name="personal">-->
-<script setup lang="ts">
-import {reactive, computed, onMounted, onUnmounted} from "vue";
-import {storeToRefs} from "pinia";
 
-//node store
-import {useNodeStore} from "/@/stores/node";
-import {Session, Local} from "/@/utils/storage";
+<script setup lang="ts">
+import {onMounted, onUnmounted} from "vue";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
+import {useNodeStore} from "/@/stores/nodeStore";
+import {Local} from "/@/utils/storage";
 
 const nodeStore = useNodeStore()
 const {serverStatusData} = storeToRefs(nodeStore)
 const token = Local.get('token')
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
 
 function getWsUrl(): string {
-  const apiUrl: string = import.meta.env.VITE_API_URL
+  let apiUrl: string = import.meta.env.VITE_API_URL
+  if (apiUrl === '') {
+    apiUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
+  }
   const url = apiUrl.slice(apiUrl.indexOf('//') + 2, apiUrl.length)
   const pre_url = apiUrl.slice(0, apiUrl.indexOf('//') + 2)
-  //console.log(`pre_url:${pre_url} url:${url}`)
+  // console.log(`pre_url:${pre_url} url:${url}`)
   if (pre_url === 'https://') {
-    return "wss://" + url + 'websocket/msg'
+    return "wss://" + url  + apiStoreData.api.value.websocket_msg.path
   } else {
-    return "ws://" + url + 'websocket/msg'
+    return "ws://" + url  + apiStoreData.api.value.websocket_msg.path
   }
 }
 
@@ -73,7 +78,7 @@ let interval = null;//计时器
 //监听是否连接成功
 function initWS() {
   ws.onopen = function () {
-    console.log('ws连接成功,连接状态：' + ws.readyState);
+    // console.log('ws连接成功,连接状态：' + ws.readyState);
     ws.send('{"type":1,"data":"hi"}');
     interval = setInterval(() => {
       ws.send('{"type":1,"data":"hi"}');
@@ -81,7 +86,7 @@ function initWS() {
   }
 //接收服务器发回的信息
   ws.onmessage = function (data) {
-    console.log('ws接收服务器发回的信息：' + ws.readyState);
+    // console.log('ws接收服务器发回的信息：' + ws.readyState);
     serverStatusData.value = JSON.parse(data.data)
     // console.log("JSON.parse:", JSON.parse(data.data))
   }

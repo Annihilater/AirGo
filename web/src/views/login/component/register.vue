@@ -89,20 +89,20 @@
 import {onMounted, reactive, ref} from 'vue';
 import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from 'element-plus';
-//user store
 import {useUserStore} from "/@/stores/userStore";
 import {storeToRefs} from 'pinia';
-// router
+
 import {useRouter} from 'vue-router';
-//theme store
+
 import {useThemeConfig} from '/@/stores/themeConfig';
-//serverStore
+
 import {useServerStore} from "/@/stores/serverStore";
-//publicStore
+
 import {usePublicStore} from "/@/stores/publicStore";
-//api
-import {usePublicApi} from '/@/api/public/index'
+
 import {Local} from "/@/utils/storage";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
 const userStore = useUserStore()
 const {registerData, loginData} = storeToRefs(userStore)
@@ -113,8 +113,10 @@ const serverStore = useServerStore()
 const {publicServerConfig} = storeToRefs(serverStore)
 const publicStore = usePublicStore()
 
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 
-const publicApi = usePublicApi()
+
 //定义参数
 const state = reactive({
   isShowPassword: false,
@@ -144,15 +146,12 @@ const onGetEmailCode = () => {
   if (registerData.value.user_name === '') {
     return
   }
-  publicApi.getEmailCodeApi(userStore.registerData).then((res) => {
-    if (res.code === 0) {
-      state.isCountDown = true
-      ElMessage.success(res.msg)
-      handleTimeChange()
-    } else {
-    }
+  // publicApi.getEmailCodeApi(userStore.registerData).then((res) => {
+  request(apiStoreData.staticApi.value.public_getEmailCode, userStore.registerData).then((res) => {
+    state.isCountDown = true
+    ElMessage.success(res.msg)
+    handleTimeChange()
   })
-
 };
 //倒计时
 const handleTimeChange = () => {
@@ -163,7 +162,7 @@ const handleTimeChange = () => {
     setTimeout(() => {
       state.countDownTime--;
       handleTimeChange();
-    }, 1000);
+    }, 500);
   }
 };
 

@@ -18,9 +18,7 @@ import (
 
 // 注册,角色对应如下
 // {ID: 1, RoleName: "admin", Description: "超级管理员"},
-// {ID: 2, RoleName: "客服", Description: "客服"},
-// {ID: 3, RoleName: "合作伙伴", Description: "合作伙伴"},
-// {ID: 4, RoleName: "普通用户", Description: "普通用户"},
+// {ID: 2, RoleName: "普通用户", Description: "普通用户"},
 func Register(u *model.User) error {
 	//判断是否存在
 	var user model.User
@@ -33,7 +31,8 @@ func Register(u *model.User) error {
 			UserName:       u.UserName,
 			NickName:       u.UserName,
 			Password:       encrypt_plugin.BcryptEncode(u.Password),
-			RoleGroup:      []model.Role{{ID: 4}}, //默认角色
+			Passwd:         encrypt_plugin.RandomBase64(32), // shadowsocks2022 Key = "openssl rand -base64 32" and multi users needn't cipher method
+			RoleGroup:      []model.Role{{ID: 2}},           //默认角色
 			InvitationCode: encrypt_plugin.RandomString(8),
 			ReferrerCode:   u.ReferrerCode,
 		}
@@ -63,10 +62,10 @@ func NewUser(u model.User) error {
 		u.RoleGroup = roles
 		u.UUID = uuid.NewV4()
 		u.Password = encrypt_plugin.BcryptEncode(u.Password)
+		u.Passwd = encrypt_plugin.RandomBase64(32) // shadowsocks2022 Key = "openssl rand -base64 32" and multi users needn't cipher method
 		u.InvitationCode = encrypt_plugin.RandomString(8)
 		return CreateUser(NewUserSubscribe(&u))
 	}
-
 }
 
 // 新注册用户分配套餐
@@ -78,13 +77,13 @@ func NewUserSubscribe(u *model.User) *model.User {
 	var goods = model.Goods{
 		Subject: global.Server.System.DefaultGoods,
 	}
-	g, err := FindGoods(&goods)
+	//查询默认套餐
+	g, _, err := CommonSqlFind[model.Goods, model.Goods, model.Goods](goods)
 	if err != nil {
 		return u
 	}
 	// 处理用户订阅信息
-	return HandleUserSubscribe(u, g)
-
+	return HandleUserSubscribe(u, &g)
 }
 
 // 用户登录
@@ -130,12 +129,6 @@ func FindUserByID(id int64) (*model.User, error) {
 	return &u, err
 }
 
-// 查询用户 by user_name(邮箱)
-func FindUserByEmail(u *model.User) (*model.User, error) {
-	err := global.DB.Where("user_name = ?", u.UserName).First(&u).Error
-	return u, err
-}
-
 // 更新用户订阅信息
 func UpdateUserSubscribe(order *model.Orders) error {
 	//查询商品信息
@@ -151,13 +144,14 @@ func UpdateUserSubscribe(order *model.Orders) error {
 // 处理用户订阅信息
 func HandleUserSubscribe(u *model.User, goods *model.Goods) *model.User {
 	u.SubscribeInfo.T = goods.TotalBandwidth * 1024 * 1024 * 1024 // TotalBandwidth单位：GB。总流量单位：B
-	u.SubscribeInfo.U = 0                                         //用户已用流量清零 //如果用struct ,gorm 不会更新“零值”
-	u.SubscribeInfo.D = 0                                         //用户已用流量清零 //如果用struct ,gorm 不会更新“零值”
+	u.SubscribeInfo.U = 0
+	u.SubscribeInfo.D = 0
 	if u.SubscribeInfo.SubscribeUrl == "" {
 		u.SubscribeInfo.SubscribeUrl = encrypt_plugin.RandomString(8) //随机字符串订阅url
 	}
-	u.SubscribeInfo.GoodsID = goods.ID //当前订购的套餐
-	u.SubscribeInfo.SubStatus = true   //订阅状态
+	u.SubscribeInfo.GoodsID = goods.ID           //当前订购的套餐
+	u.SubscribeInfo.GoodsSubject = goods.Subject //套餐标题
+	u.SubscribeInfo.SubStatus = true             //订阅状态
 	t := time.Now().AddDate(0, 0, int(goods.ExpirationDate))
 	u.SubscribeInfo.ExpiredAt = &t //过期时间
 	if goods.NodeConnector != 0 {
@@ -192,10 +186,10 @@ func UserExpiryCheck() error {
 
 // 修改混淆
 func ChangeSubHost(uID int64, host string) error {
-	var u model.User
-	u.ID = uID
-	u.SubscribeInfo.Host = host
-	return global.DB.Updates(&u).Error
+	u := map[string]any{
+		"host": host,
+	}
+	return global.DB.Model(&model.User{ID: uID}).Updates(u).Error
 }
 
 // 获取自身信息

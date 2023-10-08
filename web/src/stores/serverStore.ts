@@ -1,9 +1,9 @@
-import {defineStore} from "pinia";
-//api
-import {useSystemApi} from "/@/api/system/index";
-import {ElMessage} from "element-plus";
+import {defineStore, storeToRefs} from "pinia";
 
-const systemApi = useSystemApi()
+import {ElMessage} from "element-plus";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+
 export const useServerStore = defineStore("serverStore", {
     state: () => ({
         serverConfig: {
@@ -22,7 +22,8 @@ export const useServerStore = defineStore("serverStore", {
                 enable_login_email_code: false,
                 is_multipoint: true,
                 sub_name: '',
-                sub_url_pre: '',
+                backend_url:'',
+                api_prefix: '',
                 muKey: '',
                 default_goods: '',
                 enabled_rebate: true,    //是否开启返利
@@ -63,8 +64,8 @@ export const useServerStore = defineStore("serverStore", {
             enable_register: true,          // 是否开启注册
             enable_email_code: false,       //是否开启注册邮箱验证码
             enable_login_email_code: false, //是否开启登录邮箱验证码
-            rebate_rate:0,                  //佣金率
-            sub_url_pre:'',                 //订阅前缀
+            rebate_rate: 0,                  //佣金率
+            backend_url: '',                 //
 
         },
 
@@ -72,26 +73,25 @@ export const useServerStore = defineStore("serverStore", {
     actions: {
         //获取系统设置
         async getServerConfig() {
-            const res = await systemApi.getServerConfig()
-            if (res.code === 0) {
-                this.serverConfig = res.data
-                ElMessage.success(res.msg)
-            }
+            const apiStore = useApiStore()
+            const apiStoreData = storeToRefs(apiStore)
+            const res = await request(apiStoreData.api.value.system_getSetting)
+            this.serverConfig = res.data
+            ElMessage.success(res.msg)
         },
         //获取公共系统设置
         async getPublicServerConfig() {
-            const res = await systemApi.getPublicServerConfig()
-            if (res.code === 0) {
-                this.publicServerConfig = res.data
-            }
+            const apiStore = useApiStore()
+            const apiStoreData = storeToRefs(apiStore)
+            const res = await request(apiStoreData.staticApi.value.public_getPublicSetting)
+            this.publicServerConfig = res.data
         },
         //修改系统设置
-        async updateServerConfig(params?: object) {
-            const res = await systemApi.updateServerConfig(params)
-            if (res.code === 0) {
-                ElMessage.success(res.msg)
-            }
+        async updateServerConfig(data?: object) {
+            const apiStore = useApiStore()
+            const apiStoreData = storeToRefs(apiStore)
+            const res = await request(apiStoreData.api.value.system_updateSetting,data)
+            ElMessage.success(res.msg)
         }
-
     }
 })

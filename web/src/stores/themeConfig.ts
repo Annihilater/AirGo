@@ -1,21 +1,11 @@
-import {defineStore} from 'pinia';
+import {defineStore, storeToRefs} from 'pinia';
 import {Local} from "/@/utils/storage";
-//systemApi
-import {useSystemApi} from "/@/api/system/index";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
-const systemApi = useSystemApi()
 
-//ElMessage
-import {ElMessage} from 'element-plus';
+// const apiStoreData = storeToRefs(apiStore)
 
-/**
- * 布局配置
- * 修复：https://gitee.com/lyt-top/OICQ/issues/I567R1，感谢@lanbao123
- * 2020.05.28 by lyt 优化。开发时配置不生效问题
- * 修改配置时：
- * 1、需要每次都清理 `window.localStorage` 浏览器永久缓存
- * 2、或者点击布局配置最底部 `一键恢复默认` 按钮即可看到效果
- */
 export const useThemeConfig = defineStore('themeStore', {
     state: (): ThemeConfigState => ({
         themeConfig: {
@@ -166,21 +156,18 @@ export const useThemeConfig = defineStore('themeStore', {
         },
         //从服务器获取主题配置
         async getThemeConfig(params?: object) {
-            //this.themeConfig = data.themeConfig;
-            const res = await systemApi.getThemeConfigApi()
-            if (res.code !== 0) {
-                ElMessage.error("当前ip已被限流，请60s后重试")
-                return
-            }
+            const apiStore = useApiStore()
+            const res = await request(apiStore.staticApi.public_getThemeConfig)
+
             this.themeConfig = res.data
             Local.set('themeConfig', this.themeConfig)
         },
         //设置主题
-        async updateThemeConfig(params?: object) {
-            const res = await systemApi.updateThemeConfigApi(params)
+        async updateThemeConfig(data?: object) {
+            const apiStore = useApiStore()
+            const res = await request(apiStore.api.system_updateThemeConfig, data)
             //更新主题到pinia
             //设置缓存
         },
-
     },
 });

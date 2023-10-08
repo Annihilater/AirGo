@@ -2,8 +2,8 @@ package initialize
 
 import (
 	"AirGo/global"
+	"AirGo/model"
 	"AirGo/service"
-	"AirGo/utils/casbin_plugin"
 	"AirGo/utils/logrus_plugin"
 	"AirGo/utils/mail_plugin"
 	"AirGo/utils/time_plugin"
@@ -26,22 +26,24 @@ func InitLogrus() {
 }
 
 func InitTheme() {
-	res, err := service.GetThemeConfig()
+	//res, err := service.GetThemeConfig()
+	res, _, err := service.CommonSqlFind[model.Theme, string, model.Theme]("id = 1")
 	if err != nil {
 		global.Logrus.Error("系统配置获取失败", err.Error())
 		return
 	}
-	global.Theme = *res
+	global.Theme = res
 }
 
 // 系统配置
 func InitServer() {
-	res, err := service.GetSetting()
+	//res, err := service.GetSetting()
+	res, _, err := service.CommonSqlFind[model.Server, string, model.Server]("id = 1")
 	if err != nil {
 		global.Logrus.Error("系统配置获取失败", err.Error())
 		return
 	}
-	global.Server = *res
+	global.Server = res
 }
 func InitWebsocket() {
 	global.WsManager = websocket_plugin.NewManager()
@@ -55,7 +57,7 @@ func InitRatelimit() {
 	global.RateLimit.VisitRole.AddRule(time.Second*60, int(global.Server.RateLimitParams.VisitParam))
 }
 func InitEmailDialer() {
-	d := mail_plugin.InitEmailDialer()
+	d := mail_plugin.InitEmailDialer(global.Server.Email.EmailHost, int(global.Server.Email.EmailPort), global.Server.Email.EmailFrom, global.Server.Email.EmailSecret)
 	if d != nil {
 		global.EmailDialer = d
 	}
@@ -72,5 +74,5 @@ func InitLocalCache() {
 	)
 }
 func InitCasbin() {
-	global.Casbin = casbin_plugin.Casbin()
+	global.Casbin = service.Casbin()
 }

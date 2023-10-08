@@ -18,6 +18,8 @@
 
 
 import {ElMessage, ElMessageBox} from "element-plus";
+//定义参数
+import {reactive} from "vue";
 
 function test(row: any) {
   ElMessageBox.confirm(`此操作将永久删除路由：${row.path}, 是否继续?`, '提示', {
@@ -38,8 +40,6 @@ function test(row: any) {
 
 // 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
-//定义参数
-import {reactive} from "vue";
 
 const state = reactive({
   type: "",

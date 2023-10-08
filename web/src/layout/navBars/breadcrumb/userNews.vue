@@ -35,14 +35,14 @@
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
 import {onMounted, reactive} from 'vue';
-//时间格式化
 import {DateStrtoTime} from "../../../utils/formatTime";
-//api
-import {useArticleApi} from "/@/api/article/index"
-
-const articleApi = useArticleApi()
-// router
 import {useRoute, useRouter} from 'vue-router';
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
+import {storeToRefs} from "pinia";
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
 
 const router = useRouter();
 // 定义变量内容
@@ -61,11 +61,9 @@ const state = reactive({
 });
 //获取article列表
 const getArticleList = (params: object) => {
-  articleApi.getArticleApi(params).then((res) => {
-    if (res.code === 0) {
+  request(apiStoreData.api.value.article_getArticle,params).then((res) => {
       state.articleDate = res.data
       // console.log(state.articleDate)
-    }
   })
 }
 //打开详情弹窗

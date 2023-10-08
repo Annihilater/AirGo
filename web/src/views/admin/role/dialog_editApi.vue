@@ -19,9 +19,8 @@
 
 <script lang="ts" setup>
 import {storeToRefs} from 'pinia';
-// role store
 import {useRoleStore} from "/@/stores/roleStore";
-import {reactive, ref} from "vue";
+import {reactive} from "vue";
 
 const roleStore = useRoleStore()
 const {dialogEditApi} = storeToRefs(roleStore)
@@ -35,7 +34,7 @@ const state = reactive({
 })
 
 // 打开弹窗
-const openDialog = (row: RowRoleType) => {//RowRoleType 角色类型
+const openDialog = (row: RowRoleType) => {
   state.isShowDialog = true;
   //获取当前roleID
   dialogEditApi.value.casbinInfo.roleID = row.id

@@ -18,7 +18,7 @@ const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
 //import logoMini from '/@/assets/logo-mini.svg';
 //logo 图片
-import logo from '/@/assets/logo.png';
+import logo from '/@/assets/icon/logo.png';
 
 // 设置 logo 的显示。classic 经典布局默认显示 logo
 const setShowLogo = computed(() => {

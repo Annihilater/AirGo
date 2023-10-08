@@ -1,9 +1,10 @@
-import {defineStore} from "pinia";
-//api
-import {useOrderApi} from "/@/api/order/index";
+import {defineStore, storeToRefs} from "pinia";
 import {ElMessage} from "element-plus";
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
-const orderApi = useOrderApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 export const useOrderStore = defineStore("orderStore", {
     state: () => ({
         //订单管理页面数据
@@ -24,31 +25,25 @@ export const useOrderStore = defineStore("orderStore", {
     actions: {
         //获取订单详情(下单时）
         async getOrderInfo(params: object) {
-            const res = await orderApi.getOrderInfoApi(params)
+            const res = await request(apiStoreData.api.value.order_getOrderInfo, params)
             return res
         },
         //获取全部订单
         async getAllOrder(params?: object) {
-            const res = await orderApi.getAllOrderApi(params)
-            if (res.code === 0) {
-                this.orderManageData.allOrders = res.data
-                ElMessage.success(res.msg)
-            }
+            const res = await request(apiStoreData.api.value.order_getAllOrder, params)
+            this.orderManageData.allOrders = res.data
+            ElMessage.success(res.msg)
         },
         //获取用户最近10次订单
         async getOrder(params?: object) {
-            const res = await orderApi.getOrderApi()
-            if (res.code === 0) {
-                this.orderPersonal.allOrders.order_list = res.data
-                ElMessage.success(res.msg)
-            }
+            const res = await request(apiStoreData.api.value.order_getOrderByUserID, params)
+            this.orderPersonal.allOrders.order_list = res.data
+            ElMessage.success(res.msg)
         },
         //完成未支付订单
         async completedOrder(params?: object) {
-            const res = await orderApi.completedOrderApi(params)
-            if (res.code === 0) {
-                ElMessage.success(res.msg)
-            }
+            const res = await request(apiStoreData.api.value.order_completedOrder, params)
+            ElMessage.success(res.msg)
         },
     }
 })

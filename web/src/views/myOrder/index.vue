@@ -11,14 +11,14 @@
             <el-tag type="warning" v-else-if="scope.row.trade_status==='WAIT_BUYER_PAY'">等待付款</el-tag>
             <el-tag type="danger" v-else-if="scope.row.trade_status==='TRADE_CLOSED'">超时关闭</el-tag>
             <el-tag type="success" v-else-if="scope.row.trade_status==='TRADE_FINISHED'">交易结束</el-tag>
-            <el-tag type="info" v-else-if="scope.row.trade_status==='created'">已创建</el-tag>
-            <el-tag type="success" v-else-if="scope.row.trade_status==='completed'">已完成</el-tag>
+            <el-tag type="info" v-else-if="scope.row.trade_status==='Created'">已创建</el-tag>
+            <el-tag type="success" v-else-if="scope.row.trade_status==='Completed'">已完成</el-tag>
             <el-tag type="danger" v-else>未知状态</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button v-if="scope.row.trade_status === 'WAIT_BUYER_PAY' || scope.row.trade_status === 'created'"
+            <el-button v-if="scope.row.trade_status === 'WAIT_BUYER_PAY' || scope.row.trade_status === 'Created'"
                        size="small" text type="primary"
                        @click="toPay(scope.row)">去支付
             </el-button>
@@ -35,25 +35,17 @@
 
 <script setup lang="ts">
 import {storeToRefs} from "pinia";
-import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
-//表格拖拽
-import Sortable from 'sortablejs'
-//store
+import {defineAsyncComponent, onMounted, ref} from "vue";
 import {useOrderStore} from "/@/stores/orderStore";
+import {useShopStore} from "/@/stores/shopStore";
+import {isMobile} from "/@/utils/other";
 
 const orderStore = useOrderStore()
 const {orderPersonal} = storeToRefs(orderStore)
-//store
-import {useShopStore} from "/@/stores/shopStore";
-import {isMobile} from "/@/utils/other";
-import {toRefs} from "vue-demi";
-
 const shopStore = useShopStore()
 const {shopData} = storeToRefs(shopStore)
-//引入弹窗组件
-
-const PurchaseDialog = defineAsyncComponent(() => import('/@/views/shop/purchase_dialog.vue'))
-const QRDialog = defineAsyncComponent(() => import('/@/views/shop/QR_dialog.vue'))
+const PurchaseDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_purchase.vue'))
+const QRDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_QR.vue'))
 const PurchaseDialogRef = ref()
 const QRDialogRef = ref()
 
@@ -65,17 +57,7 @@ onMounted(() => {
 const toPay = (row: Order) => {
   //当前订单存入pinia
   shopData.value.currentOrder = row
-  if (shopData.value.currentOrder.qr_code === '') {    //如果支付链接为空，打开购买弹窗，获取支付链接
-    PurchaseDialogRef.value.openDialog()
-  } else {
-    const ok = isMobile()                                //如果支付链接不为空，直接付款
-    if (ok) {
-      window.location.href = shopData.value.currentOrder.qr_code;
-      return
-    } else {
-      openQRDialog()       //电脑端打开支付二维码弹窗
-    }
-  }
+  PurchaseDialogRef.value.openDialog()
 }
 
 //打开二维码弹窗
@@ -92,7 +74,6 @@ const openQRDialog = () => {
     flex-direction: column;
     flex: 1;
     overflow: auto;
-
     .el-table {
       flex: 1;
     }

@@ -47,23 +47,16 @@
 </template>
 
 <script setup lang="ts">
-
-
 import {defineAsyncComponent, onMounted, ref} from 'vue';
 import {storeToRefs} from 'pinia';
-//shop store
 import {useShopStore} from "/@/stores/shopStore";
+import {useNodeStore} from "/@/stores/nodeStore";
+import {ElMessageBox} from "element-plus";
 
 const shopStore = useShopStore()
 const {goodsList, goodsManageData} = storeToRefs(shopStore)
-//node store
-import {useNodeStore} from "/@/stores/node";
-import {ElMessage, ElMessageBox} from "element-plus";
-
 const nodeStore = useNodeStore()
-
-//引入弹窗组件
-const ShopDialog = defineAsyncComponent(() => import('/@/views/admin/shop/dialog.vue'))
+const ShopDialog = defineAsyncComponent(() => import('/@/views/admin/shop/dialog_edit.vue'))
 const SortDialog = defineAsyncComponent(() => import('/@/views/admin/shop/dialog_sort.vue'))
 const shopDialogRef = ref()
 const sortDialogRef = ref()
@@ -90,11 +83,12 @@ const onRowDel = (row: Goods) => {
         //延迟2秒
         setTimeout(() => {
           shopStore.getAllGoods()
-        }, 1000)
+        }, 500)
       })
       .catch(() => {
       });
 }
+
 //排序弹窗
 function onOpenSortDialog() {
   sortDialogRef.value.openDialog()

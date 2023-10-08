@@ -1,7 +1,7 @@
 <template>
   <div class="container layout-padding">
     <el-card shadow="hover" class="layout-padding-auto">
-      <el-row gutter="10" style="width: 768px">
+      <el-row :gutter="10" style="width: 768px">
         <el-col :span="4">
           <el-input v-model="state.params.search" size="default" placeholder="请输入名称"
                     style="max-width: 180px"></el-input>
@@ -37,16 +37,16 @@
         </el-col>
         <el-col :span="3">
           <el-button size="default" type="warning" class="ml10" @click="onOpenNodeSortDialog">
-              <el-icon>
-                <DCaret/>
-              </el-icon>
+            <el-icon>
+              <DCaret/>
+            </el-icon>
             排序
           </el-button>
         </el-col>
         <el-col :span="2">
           <el-button size="default" type="primary" class="ml10" @click="onOpenNodeSharedDialog">
             <el-icon>
-             <Share />
+              <Share/>
             </el-icon>
             共享节点管理
           </el-button>
@@ -61,9 +61,10 @@
         <el-table-column prop="port" label="节点端口" show-overflow-tooltip></el-table-column>
         <el-table-column prop="sort" label="协议类型" show-overflow-tooltip>
           <template #default="scope">
-            <el-tag type="success" v-if="scope.row.sort ===11">vmess</el-tag>
-            <el-tag type="warning" v-if="scope.row.sort ===15">vless</el-tag>
-            <el-tag type="info" v-if="scope.row.sort ===14">trojan</el-tag>
+            <el-button type="success" v-if="scope.row.node_type ==='vmess'">vmess</el-button>
+            <el-button type="warning" v-if="scope.row.node_type ==='vless'">vless</el-button>
+            <el-button type="info" v-if="scope.row.node_type ==='trojan'">trojan</el-button>
+            <el-button type="danger" v-if="scope.row.node_type ==='shadowrocks'">shadowrocks</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="total_up" label="上行流量(GB)" show-overflow-tooltip width="200">
@@ -121,23 +122,20 @@
 <script setup lang="ts" name="NodeManage">
 
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
-
 import {storeToRefs} from "pinia";
-//导入弹出层
-const NodeDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog.vue'))
+import {useNodeStore} from "/@/stores/nodeStore";
+import {useUserStore} from "/@/stores/userStore";
+import {ElMessageBox} from "element-plus";
+
+const NodeDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_edit.vue'))
 const NodeSortDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_node_sort.vue'))
 const NodeSharedDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_node_shared.vue'))
 const nodeDialogRef = ref()
 const nodeSortDialogRef = ref()
 const nodeSharedDialogRef = ref()
-//node store
-import {useNodeStore} from "/@/stores/node";
 
 const nodeStore = useNodeStore()
 const {nodeManageData} = storeToRefs(nodeStore)
-//user store
-import {useUserStore} from "/@/stores/userStore";
-import {ElMessage, ElMessageBox} from "element-plus";
 
 const userStore = useUserStore()
 const {userInfos} = storeToRefs(userStore)
@@ -191,6 +189,7 @@ function onOpenEditNode(type: string, row?: Object) {
 function onOpenNodeSortDialog() {
   nodeSortDialogRef.value.openDialog()
 }
+
 //打开共享节点弹窗
 function onOpenNodeSharedDialog() {
   nodeSharedDialogRef.value.openDialog()
@@ -213,7 +212,7 @@ function onRowDel(row: NodeInfo) {
         setTimeout(() => {
           state.params.search = ''
           onGetNode(state.params)
-        }, 1000);
+        }, 500);
       })
       .catch(() => {
       });
