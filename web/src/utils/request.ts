@@ -3,12 +3,11 @@ import {ElMessage, ElMessageBox} from 'element-plus';
 import {Local} from '/@/utils/storage';
 import qs from 'qs';
 
-const apiPre = "/api"
 let apiUrl = import.meta.env.VITE_API_URL
 
 if (apiUrl === '') {
     // console.log("apiUrl===''")
-    apiUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + apiPre
+    apiUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
 }
 
 // 配置新建一个 axios 实例
