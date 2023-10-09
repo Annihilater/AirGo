@@ -16,10 +16,9 @@ import (
 )
 
 // 支付宝-alipay初始化
-func InitAlipayClient() (*alipay.Client, error) {
-
+func InitAlipayClient(pay model.Pay) (*alipay.Client, error) {
 	//false时用开发网关，https://openapi.alipaydev.com/gateway.do；true时用正式环境网关，https://openapi.alipay.com/gateway.do
-	client, err := alipay.New(global.Server.Pay.AppID, global.Server.Pay.PrivateKey, true)
+	client, err := alipay.New(pay.AliPay.AlipayAppID, pay.AliPay.AlipayAppPrivateKey, true)
 	if err != nil {
 		//fmt.Println("初始化支付宝失败, 错误信息为", err)
 		//os.Exit(-1)
@@ -27,7 +26,7 @@ func InitAlipayClient() (*alipay.Client, error) {
 	}
 
 	// 加载内容密钥（可选），详情查看 https://opendocs.alipay.com/common/02mse3
-	client.SetEncryptKey(global.Server.Pay.EncryptKey)
+	client.SetEncryptKey(pay.AliPay.AlipayEncryptKey)
 
 	// 下面两种方式只能二选一
 	var cert = false
@@ -38,7 +37,7 @@ func InitAlipayClient() (*alipay.Client, error) {
 		fmt.Println("加载证书", client.LoadAliPayPublicCertFromFile("alipayPublicCert.crt"))
 	} else {
 		// 使用支付宝公钥
-		fmt.Println("加载公钥", client.LoadAliPayPublicKey(global.Server.Pay.AliPublicKey))
+		fmt.Println("加载公钥", client.LoadAliPayPublicKey(pay.AliPay.AlipayAliPublicKey))
 	}
 	return client, nil
 }
@@ -153,14 +152,14 @@ func TradeClose(client *alipay.Client, sysOrder *model.Orders) (*alipay.TradeClo
 }
 
 // 支付宝-轮询
-func PollAliPay(order *model.Orders) {
+func PollAliPay(order *model.Orders, client *alipay.Client) {
 	t := time.NewTicker(10 * time.Second)
 	//defer t.Stop()
 	i := 0
 	for {
 		if i == 18 { // 18*10s 3分钟，3分钟未付款则超时取消交易
 			if order.TradeNo != "" {
-				res, _ := TradeClose(global.AlipayClient, order) //超时，取消订单
+				res, _ := TradeClose(client, order) //超时，取消订单
 				//fmt.Println("支付宝取消订单结果:", res)
 				global.Logrus.Error("支付宝取消订单结果:", res)
 			}
@@ -170,7 +169,7 @@ func PollAliPay(order *model.Orders) {
 			return
 		}
 		<-t.C
-		rsp, _ := TradeQuery(global.AlipayClient, order)
+		rsp, _ := TradeQuery(client, order)
 		//fmt.Println("支付宝TradeQuery rsp.Content.TradeStatus:", rsp.TradeStatus)
 		if rsp.TradeStatus == "TRADE_SUCCESS" || rsp.TradeStatus == "TRADE_FINISHED" { //交易结束
 			if global.Server.System.EnabledRebate {

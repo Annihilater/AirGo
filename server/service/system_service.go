@@ -15,11 +15,6 @@ func UpdateSetting(setting *model.Server) error {
 	}
 	//重新加载系统配置
 	global.Server = *setting
-	//重新加载pay
-	client, err := InitAlipayClient()
-	if err == nil {
-		global.AlipayClient = client
-	}
 	//重新加载email
 	d := mail_plugin.InitEmailDialer()
 	if d != nil {

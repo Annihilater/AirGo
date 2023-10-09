@@ -6,8 +6,8 @@ import (
 	"AirGo/service"
 	"AirGo/utils/other_plugin"
 	"AirGo/utils/response"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/smartwalle/alipay/v3"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -26,9 +26,10 @@ func Purchase(ctx *gin.Context) {
 		response.Fail("订单参数获取错误", nil, ctx)
 		return
 	}
+	fmt.Println("前端传的订单信息：", receiveOrder)
 	//根据订单号查询订单
 	receiveOrder.UserID = uIDInt //确认user id
-	sysOrder, err := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{}, receiveOrder)
+	sysOrder, err := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{}, model.Orders{UserID: receiveOrder.UserID, OutTradeNo: receiveOrder.OutTradeNo})
 	if err != nil {
 		global.Logrus.Error("根据订单号查询订单error:", err.Error())
 		if err == gorm.ErrRecordNotFound {
@@ -39,6 +40,7 @@ func Purchase(ctx *gin.Context) {
 			return
 		}
 	}
+	fmt.Println("查询的系统订单：", sysOrder)
 	//0元购，跳过支付
 	totalAmountFloat64, _ := strconv.ParseFloat(sysOrder.TotalAmount, 10)
 	if totalAmountFloat64 == 0 {
@@ -74,7 +76,15 @@ func Purchase(ctx *gin.Context) {
 		response.OK("epay success:", pcptf, ctx) //返回用户易支付订单参数，采用易支付网页支付
 
 	case "alipay":
-		res, err := service.TradePreCreatePay(global.AlipayClient, &sysOrder)
+
+		//创建alipay client
+		client, err := service.InitAlipayClient(pay)
+		if err != nil {
+			response.Fail("alipay error："+err.Error(), nil, ctx)
+			return
+		}
+
+		res, err := service.TradePreCreatePay(client, &sysOrder)
 		//fmt.Println("AlipayTradePreCreatePay res:", res)
 		if err != nil {
 			response.Fail("alipay error："+err.Error(), nil, ctx)
@@ -87,7 +97,7 @@ func Purchase(ctx *gin.Context) {
 			AlipayInfo: model.AlipayPreCreatePayToFrontend{QRCode: res.QRCode},
 		}
 		response.OK("alipay success:", pcptf, ctx) //返回用户qrcode
-		go service.PollAliPay(&sysOrder)           //5分钟等待付款，轮询
+		go service.PollAliPay(&sysOrder, client)   //5分钟等待付款，轮询
 	case "wechatpay":
 
 	}
@@ -96,32 +106,32 @@ func Purchase(ctx *gin.Context) {
 
 // 支付宝异步回调，弃用，改为轮询
 func AlipayNotify(ctx *gin.Context) {
-	noti, _ := global.AlipayClient.GetTradeNotification(ctx.Request)
-	if noti == nil {
-		return
-	}
-	//查询原始订单
-	var order = model.Orders{
-		OutTradeNo: noti.OutTradeNo,
-	}
-	sysOrder, _ := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{}, order)
-	//根据回调参数更新数据库订单
-	sysOrder.TradeNo = noti.TradeNo
-	sysOrder.BuyerLogonId = noti.BuyerLogonId
-	sysOrder.TradeStatus = string(noti.TradeStatus)
-	sysOrder.TotalAmount = noti.TotalAmount
-	sysOrder.ReceiptAmount = noti.ReceiptAmount
-	sysOrder.BuyerPayAmount = noti.BuyerPayAmount
-
-	err := service.UpdateOrder(&sysOrder)
-	if err != nil && noti.TradeStatus == model.OrderTRADE_SUCCESS {
-		global.Logrus.Error("更新数据库订单错误", err.Error())
-		return
-	}
-	// 确认收到通知消息
-	alipay.ACKNotification(ctx.Writer)
-	//更新用户订阅信息
-	service.UpdateUserSubscribe(&sysOrder)
+	//noti, _ := global.AlipayClient.GetTradeNotification(ctx.Request)
+	//if noti == nil {
+	//	return
+	//}
+	////查询原始订单
+	//var order = model.Orders{
+	//	OutTradeNo: noti.OutTradeNo,
+	//}
+	//sysOrder, _ := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{}, order)
+	////根据回调参数更新数据库订单
+	//sysOrder.TradeNo = noti.TradeNo
+	//sysOrder.BuyerLogonId = noti.BuyerLogonId
+	//sysOrder.TradeStatus = string(noti.TradeStatus)
+	//sysOrder.TotalAmount = noti.TotalAmount
+	//sysOrder.ReceiptAmount = noti.ReceiptAmount
+	//sysOrder.BuyerPayAmount = noti.BuyerPayAmount
+	//
+	//err := service.UpdateOrder(&sysOrder)
+	//if err != nil && noti.TradeStatus == model.OrderTRADE_SUCCESS {
+	//	global.Logrus.Error("更新数据库订单错误", err.Error())
+	//	return
+	//}
+	//// 确认收到通知消息
+	//alipay.ACKNotification(ctx.Writer)
+	////更新用户订阅信息
+	//service.UpdateUserSubscribe(&sysOrder)
 }
 
 // 易支付异步回调

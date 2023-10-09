@@ -17,7 +17,7 @@ func CommonSqlFind[T1, T2, T3 any](modelType T1, params T2) (T3, error) {
 		err = global.DB.Model(&modelType).Where(params).Find(&res).Error
 
 	} else {
-		err = global.DB.Model(&modelType).Where(&params).Find(&res).Error
+		err = global.DB.Where(&params).Find(&res).Error
 	}
 	return res, err
 }
@@ -27,10 +27,10 @@ func CommonSqlFindWithPagination[T1, T2, T3 any](modelType T1, params T2, pagina
 	var res T3
 	var err error
 	if reflect.TypeOf(params).String() == reflect.String.String() {
-		err = global.DB.Debug().Model(&modelType).Where(params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Model(&modelType).Where(params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 
 	} else {
-		err = global.DB.Debug().Model(&modelType).Where(&params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Where(&params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 	}
 	return res, err
 }

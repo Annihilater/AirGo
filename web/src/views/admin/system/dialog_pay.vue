@@ -97,6 +97,9 @@ const payStoreData = storeToRefs(payStore)
 
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
+import alipayLogo from '/@/assets/icon/alipay.jpeg';
+
+import epayLogo from '/@/assets/icon/epay.png';
 
 // 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
@@ -107,8 +110,8 @@ const state = reactive({
   type: '',
   title: '',
   defaultPayLogoList: [
-    {name: "alipay logo", url: "/src/assets/icon/alipay.jpeg"},
-    {name: "epay logo", url: "/src/assets/icon/epay.png"},
+    {name: "alipay logo", url: alipayLogo},
+    {name: "epay logo", url: epayLogo},
   ],
 })
 
