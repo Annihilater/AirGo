@@ -107,8 +107,8 @@ const state = reactive({
   type: '',
   title: '',
   defaultPayLogoList: [
-    {name: "alipay logo", url: "/@/assets/icon/alipay.jpeg"},
-    {name: "epay logo", url: "/@/assets/icon/epay.png"},
+    {name: "alipay logo", url: "/src/assets/icon/alipay.jpeg"},
+    {name: "epay logo", url: "/src/assets/icon/epay.png"},
   ],
 })
 

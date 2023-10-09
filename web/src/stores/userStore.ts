@@ -103,7 +103,10 @@ export const useUserStore = defineStore('userInfo', {
         //订阅
         subUrl: (state): string => {
             const serverStore = useServerStore()
-            return serverStore.publicServerConfig.sub_url_pre + "user/getSub?link=" + state.userInfos.subscribe_info.subscribe_url
+            const serverStoreData = storeToRefs(serverStore)
+            const apiStore = useApiStore()
+            const apiStoreData = storeToRefs(apiStore)
+            return serverStoreData.publicServerConfig.value.backend_url + apiStoreData.staticApi.value.user_getSub.path +"?link=" +state.userInfos.subscribe_info.subscribe_url
         },
 
     },

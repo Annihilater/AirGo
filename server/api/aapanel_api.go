@@ -63,7 +63,7 @@ func SSNodeInfo(ctx *gin.Context) {
 //		"data": [
 //			{
 //				"id": 1,
-//				"email": "2493733085@qq.com",
+//				"email": "123@qq.com",
 //				"passwd": "Ws3cxaA5z5zZCLyZ",
 //				"uuid": "9d280b53-ed44-38f5-8900-a6d35f3ba9b7",
 //				"u": 2286096176,

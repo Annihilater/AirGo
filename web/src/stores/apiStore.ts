@@ -84,6 +84,7 @@ export const useApiStore = defineStore("apiStore", {
             //pay
             pay_getEnabledPayList: {path: apiPre + "/pay/getEnabledPayList", method: "get"} as ApiItem,
             pay_getPayList: {path: apiPre + "/pay/getPayList", method: "get"} as ApiItem,
+
             pay_newPay: {path: apiPre + "/pay/newPay", method: "post"} as ApiItem,
             pay_deletePay: {path: apiPre + "/pay/deletePay", method: "post"} as ApiItem,
             pay_updatePay: {path: apiPre + "/pay/updatePay", method: "post"} as ApiItem,

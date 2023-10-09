@@ -27,8 +27,9 @@ type Node struct {
 	NodeSpeedlimit int64 `json:"node_speedlimit"` //节点限速/Mbps
 	TrafficRate    int64 `json:"traffic_rate"`    //倍率
 	//Sort           int64  `json:"sort"`            //类型 vless(15) vmess(11) trojan(14)
-	NodeType string `json:"node_type"` //节点类型 vless,vmess,trojan
-	Server   string `json:"server"`    // aapanel的server配置信息字段
+	NodeType     string `json:"node_type"`      //节点类型 vless,vmess,trojan
+	IsSharedNode bool   `json:"is_shared_node"` //共享节点，不修改uuid和host
+	Server       string `json:"server"`         // aapanel的server配置信息字段
 	//SSType         string `json:"type"`            //显示与隐藏
 
 	//共享节点额外需要的参数
@@ -56,7 +57,7 @@ type Node struct {
 
 	//vmess参数
 	V   string `json:"v"   gorm:"default:2"`
-	Scy string `json:"scy" gorm:"default:auto"` //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero
+	Scy string `json:"scy" gorm:"default:auto"` //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero，vless选择none，否则v2rayng无法启动
 	Aid int64  `json:"aid" gorm:"default:0"`    //额外ID
 	//vless参数
 	VlessFlow       string `json:"flow"`       //流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
@@ -218,8 +219,9 @@ type NodeShared struct {
 	NodeSpeedlimit int64 `json:"node_speedlimit"` //节点限速/Mbps
 	TrafficRate    int64 `json:"traffic_rate"`    //倍率
 	//Sort           int64  `json:"sort"`            //类型 vless(15) vmess(11) trojan(14)
-	NodeType string `json:"node_type"` //节点类型 vless,vmess,trojan
-	Server   string `json:"server"`    // aapanel的server配置信息字段
+	NodeType     string `json:"node_type"`      //节点类型 vless,vmess,trojan
+	IsSharedNode bool   `json:"is_shared_node"` //共享节点，不修改uuid和host
+	Server       string `json:"server"`         // aapanel的server配置信息字段
 	//SSType         string `json:"type"`            //显示与隐藏
 
 	//共享节点额外需要的参数
@@ -247,7 +249,7 @@ type NodeShared struct {
 
 	//vmess参数
 	V   string `json:"v"   gorm:"default:2"`
-	Scy string `json:"scy" gorm:"default:auto"` //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero
+	Scy string `json:"scy" gorm:"default:auto"` //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero，vless选择none，否则v2rayng无法启动
 	Aid int64  `json:"aid" gorm:"default:0"`    //额外ID
 	//vless参数
 	VlessFlow       string `json:"flow"`       //流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443

@@ -50,6 +50,15 @@ func InitRouter() {
 	Router.Use(middleware.Serve("/", middleware.EmbedFolder(web.Static, "web"))) // targetPtah=web 是embed和web文件夹的相对路径
 	Router.Use(middleware.Cors(), middleware.Recovery())                         //不开启跨域验证码出错
 
+	//sspqnel路由，不进行casbin校验
+	sspanelRouter := Router.Group("/mod_mu")
+	{
+		sspanelRouter.GET("/nodes/:nodeID/info", api.SSNodeInfo) //获取节点信息
+		sspanelRouter.GET("/users", api.SSUsers)                 //获取当前节点可连接的用户
+		sspanelRouter.POST("/users/traffic", api.SSUsersTraffic) //上报用户的流量使用情况
+		sspanelRouter.POST("/users/aliveip", api.SSUsersAliveIP) //上报用户的当前在线IP
+	}
+
 	//固定路由组，不进行casbin校验
 	RouterGroupStatic := Router.Group("/api")
 	//public
@@ -139,15 +148,6 @@ func InitRouter() {
 		nodeAdminRouter.GET("/getNodeSharedList", api.GetNodeSharedList) //获取节点列表
 		nodeAdminRouter.POST("/deleteNodeShared", api.DeleteNodeShared)  //删除节点
 
-	}
-
-	//sspqnel，不进行casbin校验
-	sspanelRouter := RouterGroup.Group("/mod_mu")
-	{
-		sspanelRouter.GET("/nodes/:nodeID/info", api.SSNodeInfo) //获取节点信息
-		sspanelRouter.GET("/users", api.SSUsers)                 //获取当前节点可连接的用户
-		sspanelRouter.POST("/users/traffic", api.SSUsersTraffic) //上报用户的流量使用情况
-		sspanelRouter.POST("/users/aliveip", api.SSUsersAliveIP) //上报用户的当前在线IP
 	}
 
 	//商店

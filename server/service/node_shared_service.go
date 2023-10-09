@@ -19,6 +19,7 @@ func ParseVMessLink(link string) *model.NodeShared {
 	node := new(model.NodeShared)
 	node.Enabled = true
 	node.NodeType = "vmess"
+	node.IsSharedNode = true
 	if strings.ToLower(link[:8]) == "vmess://" {
 		link = link[8:]
 	} else {
@@ -130,6 +131,7 @@ func ParseVLessLink(link string) *model.NodeShared {
 	node := new(model.NodeShared)
 	node.Enabled = true
 	node.NodeType = "vless"
+	node.IsSharedNode = true
 
 	//remarks
 	node.Remarks = u.Fragment
@@ -194,6 +196,7 @@ func ParseTrojanLink(link string) *model.NodeShared {
 	node := new(model.NodeShared)
 	node.Enabled = true
 	node.NodeType = "trojan"
+	node.IsSharedNode = true
 	//remarks
 	node.Remarks = u.Fragment
 	if node.Remarks == "" {

@@ -125,22 +125,32 @@ func V2rayNGSubscribe(nodes *[]model.Node, uuid, host string) string {
 		if !v.Enabled {
 			continue
 		}
-		if host == "" {
-			host = v.Host
+		var newHost, newUUID string
+		if v.IsSharedNode {
+			newHost = v.Host
+			newUUID = v.UUID
+
+		} else {
+			newUUID = uuid
+			if host == "" {
+				newHost = v.Host
+			} else {
+				newHost = host
+			}
 		}
 		switch v.NodeType {
 		case "vmess":
-			if res := V2rayNGVmess(v, uuid, host); res != "" {
+			if res := V2rayNGVmess(v, newUUID, newHost); res != "" {
 				subArr = append(subArr, res)
 			}
 			continue
 		case "vless":
-			if res := V2rayNGVlessTrojan(v, "vless", uuid, host); res != "" {
+			if res := V2rayNGVlessTrojan(v, "vless", newUUID, newHost); res != "" {
 				subArr = append(subArr, res)
 			}
 			continue
 		case "trojan":
-			if res := V2rayNGVlessTrojan(v, "trojan", uuid, host); res != "" {
+			if res := V2rayNGVlessTrojan(v, "trojan", newUUID, newHost); res != "" {
 				subArr = append(subArr, res)
 			}
 			continue
@@ -159,13 +169,24 @@ func ClashSubscribe(nodes *[]model.Node, uuid, host string) string {
 		if !v.Enabled {
 			continue
 		}
-		if host == "" {
-			host = v.Host
+
+		var newHost, newUUID string
+		if v.IsSharedNode {
+			newHost = v.Host
+			newUUID = v.UUID
+
+		} else {
+			newUUID = uuid
+			if host == "" {
+				newHost = v.Host
+			} else {
+				newHost = host
+			}
 		}
-		//
+
 		nameArr = append(nameArr, v.Remarks)
 
-		proxy := ClashVmessVlessNew(v, uuid, host)
+		proxy := ClashVmessVlessNew(v, newUUID, newHost)
 		proxiesArr = append(proxiesArr, proxy)
 
 	}
@@ -209,10 +230,10 @@ func V2rayNGVmess(node model.Node, uuid, host string) string {
 		vmess.Port = strconv.FormatInt(node.Port, 10)
 	}
 	vmess.Uuid = uuid
+	vmess.Host = host
 	vmess.Aid = strconv.FormatInt(node.Aid, 10)
 	vmess.Net = node.Network
 	vmess.Disguisetype = node.Type //伪装类型
-	vmess.Host = host
 	vmess.Path = node.Path
 	//传输层安全
 	switch node.Security {
@@ -238,21 +259,27 @@ func V2rayNGVmess(node model.Node, uuid, host string) string {
 func V2rayNGVlessTrojan(node model.Node, scheme, uuid, host string) string {
 	var vlessUrl url.URL
 	vlessUrl.Scheme = scheme
+
 	vlessUrl.User = url.UserPassword(uuid, "")
+
 	vlessUrl.Host = node.Address + ":" + strconv.FormatInt(node.Port, 10)
 	values := url.Values{}
 
 	switch scheme {
 	case "vless":
-		values.Add("encryption", node.Scy)
+		values.Add("encryption", "none")
 		values.Add("type", node.Network)
+
 		values.Add("host", host)
+
 		values.Add("path", node.Path)
 		values.Add("flow", node.VlessFlow)
 	case "trojan":
 		values.Add("headerType", node.Type)
 		values.Add("type", node.Network)
+
 		values.Add("host", host)
+
 		values.Add("path", node.Path)
 
 	}
@@ -274,7 +301,8 @@ func V2rayNGVlessTrojan(node model.Node, scheme, uuid, host string) string {
 	vlessUrl.RawQuery = values.Encode()
 	vlessUrl.Fragment = node.Remarks
 
-	return vlessUrl.String()
+	//return vlessUrl.String()
+	return strings.ReplaceAll(vlessUrl.String(), ":@", "@")
 }
 
 // generate  Clash vmess vless trojan
@@ -292,7 +320,7 @@ func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
 		proxy.Flow = v.VlessFlow
 	case "trojan":
 		proxy.Type = "trojan"
-		proxy.Password = uuid
+		proxy.Uuid = uuid
 		proxy.Sni = v.Sni
 	}
 	if v.EnableTransfer {
@@ -312,12 +340,14 @@ func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
 		proxy.WsOpts.Path = v.Path
 		proxy.WsOpts.Headers = make(map[string]string, 1)
 		proxy.WsOpts.Headers["Host"] = host
+
 	case "grpc":
 		proxy.GrpcOpts.GrpcServiceName = "grpc"
 	case "tcp":
 	case "h2":
 		proxy.H2Opts.Path = v.Path
-		proxy.H2Opts.Host = append(proxy.H2Opts.Host, v.Host)
+		proxy.H2Opts.Host = append(proxy.H2Opts.Host, host)
+
 	}
 	switch v.Security {
 	case "tls":

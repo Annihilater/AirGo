@@ -65,7 +65,7 @@ export const useServerStore = defineStore("serverStore", {
             enable_email_code: false,       //是否开启注册邮箱验证码
             enable_login_email_code: false, //是否开启登录邮箱验证码
             rebate_rate: 0,                  //佣金率
-            backend_url: '',                 //订阅前缀
+            backend_url: '',                 //
 
         },
 

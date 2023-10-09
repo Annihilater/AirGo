@@ -141,10 +141,10 @@
         />
       </el-form-item>
       <el-form-item label="节点限速">
-        <el-input type="number" v-model="dialogData.nodeInfo.node_speedlimit" placeholder="0"/>
+        <el-input type="number" v-model.number="dialogData.nodeInfo.node_speedlimit"/>
       </el-form-item>
       <el-form-item label="节点倍率">
-        <el-input type="number" v-model="dialogData.nodeInfo.traffic_rate" placeholder="1"/>
+        <el-input type="number" v-model.number="dialogData.nodeInfo.traffic_rate"/>
       </el-form-item>
       <el-form-item label="启用中转">
         <el-switch

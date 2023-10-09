@@ -4,9 +4,7 @@ import (
 	"AirGo/global"
 	"AirGo/model"
 	"AirGo/service"
-	"AirGo/utils/other_plugin"
 	"AirGo/utils/response"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -56,16 +54,15 @@ func GetPublicSetting(ctx *gin.Context) {
 
 	//res, err := service.GetPublicSetting()
 
-	var ps = model.PublicSystem{}
-	res, err := other_plugin.SimpleCopyProperties(&ps, &global.Server.System)
-
-	fmt.Printf("ps:%s err:%s", res, err)
-	if err != nil {
-		global.Logrus.Error("系统设置获取错误:", err.Error())
-		response.Fail("系统设置获取错误"+err.Error(), nil, ctx)
-		return
+	var ps = model.PublicSystem{
+		EnableRegister:       global.Server.System.EnableRegister,
+		EnableEmailCode:      global.Server.System.EnableEmailCode,
+		EnableLoginEmailCode: global.Server.System.EnableLoginEmailCode,
+		RebateRate:           global.Server.System.RebateRate,
+		BackendUrl:           global.Server.System.BackendUrl,
 	}
-	response.OK("系统设置获取成功", res, ctx)
+
+	response.OK("系统设置获取成功", ps, ctx)
 }
 
 func UpdateSetting(ctx *gin.Context) {
