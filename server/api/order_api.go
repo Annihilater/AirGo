@@ -154,7 +154,7 @@ func PreHandleOrder(ctx *gin.Context) (*model.Orders, string) {
 	//折扣码处理
 	total, _ := strconv.ParseFloat(goods.TotalAmount, 64)
 	if receiveOrder.CouponName != "" {
-		coupon, err := service.VerifyCoupon(receiveOrder.CouponName, uIDInt)
+		coupon, err := service.VerifyCoupon(&receiveOrder)
 		if err != nil {
 			global.Logrus.Info("折扣码处理", err.Error())
 			msg = err.Error()

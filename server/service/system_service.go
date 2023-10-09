@@ -16,7 +16,7 @@ func UpdateSetting(setting *model.Server) error {
 	//重新加载系统配置
 	global.Server = *setting
 	//重新加载email
-	d := mail_plugin.InitEmailDialer()
+	d := mail_plugin.InitEmailDialer(global.Server.Email.EmailHost, int(global.Server.Email.EmailPort), global.Server.Email.EmailFrom, global.Server.Email.EmailSecret)
 	if d != nil {
 		global.EmailDialer = d
 	}

@@ -53,6 +53,7 @@ declare interface Pay {
 
 declare interface Email {
     email_from: string;
+    email_from_alias: string;
     email_secret: string;
     email_host: string;
     email_port: number;

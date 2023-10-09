@@ -41,7 +41,7 @@
       </el-col>
       <el-col :span="1"></el-col>
       <el-col :span="10">
-        <el-button class="login-content-code" type="primary" :disabled="state.isCountDown" @click="onGetEmailCode">
+        <el-button class="login-content-code" type="primary" :disabled="state.isCountDown || loginData.user_name === ''" @click="onGetEmailCode">
           {{ state.isCountDown ? `${state.countDownTime}s后重新获取` : "获取验证码" }}
         </el-button>
       </el-col>
@@ -180,12 +180,10 @@ const onGetEmailCode = () => {
   }
   state.isCountDown = true
   // publicApi.getEmailCodeApi(loginData.value).then((res) => {
-  request(apiStoreData.staticApi.value.user_login, loginData.value).then((res) => {
-    if (res.code === 0) {
+  request(apiStoreData.staticApi.value.public_getEmailCode, loginData.value).then((res) => {
       state.isCountDown = true
       ElMessage.success(res.msg)
       handleTimeChange()
-    }
   })
 
 };

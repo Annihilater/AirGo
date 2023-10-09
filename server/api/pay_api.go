@@ -6,7 +6,6 @@ import (
 	"AirGo/service"
 	"AirGo/utils/other_plugin"
 	"AirGo/utils/response"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"strconv"
@@ -26,7 +25,7 @@ func Purchase(ctx *gin.Context) {
 		response.Fail("订单参数获取错误", nil, ctx)
 		return
 	}
-	fmt.Println("前端传的订单信息：", receiveOrder)
+	//fmt.Println("前端传的订单信息：", receiveOrder)
 	//根据订单号查询订单
 	receiveOrder.UserID = uIDInt //确认user id
 	sysOrder, err := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{}, model.Orders{UserID: receiveOrder.UserID, OutTradeNo: receiveOrder.OutTradeNo})
@@ -40,7 +39,7 @@ func Purchase(ctx *gin.Context) {
 			return
 		}
 	}
-	fmt.Println("查询的系统订单：", sysOrder)
+	//fmt.Println("查询的系统订单：", sysOrder)
 	//0元购，跳过支付
 	totalAmountFloat64, _ := strconv.ParseFloat(sysOrder.TotalAmount, 10)
 	if totalAmountFloat64 == 0 {

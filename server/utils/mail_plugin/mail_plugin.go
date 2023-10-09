@@ -1,31 +1,26 @@
 package mail_plugin
 
 import (
-	"AirGo/global"
 	"crypto/tls"
 	"gopkg.in/gomail.v2"
-	"strings"
 )
 
-func InitEmailDialer() *gomail.Dialer {
-	d := gomail.NewDialer(global.Server.Email.EmailHost, int(global.Server.Email.EmailPort), global.Server.Email.EmailFrom, global.Server.Email.EmailSecret)
+func InitEmailDialer(host string, port int, username string, password string) *gomail.Dialer {
+	d := gomail.NewDialer(host, port, username, password)
 	// 关闭SSL协议认证
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	return d
 }
 
-func SendEmail(d *gomail.Dialer, toEmail, content, originalText string) error {
+func SendEmail(d *gomail.Dialer, from, fromNickname, to, mailSubject, mailText string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", global.Server.Email.EmailFrom) // 发件人
+	m.SetHeader("From", fromNickname+"<"+from+">") // 发件人
+	//m.SetHeader("From", from) // 发件人
 
-	m.SetHeader("Subject", global.Server.System.SubName) // 邮件主题
-	m.SetHeader("To", toEmail)                           // 收件人，可以多个收件人，但必须使用相同的 SMTP 连接
+	m.SetHeader("Subject", mailSubject) // 邮件主题
+	m.SetHeader("To", to)               // 收件人，可以多个收件人，但必须使用相同的 SMTP 连接
 
-	//是否发送验证码
-	if content != "" {
-		originalText = strings.Replace(originalText, "emailcode", content, -1)
-	}
-	m.SetBody("text/html", originalText)
+	m.SetBody("text/html", mailText)
 	return d.DialAndSend(m)
 
 	//m := gomail.NewMessage()

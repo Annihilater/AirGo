@@ -80,10 +80,8 @@
 </template>
 
 <script lang="ts" setup>
-//导入store
 import {storeToRefs} from 'pinia';
 import {useShopStore} from "/@/stores/shopStore";
-//store
 import {useNodeStore} from "/@/stores/node";
 import {reactive} from "vue";
 

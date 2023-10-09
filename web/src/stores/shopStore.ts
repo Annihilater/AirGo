@@ -25,6 +25,8 @@ export const useShopStore = defineStore("shopStore", {
         },
         //全部商品
         goodsList: [] as Goods[],
+        //编辑折扣码选中的商品
+
         //商店页面参数
         shopData: {
             //当前支付商品

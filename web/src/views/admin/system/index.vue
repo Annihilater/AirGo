@@ -155,13 +155,20 @@
             <el-form-item label="端口">
               <el-input v-model.number="serverConfig.email.email_port" type="number"/>
             </el-form-item>
-            <el-form-item label="用户名">
-              <el-input v-model="serverConfig.email.email_from" placeholder="admin@oicq.com"/>
+            <el-form-item label="邮箱账户名">
+              <el-input v-model="serverConfig.email.email_from" placeholder="10010@qq.com"/>
+            </el-form-item>
+            <el-form-item label="邮箱别名">
+              <el-input v-model="serverConfig.email.email_from_alias" placeholder="10010@foxmail.com"/>
+              <div style="color: #9b9da1">*例如：qq邮箱可以设置foxmil别名。发送邮件时优先显示别名。没有可忽略本项</div>
+            </el-form-item>
+            <el-form-item label="账户昵称">
+              <el-input v-model="serverConfig.email.email_nickname" placeholder="吊炸天机场管理员"/>
             </el-form-item>
             <el-form-item label="密码">
               <el-input v-model="serverConfig.email.email_secret" type="password"/>
             </el-form-item>
-            <el-form-item label="邮件主题">
+            <el-form-item label="默认邮件主题">
               <el-input v-model="serverConfig.email.email_subject"/>
             </el-form-item>
             <el-form-item label="邮件内容格式">

@@ -57,7 +57,7 @@ func InitRatelimit() {
 	global.RateLimit.VisitRole.AddRule(time.Second*60, int(global.Server.RateLimitParams.VisitParam))
 }
 func InitEmailDialer() {
-	d := mail_plugin.InitEmailDialer()
+	d := mail_plugin.InitEmailDialer(global.Server.Email.EmailHost, int(global.Server.Email.EmailPort), global.Server.Email.EmailFrom, global.Server.Email.EmailSecret)
 	if d != nil {
 		global.EmailDialer = d
 	}

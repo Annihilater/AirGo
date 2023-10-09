@@ -10,7 +10,7 @@
         </el-button>
       </div>
       <div>
-        <el-table :data="state.couponList" stripe style="width: 100%;flex: 1;">
+        <el-table :data="couponStoreData.couponList.value" stripe style="width: 100%;flex: 1;">
           <el-table-column type="index" label="序号" width="60"/>
           <el-table-column prop="name" label="名称" width="180"/>
           <el-table-column prop="id" label="ID" width="60"/>
@@ -42,27 +42,28 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
-//引入组件
+import {useCouponStore} from "/@/stores/couponStore";
+
 const CouponDialog = defineAsyncComponent(() => import('/@/views/admin/coupon/dialog.vue'))
 const couponDialogRef = ref()
+const couponStore = useCouponStore()
+const couponStoreData = storeToRefs(couponStore)
 
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
 const state = reactive({
   isShowDialog: false,
-  couponList: [] as Coupon[],
-  coupon: {} as Coupon,
 })
 //
 const getCoupon = () => {
   // couponApi.getCouponApi().then((res)=>{
   request(apiStoreData.api.value.coupon_getCoupon).then((res) => {
-    state.couponList = res.data
+    couponStoreData.couponList.value = res.data
   })
 }
 
 //
-const openDialog = (type: string, data: Coupon) => {
+const openDialog = (type: string, data?: Coupon) => {
   couponDialogRef.value.openDialog(type, data)
 }
 //
@@ -81,7 +82,7 @@ const opDeleteCoupon = (row: Coupon) => {
         setTimeout(() => {
           getCoupon()
           //逻辑
-        }, 1000);
+        }, 500);
       })
       .catch(() => {
       });
