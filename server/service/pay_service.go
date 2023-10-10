@@ -65,13 +65,12 @@ func TradePreCreatePay(client *alipay.Client, sysOrder *model.Orders) (*alipay.T
 	//创建支付宝订单
 	var order alipay.TradePreCreate
 	//order.NotifyURL = global.Server.AliPaySetting.ReturnURL  //支付结果放在轮询里判断
-	goodsID := strconv.FormatInt(sysOrder.GoodsID, 10)
-	order.Subject = goodsID + "-" + sysOrder.Subject
+	order.Subject = sysOrder.Subject
 	order.OutTradeNo = sysOrder.OutTradeNo
 	order.TotalAmount = sysOrder.TotalAmount
 	order.ProductCode = "FACE_TO_FACE_PAYMENT"
 	res, err := client.TradePreCreate(order)
-	fmt.Println("TradePreCreate:", res, err)
+	//fmt.Println("TradePreCreate:", res, err)
 	return res, err
 	//响应模板
 	// 	{
@@ -89,23 +88,6 @@ func TradePreCreatePay(client *alipay.Client, sysOrder *model.Orders) (*alipay.T
 	// 		"sign": "EmZmz7Jix2GLtScaysE9D0DF9Sw9ZDuuums7CXywFO83g/dnOasZiAQnDhsgoMq9JmPnygIog4+myEcxXqmoLM2qZX2zy3Aof7CbVzLwA931kq09u6y54h28R+BvILLZAR5gmSYW2oh4/gWO24yK8awHLndCAQhNuHFOkMwCAcDRKGjhKkDb9XIx/do99V/Xa9w8pJhHSt1ONaIjyWufK6b4YcVg3bGldBTG+xpqDvzXSYFc5lBRfgAJxn8NklTKVj/PLFr3nM4IJ/fYFaJuHS2/pjQThyDiEsjPvEhA9aPEeXK03J8Qea0HFAuM9i2kw1OqmeN0oiHCrVVSCFGPRg=="
 	// 	}
 	// }
-	//响应模板
-	// type TradePreCreateRsp struct {
-	// 	Content struct {
-	// 		Code       Code   `json:"code"`
-	// 		Msg        string `json:"msg"`
-	// 		SubCode    string `json:"sub_code"`
-	// 		SubMsg     string `json:"sub_msg"`
-	// 		OutTradeNo string `json:"out_trade_no"` // 创建交易传入的商户订单号
-	// 		QRCode     string `json:"qr_code"`      // 当前预下单请求生成的二维码码串，可以用二维码生成工具根据该码串值生成对应的二维码
-	// 	} `json:"alipay_trade_precreate_response"`
-	// 	Sign string `json:"sign"`
-	// }
-
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	//fmt.Println("统一收单交易支付接口TradePay返回:", res)
 
 }
 

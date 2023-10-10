@@ -65,14 +65,10 @@ import {storeToRefs} from 'pinia';
 import {useRoleStore} from "/@/stores/roleStore";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
-
 const roleStore = useRoleStore()
 const {roleManageData} = storeToRefs(roleStore)
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
-
-// 引入组件
 const RoleDialog = defineAsyncComponent(() => import('/@/views/admin/role/dialog_editRole.vue'));
 const RoleDialogEditApi = defineAsyncComponent(() => import('/@/views/admin/role/dialog_editApi.vue'))
 const roleDialogRef = ref();
@@ -107,7 +103,6 @@ const onRowDel = (row: RowRoleType) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    // roleApi.delRoleApi({id: row.id}).then((res) => {
     request(apiStoreData.api.value.role_delRole, {id: row.id}).then((res) => {
       ElMessage.success('删除失败');
     }).catch(() => {

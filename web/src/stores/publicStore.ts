@@ -11,7 +11,6 @@ export const usePublicStore = defineStore('publicStore', {
         base64CaptchaData: {
             id: '',
             b64s: '',
-
         } as Base64CaptchaInfo,
 
     }),

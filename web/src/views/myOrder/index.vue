@@ -58,16 +58,6 @@ const toPay = (row: Order) => {
   //当前订单存入pinia
   shopData.value.currentOrder = row
   PurchaseDialogRef.value.openDialog()
-  //
-  // else {
-  //   const ok = isMobile()                                //如果支付链接不为空，直接付款
-  //   if (ok) {
-  //     window.location.href = shopData.value.currentOrder.qr_code;
-  //     return
-  //   } else {
-  //     openQRDialog()       //电脑端打开支付二维码弹窗
-  //   }
-  // }
 }
 
 //打开二维码弹窗
@@ -84,7 +74,6 @@ const openQRDialog = () => {
     flex-direction: column;
     flex: 1;
     overflow: auto;
-
     .el-table {
       flex: 1;
     }

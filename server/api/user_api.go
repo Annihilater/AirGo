@@ -145,7 +145,6 @@ func ChangeSubHost(ctx *gin.Context) {
 		response.Fail("获取信息,uID参数错误", nil, ctx)
 		return
 	}
-
 	var host model.SubHost
 	err := ctx.ShouldBind(&host)
 	if err != nil || len(host.Host) > 100 {

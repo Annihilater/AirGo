@@ -139,16 +139,12 @@ import {DateStrtoTime} from "../../../utils/formatTime";
 const serverStore = useServerStore()
 const userStore = useUserStore()
 const {userManageData} = storeToRefs(userStore)
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
 const reportStore = useReportStore()
 const {reportTable} = storeToRefs(reportStore)
-
-// 引入组件
 const UserDialog = defineAsyncComponent(() => import('/@/views/admin/user/dialog.vue'));
 const ReportComponent = defineAsyncComponent(() => import('/@/components/report/index.vue'))
-//组件ref
 const userDialogRef = ref();
 const reportRef = ref()
 
@@ -183,7 +179,7 @@ const onRowDel = (row: SysUser) => {
         userStore.deleteUser(row)
         setTimeout(() => {
           userStore.getUserList(state.params)
-        }, 1000)
+        }, 500)
       })
       .catch(() => {
       });
@@ -227,7 +223,6 @@ const getReportDataHandler = () => {
   reportTable.value.pagination_params = state.params;
   // console.log("参数：",reportTable.value)
   //请求数据
-  // reportApi.submitReportApi(reportTable.value).then((res) => {
   request(apiStoreData.api.value.report_reportSubmit, reportTable.value).then((res) => {
     userManageData.value.users.user_list = res.data.table_data
     userManageData.value.users.total = res.data.total

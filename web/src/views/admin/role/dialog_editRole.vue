@@ -47,16 +47,13 @@ import {useRoutesStore} from "/@/stores/routesStore";
 import {useRoleStore} from "/@/stores/roleStore";
 import {storeToRefs} from 'pinia';
 import {ElMessage} from 'element-plus';
-//
 import {arrayExtractionNodes} from "/@/utils/arrayOperation";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
 // 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
-//定义store
 const routesStore = useRoutesStore()
 const {routesTree} = storeToRefs(routesStore)
 const roleStore = useRoleStore()
@@ -111,7 +108,6 @@ const onSubmit = () => {
     dialog.value.roleForm.nodes = tree_ref.value.getCheckedKeys()
     const newNodes: any = [...tree_ref.value.getCheckedKeys(), ...tree_ref.value.getHalfCheckedKeys()];
     dialog.value.roleForm.nodes = newNodes
-    // roleApi.modifyRoleInfoApi(dialog.value.roleForm).then((res) => {
     request(apiStoreData.api.value.role_modifyRoleInfo, dialog.value.roleForm).then((res) => {
       ElMessage.success('修改成功');
       //父组件重新加载
@@ -122,7 +118,6 @@ const onSubmit = () => {
   } else {
     dialog.value.roleForm.id = 0 //清空上次编辑的id
     dialog.value.roleForm.nodes = tree_ref.value.getCheckedKeys()
-    // roleApi.addRoleApi(dialog.value.roleForm).then((res) => {
     request(apiStoreData.api.value.role_addRole, dialog.value.roleForm).then((res) => {
       ElMessage.success('新建角色成功');
       //父组件重新加载

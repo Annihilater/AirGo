@@ -184,10 +184,10 @@ func UserExpiryCheck() error {
 
 // 修改混淆
 func ChangeSubHost(uID int64, host string) error {
-	var u model.User
-	u.ID = uID
-	u.SubscribeInfo.Host = host
-	return global.DB.Updates(&u).Error
+	u := map[string]any{
+		"host": host,
+	}
+	return global.DB.Model(&model.User{ID: uID}).Updates(u).Error
 }
 
 // 获取自身信息

@@ -2,7 +2,6 @@
   <div>
     <el-dialog v-model="state.isShowSubmitOrderDialog" title="订单详情" width="80%">
       <div class="home-card-item">
-
         <div class="card-text">
           <el-button class="card-text-left" type="warning">订购套餐</el-button>
           <el-text class="card-header-left">{{ shopData.currentGoods.subject }}</el-text>
@@ -57,19 +56,15 @@
 <script lang="ts" setup>
 import {reactive} from 'vue';
 import {ElMessage} from "element-plus";
-//shop store
 import {storeToRefs} from 'pinia';
 import {useShopStore} from "/@/stores/shopStore";
-//order store
 import {useOrderStore} from "/@/stores/orderStore"
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 
 const shopStore = useShopStore()
 const {shopData} = storeToRefs(shopStore)
-
 const orderStore = useOrderStore()
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
 
@@ -81,11 +76,9 @@ const state = reactive({
 //获取订单详情
 const getOrderInfo = (params: object) => {
   orderStore.getOrderInfo(params).then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      shopData.value.currentOrder = {} as Order
-      shopData.value.currentOrder = res.data
-    }
+    ElMessage.success(res.msg)
+    shopData.value.currentOrder = {} as Order
+    shopData.value.currentOrder = res.data
   }).catch()
 }
 //打开弹窗
@@ -96,14 +89,12 @@ const openDialog = () => {
 }
 //验证折扣码
 const varifyCoupon = () => {
-
   getOrderInfo({goods_id: shopData.value.currentOrder.goods_id, coupon_name: shopData.value.currentOrder.coupon_name})
 }
 
 //提交订单按钮
 const onSubmitOrder = () => {
   shopData.value.currentOrder.id = 0
-  // shopApi.preCreatePayApi(shopData.value.currentOrder).then((res) => {
   request(apiStoreData.api.value.shop_preCreatePay, shopData.value.currentOrder).then((res) => {
     //保存订单信息到pinia
     shopData.value.currentOrder = res.data

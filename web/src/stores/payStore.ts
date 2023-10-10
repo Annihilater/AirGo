@@ -35,13 +35,11 @@ export const usePayStore = defineStore('payStore', {
     actions: {
         //获取支付列表
         async getPayList() {
-            // const res = await payApi.getPayListApi()
             const res = await request(apiStoreData.api.value.pay_getPayList)
             this.payList = res.data
         },
         //获取启用的支付列表
         async getEnabledPayList() {
-            // const res = await payApi.getEnabledPayListApi()
             const res = await request(apiStoreData.api.value.pay_getEnabledPayList)
             this.payList = res.data
         },

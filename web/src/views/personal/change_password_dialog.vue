@@ -20,7 +20,6 @@
 </template>
 
 <script lang="ts" setup>
-//user store
 import {useUserStore} from "/@/stores/userStore";
 import {storeToRefs} from 'pinia';
 import {reactive} from "vue";

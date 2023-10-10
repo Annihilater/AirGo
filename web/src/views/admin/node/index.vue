@@ -122,7 +122,7 @@
 
 import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 import {storeToRefs} from "pinia";
-import {useNodeStore} from "/@/stores/node";
+import {useNodeStore} from "/@/stores/nodeStore";
 import {useUserStore} from "/@/stores/userStore";
 import {ElMessageBox} from "element-plus";
 
@@ -211,7 +211,7 @@ function onRowDel(row: NodeInfo) {
         setTimeout(() => {
           state.params.search = ''
           onGetNode(state.params)
-        }, 1000);
+        }, 500);
       })
       .catch(() => {
       });

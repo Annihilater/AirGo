@@ -4,7 +4,7 @@
       <el-row :gutter="10" style="width: 768px">
         <el-col :span="18">
           <el-input v-model="nodeStore.nodeSharedData.newNodeSharedUrl.url" size="default"
-                    ></el-input>
+          ></el-input>
         </el-col>
         <el-col :span="2">
           <el-button size="default" type="success" class="ml10" @click="newNodeShared()">
@@ -42,7 +42,7 @@
 <script setup lang="ts">
 //定义参数
 import {reactive} from "vue";
-import {useNodeStore} from "/@/stores/node";
+import {useNodeStore} from "/@/stores/nodeStore";
 import {ElMessage} from "element-plus";
 
 const nodeStore = useNodeStore()

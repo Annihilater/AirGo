@@ -48,7 +48,6 @@ import {useShopStore} from "/@/stores/shopStore";
 
 const shopStore = useShopStore()
 const {goodsList, shopData} = storeToRefs(shopStore)
-//引入弹窗组件
 const SubmitOrderDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_submit_order.vue'))
 const PurchaseDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_purchase.vue'))
 const QRDialog = defineAsyncComponent(() => import('/@/views/shop/dialog_QR.vue'))

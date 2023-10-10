@@ -56,7 +56,6 @@ const state = reactive({
 })
 //
 const getCoupon = () => {
-  // couponApi.getCouponApi().then((res)=>{
   request(apiStoreData.api.value.coupon_getCoupon).then((res) => {
     couponStoreData.couponList.value = res.data
   })
@@ -74,8 +73,6 @@ const opDeleteCoupon = (row: Coupon) => {
     type: 'warning',
   })
       .then(() => {
-        //逻辑
-        // couponApi.deleteCouponApi(row).then((res)=>{
         request(apiStoreData.api.value.coupon_deleteCoupon, row).then((res) => {
           ElMessage.success(res.msg);
         })
@@ -86,7 +83,6 @@ const opDeleteCoupon = (row: Coupon) => {
       })
       .catch(() => {
       });
-
 }
 //
 onMounted(() => {

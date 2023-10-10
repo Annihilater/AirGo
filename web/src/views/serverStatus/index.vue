@@ -43,14 +43,12 @@
   </div>
 
 </template>
-<!--<script setup lang="ts" name="personal">-->
+
 <script setup lang="ts">
 import {onMounted, onUnmounted} from "vue";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
-
-
-import {useNodeStore} from "/@/stores/node";
+import {useNodeStore} from "/@/stores/nodeStore";
 import {Local} from "/@/utils/storage";
 
 const nodeStore = useNodeStore()
@@ -63,7 +61,6 @@ const apiStoreData = storeToRefs(apiStore)
 function getWsUrl(): string {
   let apiUrl: string = import.meta.env.VITE_API_URL
   if (apiUrl === '') {
-    // console.log("apiUrl===''")
     apiUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port
   }
   const url = apiUrl.slice(apiUrl.indexOf('//') + 2, apiUrl.length)
@@ -81,7 +78,7 @@ let interval = null;//计时器
 //监听是否连接成功
 function initWS() {
   ws.onopen = function () {
-    console.log('ws连接成功,连接状态：' + ws.readyState);
+    // console.log('ws连接成功,连接状态：' + ws.readyState);
     ws.send('{"type":1,"data":"hi"}');
     interval = setInterval(() => {
       ws.send('{"type":1,"data":"hi"}');
@@ -89,7 +86,7 @@ function initWS() {
   }
 //接收服务器发回的信息
   ws.onmessage = function (data) {
-    console.log('ws接收服务器发回的信息：' + ws.readyState);
+    // console.log('ws接收服务器发回的信息：' + ws.readyState);
     serverStatusData.value = JSON.parse(data.data)
     // console.log("JSON.parse:", JSON.parse(data.data))
   }

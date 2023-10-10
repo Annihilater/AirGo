@@ -41,7 +41,8 @@
       </el-col>
       <el-col :span="1"></el-col>
       <el-col :span="10">
-        <el-button class="login-content-code" type="primary" :disabled="state.isCountDown || loginData.user_name === ''" @click="onGetEmailCode">
+        <el-button class="login-content-code" type="primary" :disabled="state.isCountDown || loginData.user_name === ''"
+                   @click="onGetEmailCode">
           {{ state.isCountDown ? `${state.countDownTime}s后重新获取` : "获取验证码" }}
         </el-button>
       </el-col>
@@ -85,11 +86,8 @@ import {ElMessage, FormInstance, FormRules} from 'element-plus';
 import {Session} from '/@/utils/storage';
 import {formatAxis} from '/@/utils/formatTime';
 import {NextLoading} from '/@/utils/loading';
-//后端路由
 import {initBackEndControlRoutes} from '/@/router/backEnd';
-//route
 import {useRoute, useRouter} from 'vue-router';
-//user store
 import {storeToRefs} from 'pinia';
 import {useUserStore} from "/@/stores/userStore";
 import {useThemeConfig} from '/@/stores/themeConfig';
@@ -98,13 +96,10 @@ import {useApiStore} from "/@/stores/apiStore";
 
 const route = useRoute();
 const router = useRouter();
-
 const userStore = useUserStore()
 const {loginData} = storeToRefs(userStore)
-
 const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
 //定义参数
@@ -129,11 +124,8 @@ const onResetPassword = () => {
 //确认重置密码
 const onSubmitResetPassword = () => {
   userStore.submitResetPassword().then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-    } else {
+    ElMessage.success(res.msg)
 
-    }
   })
 }
 // 登录
@@ -179,11 +171,10 @@ const onGetEmailCode = () => {
     return
   }
   state.isCountDown = true
-  // publicApi.getEmailCodeApi(loginData.value).then((res) => {
   request(apiStoreData.staticApi.value.public_getEmailCode, loginData.value).then((res) => {
-      state.isCountDown = true
-      ElMessage.success(res.msg)
-      handleTimeChange()
+    state.isCountDown = true
+    ElMessage.success(res.msg)
+    handleTimeChange()
   })
 
 };

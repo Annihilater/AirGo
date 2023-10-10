@@ -104,7 +104,6 @@ import {Local} from "/@/utils/storage";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 
-
 const userStore = useUserStore()
 const {registerData, loginData} = storeToRefs(userStore)
 const router = useRouter();
@@ -149,12 +148,9 @@ const onGetEmailCode = () => {
   }
   // publicApi.getEmailCodeApi(userStore.registerData).then((res) => {
   request(apiStoreData.staticApi.value.public_getEmailCode, userStore.registerData).then((res) => {
-    if (res.code === 0) {
-      state.isCountDown = true
-      ElMessage.success(res.msg)
-      handleTimeChange()
-    } else {
-    }
+    state.isCountDown = true
+    ElMessage.success(res.msg)
+    handleTimeChange()
   })
 
 };
@@ -167,7 +163,7 @@ const handleTimeChange = () => {
     setTimeout(() => {
       state.countDownTime--;
       handleTimeChange();
-    }, 1000);
+    }, 500);
   }
 };
 

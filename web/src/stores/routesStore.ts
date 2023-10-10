@@ -3,9 +3,6 @@ import {defineStore, storeToRefs} from "pinia";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 
-
-
-
 export const useRoutesStore = defineStore("routesStore", {
     state: () => ({
         //所有的动态路由list
@@ -34,7 +31,6 @@ export const useRoutesStore = defineStore("routesStore", {
         },
         //所有动态路由tree（路由tree）
         async setRoutesTree() {
-            // const res: any = await menuApi.getAllRouteTreeApi()
             const apiStore = useApiStore()
             const res: any = await request(apiStore.api.menu_getAllRouteTree)
             this.routesTree = res.data
@@ -42,7 +38,6 @@ export const useRoutesStore = defineStore("routesStore", {
         },
         //当前角色动态路由tree（路由tree）
         async setCurrentRoleRoutesTree(params: any) {
-            // const res: any = await menuApi.getRouteTreeApi(params)
             const apiStore = useApiStore()
             const res: any = await request(apiStore.api.menu_getRouteTree, params)
             this.currentRoleRoutesTree = res.data
@@ -50,36 +45,30 @@ export const useRoutesStore = defineStore("routesStore", {
         },
         //所有的动态路由list
         async setAllRoutesList() {
-            // const res = await menuApi.getAllRouteListApi()
             const apiStore = useApiStore()
             const res = await request(apiStore.api.menu_getAllRouteList)
             this.allRoutesList = res.data
         },
         //查询动态路由 by meta.title
         async findRoutesListByTitle(params: object) {
-            // const res = await menuApi.findDynamicRouteApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.menu_findDynamicRoute, params)
             this.allRoutesList = res.data
         },
         //新建动态路由
         async newDynamicRoute(params: object) {
-            // const res = menuApi.newDynamicRouteApi(params)
             const apiStore = useApiStore()
             const res = request(apiStore.api.menu_newDynamicRoute, params)
         },
         //删除动态路由
         async delDynamicRoute(params: object) {
-            // const res = menuApi.delDynamicRouteApi(params)
             const apiStore = useApiStore()
             const res = request(apiStore.api.menu_delDynamicRoute, params)
         },
         //更新动态路由
         async updateDynamicRoute(params: object) {
-            // const res = menuApi.updateDynamicRouteApi(params)
             const apiStore = useApiStore()
             const res = request(apiStore.api.menu_updateDynamicRoute, params)
         },
-
     }
 })

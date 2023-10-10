@@ -174,8 +174,7 @@
 <script lang="ts" setup>
 
 import {storeToRefs} from "pinia";
-//store
-import {useNodeStore} from "/@/stores/node";
+import {useNodeStore} from "/@/stores/nodeStore";
 import {reactive} from "vue";
 
 const nodeStore = useNodeStore()
@@ -215,13 +214,13 @@ function onSubmit() {
     nodeStore.newNode(dialogData.value.nodeInfo)
     setTimeout(() => {
       emit('refresh');
-    }, 1000);       //延时。防止没新建完成就重新请求
+    }, 500);
   } else {
     //更新节点
     nodeStore.updateNode(dialogData.value.nodeInfo)
     setTimeout(() => {
       emit('refresh');
-    }, 1000);
+    }, 500);
   }
   closeDialog()
 }

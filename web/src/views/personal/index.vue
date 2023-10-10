@@ -20,10 +20,10 @@
                       <div class="personal-item-label">昵称：</div>
                       <span>{{ userInfos.nick_name }}</span>
                     </el-col>
-                    <el-col :xs="24" :sm="12" class="personal-item mb6">
-                      <div class="personal-item-label">身份：</div>
-                      <span>{{ userInfos.nick_name }}</span>
-                    </el-col>
+<!--                    <el-col :xs="24" :sm="12" class="personal-item mb6">-->
+<!--                      <div class="personal-item-label">身份：</div>-->
+<!--                      <span>{{ userInfos.nick_name }}</span>-->
+<!--                    </el-col>-->
                   </el-row>
                 </el-col>
               </el-row>
@@ -95,26 +95,19 @@
 
 <script setup lang="ts" name="personal">
 import {computed, defineAsyncComponent, onMounted, reactive, ref} from 'vue';
-//时间
 import {formatAxis} from '/@/utils/formatTime';
-// 引入image-conversion
 import * as imageConversion from 'image-conversion'
-//user store
 import {useUserStore} from "/@/stores/userStore";
 import {storeToRefs} from 'pinia';
-//server store
 import {useServerStore} from "/@/stores/serverStore";
 
 const userInfo = useUserStore()
 const {userInfos} = storeToRefs(userInfo)
-
 const serverStore = useServerStore()
 const serverConfig = storeToRefs(serverStore)
-
-//引入组件
 const ChangePasswordDialog = defineAsyncComponent(() => import('/@/views/personal/change_password_dialog.vue'));
 const changePasswordDialogRef = ref()
-//定义参数
+
 const state = reactive({
   url: '',
 })
@@ -150,7 +143,7 @@ const currentTime = computed(() => {
 
 onMounted(() => {
   getUrl(); //获取专属邀请url
-  // serverStore.getPublicServerConfig();//获取public config
+  // userInfo.getUserInfo()//获取用户信息
 });
 </script>
 

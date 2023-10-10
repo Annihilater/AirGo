@@ -146,15 +146,12 @@ const state = reactive({
 
 //获取订单统计
 function getMonthOrder(params?: object) {
-  // orderApi.getMonthOrderStatisticsApi(state.monthOptions.dateDay).then((res) => {
   request(apiStoreData.api.value.order_getMonthOrderStatistics, state.monthOptions.dateDay).then((res) => {
     state.statisticsData.dayOrderDataCurrent = res.data
   })
-  // orderApi.getMonthOrderStatisticsApi(state.monthOptions.dateCurrent).then((res) => {
   request(apiStoreData.api.value.order_getMonthOrderStatistics, state.monthOptions.dateCurrent).then((res) => {
     state.statisticsData.monthOrderDataCurrent = res.data
   })
-  // orderApi.getMonthOrderStatisticsApi(state.monthOptions.dateLast).then((res) => {
   request(apiStoreData.api.value.order_getMonthOrderStatistics, state.monthOptions.dateLast).then((res) => {
     state.statisticsData.monthOrderDataLast = res.data
   })
@@ -162,13 +159,11 @@ function getMonthOrder(params?: object) {
 
 //获取节点流量统计
 function getMonthNodeInfo(params?: object) {
-  // nodeApi.getNodeWithTrafficApi(state.monthOptions.dateCurrent).then((res) => {
   request(apiStoreData.api.value.node_getTraffic, state.monthOptions.dateCurrent).then((res) => {
     state.statisticsData.monthNodeCurrent = res.data
     //ElMessage.success(res.msg)
 
   })
-  // nodeApi.getNodeWithTrafficApi(state.monthOptions.dateLast).then((res) => {
   request(apiStoreData.api.value.node_getTraffic, state.monthOptions.dateLast).then((res) => {
     state.statisticsData.monthNodeLast = res.data
     // ElMessage.success(res.msg)

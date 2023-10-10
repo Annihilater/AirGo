@@ -45,7 +45,7 @@ const state = reactive({
 
 // 打开弹窗
 const openDialog = (type: string, row?: any) => {
-  console.log("打开弹窗:", type)
+  // console.log("打开弹窗:", type)
   if (type == 'add') {
     state.type = type
     state.title = "新建文章"
@@ -65,18 +65,15 @@ const closeDialog = () => {
 //确认提交
 function onSubmit() {
   if (state.type === 'add') {
-    // articleApi.newArticleApi(state.article)
     request(apiStoreData.api.value.article_newArticle, state.article)
-
     setTimeout(() => {
       emit('refresh');
-    }, 1000);       //延时。防止没新建完成就重新请求
+    }, 500);
   } else {
-    // articleApi.updaterticleApi(state.article)
     request(apiStoreData.api.value.article_updateArticle, state.article)
     setTimeout(() => {
       emit('refresh');
-    }, 1000);
+    }, 500);
   }
   closeDialog()
 }

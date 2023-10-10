@@ -38,7 +38,6 @@ import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 
 const shopStore = useShopStore()
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
 
@@ -77,11 +76,10 @@ const onSubmit = () => {
   state.isShowDialog = false
   // shopApi.goodsSortApi(nodeSortHandler(state.list)).then((res) => {
   request(apiStoreData.api.value.shop_goodsSort, nodeSortHandler(state.list)).then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      shopStore.getAllGoods() //获取全部商品
-    }
-  })
+        ElMessage.success(res.msg)
+        shopStore.getAllGoods() //获取全部商品
+      }
+  )
 }
 
 

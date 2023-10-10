@@ -44,6 +44,8 @@ func Purchase(ctx *gin.Context) {
 	totalAmountFloat64, _ := strconv.ParseFloat(sysOrder.TotalAmount, 10)
 	if totalAmountFloat64 == 0 {
 		sysOrder.TradeStatus = model.OrderCompleted                     //更新数据库订单状态,自定义结束状态completed
+		sysOrder.ReceiptAmount = "0"                                    //实收金额
+		sysOrder.BuyerPayAmount = "0"                                   //付款金额
 		go service.UpdateOrder(&sysOrder)                               //更新数据库状态
 		go service.UpdateUserSubscribe(&sysOrder)                       //更新用户订阅信息
 		go service.RemainHandle(sysOrder.UserID, sysOrder.RemainAmount) //处理用户余额

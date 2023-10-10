@@ -23,21 +23,17 @@
 
 <script setup lang="ts">
 import {nextTick, reactive, ref} from "vue";
-//导入二维码 js
 import QRCode from 'qrcodejs2-fixes';
-//导入store
 import {storeToRefs} from 'pinia';
 import {useShopStore} from "/@/stores/shopStore";
-// 定义二维码变量内容
-const qrcodeRef = ref();
 
+const qrcodeRef = ref();
 const shopStore = useShopStore()
 const {shopData} = storeToRefs(shopStore)
 //定义变量
 const state = reactive({
   isShowQRDialog: false,
   QRcode: null,
-
 })
 //二维码
 const onInitQrcode = () => {
@@ -45,7 +41,7 @@ const onInitQrcode = () => {
   const codeHtml = document.getElementById("qrcode");
   codeHtml.innerHTML = "";
   state.QRcode = new QRCode(qrcodeRef.value, {
-    text: shopData.value.currentOrder.qr_code,
+    text: shopData.value.currentOrder.pay_info.alipay_info.qr_code,
     width: 125,
     height: 125,
     colorDark: '#000000',
@@ -53,7 +49,7 @@ const onInitQrcode = () => {
   });
 }
 //打开弹窗
-const openDialog = (goods?: object) => {
+const openDialog = () => {
   state.isShowQRDialog = true
   nextTick(() => {
     onInitQrcode()

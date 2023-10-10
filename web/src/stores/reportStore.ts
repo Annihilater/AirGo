@@ -38,27 +38,17 @@ export const useReportStore = defineStore("reportStore", {
         async getDB(params?: object) {
             // const res = await reportApi.getDBApi()
             const res = await request(apiStoreData.api.value.report_getDB)
-            if (res.code === 0) {
-                this.dbInfo = res.data
-            }
+            this.dbInfo = res.data
         },
         // 获取数据库的所有表名，参数：{"database":"xxxx}
         async getTables(params?: object) {
-            // const res = await reportApi.getTablesApi(params)
             const res = await request(apiStoreData.api.value.report_getTables, params)
-
         },
         // 获取字段名,类型值
         // 参数：{"table_name":"xxx}
         async getColumn(params?: object) {
-            // const res = await reportApi.getColumnApi(params)
-            console.log(params)
             const res = await request(apiStoreData.api.value.report_getColumn, params)
             this.fieldData = res.data
-
-
         },
-
     }
-
 })

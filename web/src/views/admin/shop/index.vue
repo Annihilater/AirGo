@@ -47,22 +47,15 @@
 </template>
 
 <script setup lang="ts">
-
-
 import {defineAsyncComponent, onMounted, ref} from 'vue';
 import {storeToRefs} from 'pinia';
-//shop store
 import {useShopStore} from "/@/stores/shopStore";
-//node store
-import {useNodeStore} from "/@/stores/node";
+import {useNodeStore} from "/@/stores/nodeStore";
 import {ElMessageBox} from "element-plus";
 
 const shopStore = useShopStore()
 const {goodsList, goodsManageData} = storeToRefs(shopStore)
-
 const nodeStore = useNodeStore()
-
-//引入弹窗组件
 const ShopDialog = defineAsyncComponent(() => import('/@/views/admin/shop/dialog_edit.vue'))
 const SortDialog = defineAsyncComponent(() => import('/@/views/admin/shop/dialog_sort.vue'))
 const shopDialogRef = ref()

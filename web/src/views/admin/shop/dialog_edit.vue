@@ -82,7 +82,7 @@
 <script lang="ts" setup>
 import {storeToRefs} from 'pinia';
 import {useShopStore} from "/@/stores/shopStore";
-import {useNodeStore} from "/@/stores/node";
+import {useNodeStore} from "/@/stores/nodeStore";
 import {reactive} from "vue";
 
 const shopStore = useShopStore()
@@ -129,12 +129,12 @@ function onSubmit() {
     shopStore.newGoods(goodsManageData.value.currentGoods)
     setTimeout(() => {
       emit('refresh');
-    }, 1000);
+    }, 500);
   } else {
     shopStore.updateGoods(goodsManageData.value.currentGoods)
     setTimeout(() => {
       emit('refresh');
-    }, 1000);
+    }, 500);
   }
   closeDialog();
 }

@@ -137,12 +137,9 @@
 
 <script setup lang="ts">
 import {reactive, ref} from 'vue';
-//user store
 import {useUserStore} from '/@/stores/userStore'
 import {storeToRefs} from 'pinia';
-//role store
 import {useRoleStore} from '/@/stores/roleStore'
-//shop store
 import {useShopStore} from "/@/stores/shopStore";
 import {GetLocalTime} from "/@/utils/formatTime";
 
@@ -164,19 +161,14 @@ const state = reactive({
 })
 
 const userStore = useUserStore()
-
 const {userManageData, userInfos} = storeToRefs(userStore)
-
 const roleStore = useRoleStore()
 const {roleManageData} = storeToRefs(roleStore)
-
 const shopStore = useShopStore()
 const {goodsList} = storeToRefs(shopStore)
 
 // 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
-
-// 定义变量内容
 const userDialogFormRef = ref();
 
 // 打开弹窗
@@ -222,7 +214,6 @@ const onSubmit = () => {
     userManageData.value.dialog.user.subscribe_info.t = state.subParams.t * 1024 * 1024 * 1024
   }
   if (state.title === '新增用户') {
-
     userStore.newUser(userManageData.value.dialog.user)
   } else {
     userStore.updateUser(userManageData.value.dialog.user)

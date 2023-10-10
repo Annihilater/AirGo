@@ -75,27 +75,21 @@
 </template>
 
 <script setup lang="ts">
-//时间转换
+
 import {DateStrtoTime} from "/@/utils/formatTime";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 import {useUserStore} from "/@/stores/userStore";
 import {onMounted, reactive} from 'vue';
-//ElMessage
 import {ElMessage} from 'element-plus';
-//icon
 import {Select} from '@element-plus/icons-vue'
-//复制剪切板
 import commonFunction from '/@/utils/commonFunction';
 
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
-
-
 const userStore = useUserStore()
 const {userInfos} = storeToRefs(userStore)
-
 const {copyText} = commonFunction();
 //定义参数
 const state = reactive({
@@ -111,7 +105,6 @@ const onChangeHost = () => {
 }
 //重置订阅
 const onResetSub = () => {
-  // userApi.resetSubApi().then((res) => {
   request(apiStoreData.api.value.user_resetSub).then((res) => {
     ElMessage.success(res.msg)
     // window.location.reload()
@@ -142,9 +135,8 @@ const v2rayNGSub = (type: number) => {
   }
 }
 // 页面加载时
-onMounted(() => {
-  userStore.getUserInfo()
-});
+// onMounted(() => {
+// });
 
 </script>
 

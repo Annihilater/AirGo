@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"math"
 	"strconv"
 	"time"
 )
@@ -142,14 +141,15 @@ func PreHandleOrder(ctx *gin.Context) (*model.Orders, string) {
 		}
 	}
 	//构造系统订单参数
-	uIDStr := other_plugin.Sup(uIDInt, 5)
-	receiveOrder.GoodsID = goods.ID                                                 //商品ID
-	receiveOrder.OutTradeNo = strconv.FormatInt(time.Now().UnixNano(), 10) + uIDStr //系统订单号：时间戳+5位user id
-	receiveOrder.Subject = goods.Subject                                            //商品的标题
-	receiveOrder.Price = goods.TotalAmount                                          //商品的价格
-	receiveOrder.TotalAmount = goods.TotalAmount                                    //订单的价格
-	receiveOrder.UserID = uIDInt                                                    //用户ID
-	receiveOrder.UserName = uName                                                   //用户名
+	uIDStr := other_plugin.Sup(uIDInt, 6) //对长度不足n的后面补0
+	receiveOrder.GoodsID = goods.ID       //商品ID
+
+	receiveOrder.OutTradeNo = time.Now().Format("20060102150405") + uIDStr //系统订单号：时间戳+6位user id
+	receiveOrder.Subject = goods.Subject                                   //商品的标题
+	receiveOrder.Price = goods.TotalAmount                                 //商品的价格
+	receiveOrder.TotalAmount = goods.TotalAmount                           //订单的价格
+	receiveOrder.UserID = uIDInt                                           //用户ID
+	receiveOrder.UserName = uName                                          //用户名
 	//receiveOrder.PayType = receiveOrder.PayType //添加付款方式
 	//折扣码处理
 	total, _ := strconv.ParseFloat(goods.TotalAmount, 64)
@@ -170,13 +170,15 @@ func PreHandleOrder(ctx *gin.Context) (*model.Orders, string) {
 		//计算剩余率
 		if user.SubscribeInfo.SubStatus {
 			rate, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64((user.SubscribeInfo.T-user.SubscribeInfo.U-user.SubscribeInfo.D))/float64(user.SubscribeInfo.T)), 64)
-			if math.IsNaN(rate) {
-				rate = 1
+			//if math.IsNaN(rate) {
+			if err != nil {
+				rate = 0 //
 			}
-			//fmt.Println("计算剩余率:", rate)
+			//套餐流量剩余率大于设定的阈值才进行处理
 			if rate >= global.Server.System.DeductionThreshold {
 				//查找旧套餐价格
-				if order, _ := service.CommonSqlFind[model.Orders, string, model.Orders](model.Orders{}, "user_id = "+strconv.FormatInt(uIDInt, 10)+" ORDER BY id desc LIMIT 1"); order.ReceiptAmount != "" {
+				order, _ := service.CommonSqlFind[model.Orders, string, model.Orders](model.Orders{}, "user_id = "+strconv.FormatInt(uIDInt, 10)+" ORDER BY id desc LIMIT 1")
+				if order.ReceiptAmount != "" { //使用 实收金额 进行判断
 					receiptAmount, _ := strconv.ParseFloat(order.ReceiptAmount, 64)
 					deductionAmount := receiptAmount * rate
 					if deductionAmount < total {
@@ -186,13 +188,11 @@ func PreHandleOrder(ctx *gin.Context) (*model.Orders, string) {
 						receiveOrder.DeductionAmount = fmt.Sprintf("%.2f", total)
 						total = 0
 					}
-
 				}
 			}
 		}
 	}
-	//计算最终价格，TotalAmount=总价-折扣码的折扣-旧套餐的抵扣
-	//余额抵扣
+	//余额抵扣，计算最终价格，TotalAmount=总价-折扣码的折扣-旧套餐的抵扣
 	if user.Remain > 0 {
 		if user.Remain < total {
 			receiveOrder.RemainAmount = fmt.Sprintf("%.2f", user.Remain)
@@ -202,7 +202,6 @@ func PreHandleOrder(ctx *gin.Context) (*model.Orders, string) {
 			total = 0
 		}
 	}
-
 	receiveOrder.TotalAmount = fmt.Sprintf("%.2f", total)
 	return &receiveOrder, msg
 }

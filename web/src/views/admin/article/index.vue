@@ -84,14 +84,11 @@ function deleteArticle(row: any) {
     type: 'warning',
   })
       .then(() => {
-        //逻辑
-        // articleApi.deleteArticleApi(row)
         request(apiStoreData.api.value.article_deleteArticle, row)
         setTimeout(() => {
-          //逻辑
           getArticleList(state.params)
           ElMessage.success('成功');
-        }, 1000);
+        }, 500);
       })
       .catch(() => {
       });
@@ -99,12 +96,10 @@ function deleteArticle(row: any) {
 
 //打开弹窗
 const onOpenDialog = (type: string, row?: any) => {
-  // console.log("打开弹窗:",type)
   articleDialogRef.value.openDialog(type, row)
 };
 //获取article列表
 const getArticleList = (params: object) => {
-  // articleApi.getArticleApi(params).then((res) => {
   request(apiStoreData.api.value.article_getArticle, params).then((res) => {
     state.articleDate = res.data
   })

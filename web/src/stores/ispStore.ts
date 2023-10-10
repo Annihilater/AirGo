@@ -35,13 +35,10 @@ export const useISPStore = defineStore("ispStore", {
     }),
     actions: {
         async sendCode(params?: object) {
-            // const res = await ispApi.sendCodeApi(params)
             const res = await request(apiStoreData.api.value.isp_sendCode, params)
             ElMessage.success(res.msg)
-
         },
         async ispLogin(params?: object) {
-            // const res = await ispApi.ispLoginApi(params)
             const res = await request(apiStoreData.api.value.isp_ispLogin, params)
             if (res.msg === '获取成功') {
                 this.isp = res.data
@@ -49,12 +46,10 @@ export const useISPStore = defineStore("ispStore", {
             }
             this.getMonitorByUserID()
         },
-
         async getMonitorByUserID(params?: object) {
             const res = await await request(apiStoreData.api.value.isp_getMonitorByUserID, params)
             ElMessage.success(res.msg)
             this.isp = res.data
-
         },
     }
 })

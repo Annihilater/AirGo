@@ -90,16 +90,13 @@ import {storeToRefs} from "pinia";
 import {reactive} from "vue";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
+import alipayLogo from '/@/assets/icon/alipay.jpeg';
+import epayLogo from '/@/assets/icon/epay.png';
 
 const payStore = usePayStore()
-
 const payStoreData = storeToRefs(payStore)
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
-import alipayLogo from '/@/assets/icon/alipay.jpeg';
-
-import epayLogo from '/@/assets/icon/epay.png';
 
 // 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
@@ -139,7 +136,6 @@ const closeDialog = () => {
 //确认提交
 function onSubmit() {
   if (state.type === 'add') {
-    // payApi.newPayApi(payStoreData.payInfo.value).then((res) => {
     request(apiStoreData.api.value.pay_newPay, payStoreData.payInfo.value).then((res) => {
       setTimeout(() => {
         emit('refresh');
@@ -147,14 +143,11 @@ function onSubmit() {
     })
 
   } else {
-    // payApi.updatePayApi(payStoreData.payInfo.value).then((res) => {
     request(apiStoreData.api.value.pay_updatePay, payStoreData.payInfo.value).then((res) => {
       setTimeout(() => {
         emit('refresh');
       }, 500);
-
     })
-
   }
   closeDialog();
 }

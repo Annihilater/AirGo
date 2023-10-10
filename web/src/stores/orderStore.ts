@@ -25,27 +25,23 @@ export const useOrderStore = defineStore("orderStore", {
     actions: {
         //获取订单详情(下单时）
         async getOrderInfo(params: object) {
-            // const res = await orderApi.getOrderInfoApi(params)
             const res = await request(apiStoreData.api.value.order_getOrderInfo, params)
             return res
         },
         //获取全部订单
         async getAllOrder(params?: object) {
-            // const res = await orderApi.getAllOrderApi(params)
             const res = await request(apiStoreData.api.value.order_getAllOrder, params)
             this.orderManageData.allOrders = res.data
             ElMessage.success(res.msg)
         },
         //获取用户最近10次订单
         async getOrder(params?: object) {
-            // const res = await orderApi.getOrderApi()
             const res = await request(apiStoreData.api.value.order_getOrderByUserID, params)
             this.orderPersonal.allOrders.order_list = res.data
             ElMessage.success(res.msg)
         },
         //完成未支付订单
         async completedOrder(params?: object) {
-            // const res = await orderApi.completedOrderApi(params)
             const res = await request(apiStoreData.api.value.order_completedOrder, params)
             ElMessage.success(res.msg)
         },

@@ -8,7 +8,7 @@
         <el-form-item label="折扣率">
           <el-col :span="6">
             <el-input v-model.number="couponStoreData.coupon.value.discount_rate" type="number"></el-input>
-            <div style="color: #9b9da1">实际价格=原价*折扣率</div>
+            <div style="color: #9b9da1">实际价格=原价*(1-折扣率)</div>
           </el-col>
 
         </el-form-item>
@@ -51,7 +51,6 @@
 
 <script lang="ts" setup>
 import {reactive} from "vue";
-
 import {ElMessage} from "element-plus";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
@@ -92,18 +91,14 @@ const closeDialog = () => {
 }
 //提交按钮
 const onSubmit = (params: object) => {
-  console.log("type:",state.type)
-
   switch (state.type) {
     case "add":
-      // couponApi.newCouponApi(params).then((res) => {
       request(apiStoreData.api.value.coupon_newCoupon, params).then((res) => {
         ElMessage.success(res.msg)
         emits('refresh')
       })
       break
     case "edit":
-      // couponApi.updateCouponApi(params).then((res) => {
       request(apiStoreData.api.value.coupon_updateCoupon, params).then((res) => {
         ElMessage.success(res.msg)
         emits('refresh')

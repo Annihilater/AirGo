@@ -25,7 +25,6 @@
             </el-radio-group>
           </div>
         </div>
-
       </div>
       <template #footer>
             <span class="dialog-footer">
@@ -53,14 +52,10 @@ import {usePayStore} from "/@/stores/payStore";
 import * as qs from "qs";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
-
-
 const shopStore = useShopStore()
 const {shopData} = storeToRefs(shopStore)
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
-
 const payStore = usePayStore()
 const payStoreData = storeToRefs(payStore)
 
@@ -81,7 +76,6 @@ const emits = defineEmits(['openQRDialog'])
 //购买按钮
 const onPurchase = (params?: object) => {
   //传out_trade_no，pay_id
-  // shopApi.purchaseApi({
   request(apiStoreData.api.value.shop_purchase, {
     out_trade_no: shopData.value.currentOrder.out_trade_no,
     pay_id: shopData.value.currentOrder.pay_id
@@ -90,21 +84,23 @@ const onPurchase = (params?: object) => {
       ElMessage.success("购买成功")
       state.isShowPurchaseDialog = false
       return
-    } else if (res.data.alipay_info.qr_code !== "") { //支付宝支付
-      shopData.value.currentOrder.qr_code = res.data //后端返回qrcode,保存支付二维码
-      const ok = isMobile()
-      if (ok) {
-        window.location.href = shopData.value.currentOrder.qr_code; //手机端跳转支付页面
-        return
-      } else {
-        emits('openQRDialog')   //电脑端打开支付二维码弹窗
+    } else {
+      //保存支付信息
+      shopData.value.currentOrder.pay_info = res.data
+      let pay_info = shopData.value.currentOrder.pay_info
+      if (pay_info.alipay_info.qr_code !== "") { //支付宝支付
+        const ok = isMobile()
+        if (ok) {
+          window.location.href = pay_info.alipay_info.qr_code; //手机端跳转支付页面
+          return
+        } else {
+          emits('openQRDialog')   //电脑端打开支付二维码弹窗
+        }
+      } else if (pay_info.epay_info.epay_api_url !== "") {
+        // 对象转url参数
+        let params = qs.stringify(pay_info.epay_info.epay_pre_create_pay)
+        window.location.href = pay_info.epay_info.epay_api_url + "?" + params
       }
-    } else if (res.data.epay_info.epay_api_url !== "") {
-      let epay_info: EpayPreCreatePayToFrontend = res.data.epay_info
-      console.log("epay_info:",epay_info)
-      // 对象转url参数
-      let params = qs.stringify(epay_info.epay_pre_create_pay)
-      window.location.href = epay_info.epay_api_url + "?" + params
     }
   }).catch(() => {
   })
@@ -118,11 +114,6 @@ defineExpose({
 </script>
 
 <style scoped>
-.el-card {
-  background-image: url("../../assets/bgc/bg-3.svg");
-  background-repeat: no-repeat;
-  background-position: 100%, 100%;
-}
 
 .card-text {
   display: flex;

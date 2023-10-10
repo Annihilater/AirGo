@@ -53,7 +53,7 @@ export const useShopStore = defineStore("shopStore", {
                 goods_id: 0,
                 subject: '',
                 price: '',
-                pay_type: 'alipay',
+                pay_type: '',
 
                 coupon: 0,
                 coupon_name: '',
@@ -64,42 +64,53 @@ export const useShopStore = defineStore("shopStore", {
                 buyer_logon_id: '',
                 trade_status: '',
                 total_amount: '',
-                qr_code: '',
+                pay_info: {
+                    alipay_info:{qr_code: ''},
+                    epay_info:{
+                        epay_api_url: '',
+                        epay_pre_create_pay: {
+                            pid: 0,
+                            type: '',
+                            out_trade_no: '',
+                            notify_url: '',
+                            return_url: '',
+                            name: '',
+                            money: '',
+                            clientip: '',
+                            device: '',
+                            param: '',
+                            sign: '',
+                            sign_type: '',
+                        },
+                    },
+                },
             } as Order,
         }
     }),
     actions: {
         //加载时获取全部已启用商品
         async getAllEnabledGoods() {
-            // const res = await shopApi.getAllEnabledGoodsApi()
             const res = await request(apiStoreData.api.value.shop_getAllEnabledGoods)
             this.goodsList = res.data
             ElMessage.success(res.msg)
         },
         //获取全部订阅商品
         async getAllGoods() {
-            // const res = await shopApi.getAllGoodsApi()
             const res = await request(apiStoreData.api.value.shop_getAllGoods)
             this.goodsList = res.data
-            // ElMessage.success(res.msg)
-
         },
         //添加商品
         async newGoods(data?: object) {
-            // const res = await shopApi.newGoodsApi(params)
             const res = await request(apiStoreData.api.value.shop_newGoods,data)
             ElMessage.success(res.msg)
-
         },
         //修改商品
         async updateGoods(data?: object) {
-            // const res = await shopApi.updateGoodsApi(params)
             const res = await request(apiStoreData.api.value.shop_updateGoods,data)
             ElMessage.success(res.msg)
         },
         //删除商品
         async deleteGoods(data?: object) {
-            // const res = await shopApi.deleteGoodsApi(params)
             const res = await request(apiStoreData.api.value.shop_deleteGoods,data)
             ElMessage.success(res.msg)
         },

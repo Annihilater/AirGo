@@ -57,7 +57,6 @@ import {onMounted, reactive} from 'vue';
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
-//复制剪切板
 import commonFunction from '/@/utils/commonFunction';
 
 const apiStore = useApiStore()
@@ -83,7 +82,6 @@ const state = reactive({
 })
 
 function savePicture() {
-  // uploadApi.newPictureUrlApi(state.galleryData).then((res) => {
   request(apiStoreData.api.value.upload_newPictureUrl, state.galleryData).then((res) => {
     ElMessage.success(res.msg)
     state.galleryData.picture_url = '' //清空输入框
@@ -98,7 +96,6 @@ function openDialog() {
 }
 
 function getPictureList(params?: object) {
-  // uploadApi.getPictureListApi(params).then((res) => {
   request(apiStoreData.api.value.upload_getPictureList, params).then((res) => {
     ElMessage.success(res.msg)
     state.galleryDialogData.galleryList = res.data

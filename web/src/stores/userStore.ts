@@ -6,9 +6,6 @@ import {useServerStore} from "/@/stores/serverStore";
 import {usePublicStore} from "/@/stores/publicStore";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
-
-
-
 export const useUserStore = defineStore('userInfo', {
     state: () => ({
         //登录页面数据
@@ -160,7 +157,6 @@ export const useUserStore = defineStore('userInfo', {
         },
         //修改混淆
         async changeHost(data?: object) {
-            // const res = await userApi.changeHostApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_changeSubHost, data)
             ElMessage.success(res.msg)
@@ -168,7 +164,6 @@ export const useUserStore = defineStore('userInfo', {
         },
         //获取自身信息
         async getUserInfo() {
-            // const res = await userApi.getUserInfoApi()
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_getUserInfo)
             this.userInfos = res.data
@@ -176,7 +171,6 @@ export const useUserStore = defineStore('userInfo', {
         },
         //获取用户列表
         async getUserList(data?: object) {
-            // const res = await userApi.getUserListApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_getUserList, data)
             ElMessage.success(res.msg)
@@ -184,35 +178,30 @@ export const useUserStore = defineStore('userInfo', {
         },
         //新建用户
         async newUser(data?: object) {
-            // const res = await userApi.newUserApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_newUser, data)
             ElMessage.success(res.msg)
         },
         //修改用户
         async updateUser(data?: object) {
-            // const res = await userApi.updateUserApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_updateUser, data)
             ElMessage.success(res.msg)
         },
         //删除用户
         async deleteUser(data?: object) {
-            // const res = await userApi.deleteUserApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_deleteUser, data)
             ElMessage.success(res.msg)
         },
         //修改密码
         async changePassword(data?: object) {
-            // const res = await userApi.changePasswordApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_changeUserPassword, data)
             ElMessage.success(res.msg)
         },
         //确认重置密码
         async submitResetPassword() {
-            // return await userApi.resetPasswordApi(this.loginData)
             const apiStore = useApiStore()
             return await request(apiStore.staticApi.user_resetUserPassword, this.loginData)
         }

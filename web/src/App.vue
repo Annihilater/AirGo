@@ -15,13 +15,13 @@ import {storeToRefs} from 'pinia';
 import {useTagsViewRoutes} from '/@/stores/tagsViewRoutes';
 import {useThemeConfig} from '/@/stores/themeConfig';
 import other from '/@/utils/other';
-import {Session} from '/@/utils/storage';
+import {Local, Session} from '/@/utils/storage';
 import mittBus from '/@/utils/mitt';
 import setIntroduction from '/@/utils/setIconfont';
 import {useServerStore} from "/@/stores/serverStore";
-
+import {useUserStore} from "/@/stores/userStore";
+const userStore = useUserStore()
 // 引入组件
-
 const Setings = defineAsyncComponent(() => import('/@/layout/navBars/breadcrumb/setings.vue'));
 const CloseFull = defineAsyncComponent(() => import('/@/layout/navBars/breadcrumb/closeFull.vue'));
 
@@ -44,8 +44,6 @@ const setLockScreen = computed(() => {
 const getGlobalComponentSize = computed(() => {
   return other.globalComponentSize();
 });
-//
-
 //设置初始化，防止刷新时恢复默认
 onBeforeMount(() => {
   // 设置批量第三方 icon 图标
@@ -69,6 +67,11 @@ onMounted(() => {
     // 获取缓存中的全屏配置
     if (Session.get('isTagsViewCurrenFull')) {
       stores.setCurrenFullscreen(Session.get('isTagsViewCurrenFull'));
+    }
+    //如果存在token，刷新页面时获取用户信息
+    const token = Local.get('token');
+    if (token) {
+      userStore.getUserInfo()//获取用户信息
     }
   });
 });

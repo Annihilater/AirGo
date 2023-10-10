@@ -156,7 +156,6 @@ export const useThemeConfig = defineStore('themeStore', {
         },
         //从服务器获取主题配置
         async getThemeConfig(params?: object) {
-            // const res = await systemApi.getThemeConfigApi()
             const apiStore = useApiStore()
             const res = await request(apiStore.staticApi.public_getThemeConfig)
 
@@ -165,7 +164,6 @@ export const useThemeConfig = defineStore('themeStore', {
         },
         //设置主题
         async updateThemeConfig(data?: object) {
-            // const res = await systemApi.updateThemeConfigApi(params)
             const apiStore = useApiStore()
             const res = await request(apiStore.api.system_updateThemeConfig, data)
             //更新主题到pinia

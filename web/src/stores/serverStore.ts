@@ -73,7 +73,6 @@ export const useServerStore = defineStore("serverStore", {
     actions: {
         //获取系统设置
         async getServerConfig() {
-            // const res = await systemApi.getServerConfig()
             const apiStore = useApiStore()
             const apiStoreData = storeToRefs(apiStore)
             const res = await request(apiStoreData.api.value.system_getSetting)
@@ -82,7 +81,6 @@ export const useServerStore = defineStore("serverStore", {
         },
         //获取公共系统设置
         async getPublicServerConfig() {
-            // const res = await systemApi.getPublicServerConfig()
             const apiStore = useApiStore()
             const apiStoreData = storeToRefs(apiStore)
             const res = await request(apiStoreData.staticApi.value.public_getPublicSetting)
@@ -90,12 +88,10 @@ export const useServerStore = defineStore("serverStore", {
         },
         //修改系统设置
         async updateServerConfig(data?: object) {
-            // const res = await systemApi.updateServerConfig(params)
             const apiStore = useApiStore()
             const apiStoreData = storeToRefs(apiStore)
             const res = await request(apiStoreData.api.value.system_updateSetting,data)
             ElMessage.success(res.msg)
         }
-
     }
 })

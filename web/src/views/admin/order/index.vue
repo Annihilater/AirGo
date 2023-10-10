@@ -80,14 +80,10 @@ import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 
-
 const orderStore = useOrderStore()
 const {orderManageData} = storeToRefs(orderStore)
-
-
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
-//组件
 const ReportComponent = defineAsyncComponent(() => import('/@/components/report/index.vue'))
 const reportRef = ref()
 
@@ -148,8 +144,6 @@ const getReportDataHandler = (data: any) => {
   //拼接分页参数
   (data as any).pagination_params = state.params;
   state.fieldConditionList = data
-  //请求数据
-  // reportApi.submitReportApi(data).then((res) => {
   request(apiStoreData.api.value.report_reportSubmit, data).then((res) => {
     orderManageData.value.allOrders.order_list = res.data.table_data
     orderManageData.value.allOrders.total = res.data.total
