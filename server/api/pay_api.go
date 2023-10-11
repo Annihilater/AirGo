@@ -91,7 +91,6 @@ func Purchase(ctx *gin.Context) {
 			response.Fail("alipay error："+err.Error(), nil, ctx)
 			return
 		}
-		sysOrder.QRCode = res.QRCode
 		sysOrder.TradeStatus = model.OrderWAIT_BUYER_PAY //初始订单状态：等待付款
 		go service.UpdateOrder(&sysOrder)                //更新数据库
 		var pcptf = model.PreCreatePayToFrontend{

@@ -424,10 +424,9 @@ func InsertInto(db *gorm.DB) error {
 // 默认邮件验证码样式
 const text1 = `
 <div >
-  <p >欢迎使用，请及时输入验证码</p>
+  <p >欢迎使用，请及时输入验证码，区分大小写</p>
   <span style="font-size:30px">emailcode</span>
 </div>
-
 `
 
 // 商品默认描述
