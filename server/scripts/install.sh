@@ -173,8 +173,11 @@ add_service(){
   Description=$1 Service
   After=network.target
   Wants=network.target
+  StartLimitIntervalSec=0
 
   [Service]
+  Restart=always
+  RestartSec=1
   Type=simple
   WorkingDirectory=/usr/local/$1/
   ExecStart=/usr/local/$1/$1 -start

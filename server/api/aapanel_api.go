@@ -49,7 +49,7 @@ func SSNodeInfo(ctx *gin.Context) {
 	}(nodeID)
 	nodeInfo, err := service.SSNodeInfo(nodeIDInt)
 	if err != nil {
-		global.Logrus.Error("当前节点设置,error:", err.Error())
+		global.Logrus.Error("节点id"+nodeID+"当前节点设置error:", err.Error())
 		response.SSUsersFail(ctx)
 		return
 	}
