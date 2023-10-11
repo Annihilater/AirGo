@@ -93,18 +93,18 @@ export const staticRoutes: Array<RouteRecordRaw> = [
             title: '登录',
         },
     },
-    {
-        path: '/public',
-        name: 'public',
-        children:[
-            {
-                path: 'epayReturn',
-                name: 'epayReturn',
-                component: () => import('/@/views/public/order_info.vue'),
-                meta: {
-                    title: '订单详情',
-                },
-            },
-        ],
-    },
+    // {
+    //     path: '/public',
+    //     name: 'public',
+    //     children:[
+    //         {
+    //             path: 'epayReturn',
+    //             name: 'epayReturn',
+    //             component: () => import('/@/views/public/order_info.vue'),
+    //             meta: {
+    //                 title: '订单详情',
+    //             },
+    //         },
+    //     ],
+    // },
 ];
