@@ -126,7 +126,7 @@ import {useNodeStore} from "/@/stores/nodeStore";
 import {useUserStore} from "/@/stores/userStore";
 import {ElMessageBox} from "element-plus";
 
-const NodeDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog.vue'))
+const NodeDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_edit.vue'))
 const NodeSortDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_node_sort.vue'))
 const NodeSharedDialog = defineAsyncComponent(() => import('/@/views/admin/node/dialog_node_shared.vue'))
 const nodeDialogRef = ref()

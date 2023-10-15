@@ -52,6 +52,7 @@ export const useApiStore = defineStore("apiStore", {
             system_updateThemeConfig: {path: apiPre + "/system/updateThemeConfig", method: "post"} as ApiItem,
             system_getSetting: {path: apiPre + "/system/getSetting", method: "get"} as ApiItem,
             system_updateSetting: {path: apiPre + "/system/updateSetting", method: "post"} as ApiItem,
+            system_createx25519: {path: apiPre + "/system/createx25519", method: "get"} as ApiItem,
 
             //节点
             node_getAllNode: {path: apiPre + "/node/getAllNode", method: "get"} as ApiItem,

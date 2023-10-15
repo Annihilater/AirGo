@@ -38,6 +38,13 @@
       <el-form-item label="aid" v-if="dialogData.nodeInfo.node_type==='vmess'">
         <el-input v-model="dialogData.nodeInfo.aid"/>
       </el-form-item>
+      <el-form-item label="flow" v-if="dialogData.nodeInfo.node_type==='vless'">
+        <el-radio-group v-model="dialogData.nodeInfo.flow">
+          <el-radio label="auto">none</el-radio>
+          <el-radio label="xtls-rprx-vision">xtls-rprx-vision</el-radio>
+          <el-radio label="xtls-rprx-vision-udp443">xtls-rprx-vision-udp443</el-radio>
+        </el-radio-group>
+      </el-form-item>
 
 
       <el-form-item label="network">
@@ -97,37 +104,63 @@
 
       <el-form-item label="security">
         <el-radio-group v-model="dialogData.nodeInfo.security">
-          <el-radio label="">none</el-radio>
+          <el-radio label="none">none</el-radio>
           <el-radio label="tls">tls</el-radio>
           <el-radio label="reality">reality</el-radio>
         </el-radio-group>
-
       </el-form-item>
-      <el-form-item label="sni" v-if="dialogData.nodeInfo.security!==''">
+        <el-form-item label="dest" v-if="dialogData.nodeInfo.security==='reality'">
+          <el-select
+              v-model="dialogData.nodeInfo.dest"
+              filterable
+              allow-create
+              default-first-option
+              :reserve-keyword="false"
+              style="width: 100%"
+          >
+            <el-option
+                v-for="(v,k) in state.realityDefaultArr"
+                :key="k"
+                :label="v.dest"
+                :value="v.dest">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+      <el-form-item label="sni" v-if="dialogData.nodeInfo.security==='tls' || dialogData.nodeInfo.security==='reality'">
         <el-input v-model="dialogData.nodeInfo.sni"/>
       </el-form-item>
-      <el-form-item label="fp" v-if="dialogData.nodeInfo.security!==''">
-        <el-input v-model="dialogData.nodeInfo.fp"/>
+<!--      <el-form-item label="fp" v-if="dialogData.nodeInfo.security==='tls' ||dialogData.nodeInfo.security==='reality'">-->
+<!--        <el-input v-model="dialogData.nodeInfo.fp"/>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="alpn" v-if="dialogData.nodeInfo.security==='tls'">-->
+<!--        <el-input v-model="dialogData.nodeInfo.alpn"/>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="allowInsecure" v-if="dialogData.nodeInfo.security==='tls'">-->
+<!--        <el-switch-->
+<!--            size="small"-->
+<!--            v-model="dialogData.nodeInfo.allowInsecure"-->
+<!--            style="&#45;&#45;el-switch-on-color: #13ce66; &#45;&#45;el-switch-off-color: #ff4949"-->
+<!--        />-->
+<!--      </el-form-item>-->
+
+      <el-form-item label="public_key" v-if="dialogData.nodeInfo.security==='reality'">
+        <el-input v-model="dialogData.nodeInfo.pbk">
+          <template #append>
+            <el-button @click="setReality()"><el-icon><Refresh /></el-icon></el-button>
+          </template>
+        </el-input>
+
       </el-form-item>
-      <el-form-item label="alpn" v-if="dialogData.nodeInfo.security==='tls'">
-        <el-input v-model="dialogData.nodeInfo.alpn"/>
+      <el-form-item label="private_key" v-if="dialogData.nodeInfo.security==='reality'">
+        <el-input v-model="dialogData.nodeInfo.private_key"/>
       </el-form-item>
-      <el-form-item label="allowInsecure" v-if="dialogData.nodeInfo.security==='tls'">
-        <el-switch
-            size="small"
-            v-model="dialogData.nodeInfo.allowInsecure"
-            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-        />
-      </el-form-item>
-      <el-form-item label="pbk" v-if="dialogData.nodeInfo.security==='reality'">
-        <el-input v-model="dialogData.nodeInfo.pbk"/>
-      </el-form-item>
-      <el-form-item label="sid" v-if="dialogData.nodeInfo.security==='reality'">
-        <el-input v-model="dialogData.nodeInfo.sid"/>
-      </el-form-item>
-      <el-form-item label="spx" v-if="dialogData.nodeInfo.security==='reality'">
-        <el-input v-model="dialogData.nodeInfo.spx"/>
-      </el-form-item>
+<!--      <el-form-item label="sid" v-if="dialogData.nodeInfo.security==='reality'">-->
+<!--        <el-input v-model="dialogData.nodeInfo.sid"/>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="spx" v-if="dialogData.nodeInfo.security==='reality'">-->
+<!--        <el-input v-model="dialogData.nodeInfo.spx"/>-->
+<!--      </el-form-item>-->
     </el-form>
 
 
@@ -175,17 +208,27 @@
 
 import {storeToRefs} from "pinia";
 import {useNodeStore} from "/@/stores/nodeStore";
-import {reactive} from "vue";
+import {reactive, watch} from "vue";
+import {useApiStore} from "/@/stores/apiStore";
+import {request} from "/@/utils/request";
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
+
 
 const nodeStore = useNodeStore()
 const {dialogData} = storeToRefs(nodeStore)
-// 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
-//定义参数
 const state = reactive({
   type: "",
   title: "",
   isShowDialog: false,
+  realityDefaultArr:[
+    {dest:"www.speedtest.org:443",sni:"www.speedtest.org"},
+    {dest:"www.lovelive-anime.jp:443",sni:"www.lovelive-anime.jp"},
+    {dest:"swdist.apple.com:443",sni:"swdist.apple.com"},
+    {dest:"blog.api.www.cloudflare.com:443",sni:"blog.api.www.cloudflare.com"},
+    {dest:"www.icloud.com:443",sni:"www.icloud.com"},
+  ] as RealityItem[]
 })
 
 // 打开弹窗
@@ -224,6 +267,29 @@ function onSubmit() {
   }
   closeDialog()
 }
+const setReality = ()=>{
+  request(apiStoreData.api.value.system_createx25519).then((res)=>{
+  // console.log("res:",res)
+  dialogData.value.nodeInfo.pbk=res.data.public_key
+  dialogData.value.nodeInfo.private_key=res.data.private_key
+})
+}
+//监听
+watch(
+    () => dialogData.value.nodeInfo.dest,
+    () => {
+      let temp = state.realityDefaultArr.filter(r => r.dest === dialogData.value.nodeInfo.dest)
+      if (temp.length > 0){
+        dialogData.value.nodeInfo.sni = temp[0].sni
+      }
+      if (dialogData.value.nodeInfo.private_key === '' || dialogData.value.nodeInfo.private_key === ''){
+        setReality()
+      }
+    },
+    {
+      // deep: true,
+    }
+);
 
 // 暴露变量
 defineExpose({

@@ -9,7 +9,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
+	"errors"
 	"fmt"
+	"golang.org/x/crypto/curve25519"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -189,4 +191,39 @@ func SubBase64Decode(str string) string {
 		fmt.Println(err)
 	}
 	return string(data)
+}
+
+// Private key: sJxwD9sEodPf97oNG872idTkFhxlkFXLsTmRxVWvx2g
+// Public key: HC5OmUS72bUGoVH1ONQjDUIIskr5LqHuUG4nGsg7dhc
+func ExecuteX25519(str string) (string, string, error) {
+	var err error
+	var privateKey []byte
+	var publicKey []byte
+	var privateKeyStr string
+	var publicKeyStr string
+
+	privateKey, err = base64.RawURLEncoding.DecodeString(str)
+	if err != nil {
+		goto out
+	}
+	if len(privateKey) != curve25519.ScalarSize {
+		err = errors.New("Invalid length of private key.")
+		goto out
+	}
+	// Modify random bytes using algorithm described at:
+	// https://cr.yp.to/ecdh.html.
+	privateKey[0] &= 248
+	privateKey[31] &= 127
+	privateKey[31] |= 64
+
+	if publicKey, err = curve25519.X25519(privateKey, curve25519.Basepoint); err != nil {
+		goto out
+	}
+	//output = fmt.Sprintf("Private key: %v\nPublic key: %v",
+	//	base64.RawURLEncoding.EncodeToString(privateKey),
+	//	base64.RawURLEncoding.EncodeToString(publicKey))
+	publicKeyStr = base64.RawURLEncoding.EncodeToString(publicKey)
+	privateKeyStr = base64.RawURLEncoding.EncodeToString(privateKey)
+out:
+	return publicKeyStr, privateKeyStr, err
 }

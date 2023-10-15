@@ -5,6 +5,8 @@ import (
 	"AirGo/model"
 	"AirGo/service"
 	"AirGo/utils/response"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -64,6 +66,8 @@ func UpdateNode(ctx *gin.Context) {
 		response.Fail("更新节点参数错误", nil, ctx)
 		return
 	}
+	res, _ := json.Marshal(node)
+	fmt.Println("更新节点:", string(res))
 	err = service.CommonSqlSave[model.Node](node)
 	if err != nil {
 		global.Logrus.Error("更新节点错误:", err)

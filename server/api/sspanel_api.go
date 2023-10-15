@@ -35,6 +35,7 @@ func SSNodeInfo(ctx *gin.Context) {
 		return
 	}
 	nodeID := ctx.Param("nodeID")
+	//fmt.Println("nodeID:", nodeID)
 	nodeIDInt, _ := strconv.ParseInt(nodeID, 10, 64)
 	//设置节点在线
 	go func(nodeID string) {
@@ -53,6 +54,7 @@ func SSNodeInfo(ctx *gin.Context) {
 		response.SSUsersFail(ctx)
 		return
 	}
+	fmt.Println("当前节点设置:", nodeInfo)
 	response.SSUsersOK(nodeInfo, ctx)
 }
 
@@ -159,7 +161,7 @@ func SSUsersTraffic(ctx *gin.Context) {
 			oldStatus := cacheStatus.(model.NodeStatus)
 			duration = nodeStatus.LastTime.Sub(oldStatus.LastTime).Seconds()
 		}
-		nodeStatus.D, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", nodeStatus.D/1024/1024/duration*8), 64) //Mbps
+		nodeStatus.D, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", nodeStatus.D/1024/1024/duration*8), 64) //Byte--->Mbps
 		nodeStatus.U, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", nodeStatus.U/1024/1024/duration*8), 64)
 		global.LocalCache.Set(strconv.FormatInt(id, 10)+"status", nodeStatus, 2*time.Minute)
 

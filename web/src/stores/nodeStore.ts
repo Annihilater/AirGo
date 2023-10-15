@@ -20,7 +20,7 @@ export const useNodeStore = defineStore("nodeStore", {
             nodeInfo: {
                 // created_at: string;
                 // updated_at: string;
-                id: 0,
+                // id: 0,
                 node_speedlimit: 0, //节点限速/Mbps
                 traffic_rate: 0,    //倍率
                 node_type: '',            //类型 vless(15) vmess(11) trojan(14)
@@ -30,7 +30,7 @@ export const useNodeStore = defineStore("nodeStore", {
                 //基础参数
                 remarks: '',//别名
                 address: '',
-                port: 0,
+                port: 80,
                 node_order: 0,//节点排序
                 enabled: true,  //是否为激活节点
                 //中转参数
@@ -43,24 +43,26 @@ export const useNodeStore = defineStore("nodeStore", {
 
                 goods: [],//多对多,关联商品
                 //vmess参数
-                v: '',
-                scy: '',//加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero
+                v: '2',
+                scy: 'auto',//加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero
                 aid: 0,//额外ID
                 //vless参数
-                flow: '',//流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
-                encryption: '',//加密方式 none
+                flow: 'none',//流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
+                encryption: 'none',//加密方式 none
 
-                network: '',//传输协议 tcp,kcp,ws,h2,quic,grpc
-                type: '',   //伪装类型 ws,h2：无    tcp,kcp：none，http    quic：none，srtp，utp，wechat-video，dtls，wireguard
+                network: 'ws',//传输协议 tcp,kcp,ws,h2,quic,grpc
+                type: 'none',   //伪装类型 ws,h2：无    tcp,kcp：none，http    quic：none，srtp，utp，wechat-video，dtls，wireguard
                 host: '',   //伪装域名
-                path: '',   //path
-                mode: '',   //grpc传输模式 gun，multi
+                path: '/',   //path
+                mode: 'multi',   //grpc传输模式 gun，multi
 
-                security: '',//传输层安全类型 none,tls,reality
+                security: 'none',//传输层安全类型 none,tls,reality
                 sni: '',
                 fp: '',
                 alpn: '',
                 allowInsecure: true,//tls 跳过证书验证
+                dest: '',
+                private_key:'',
                 pbk: '',
                 sid: '',
                 spx: '',

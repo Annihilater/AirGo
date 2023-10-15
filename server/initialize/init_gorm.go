@@ -277,7 +277,7 @@ func InsertInto(db *gorm.DB) error {
 		{Ptype: "p", V0: "1", V1: apiPre + "/role/getRoleList", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/role/modifyRoleInfo", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/role/addRole", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPre + "/role/delRole", V2: "DELETE"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/role/delRole", V2: "POST"},
 
 		// menu
 		{Ptype: "p", V0: "1", V1: apiPre + "/menu/getAllRouteList", V2: "GET"},
@@ -329,6 +329,7 @@ func InsertInto(db *gorm.DB) error {
 		{Ptype: "p", V0: "1", V1: apiPre + "/system/updateThemeConfig", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/system/getSetting", V2: "GET"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/system/updateSetting", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/system/createx25519", V2: "GET"},
 
 		//upload
 		{Ptype: "p", V0: "1", V1: apiPre + "/upload/newPictureUrl", V2: "POST"},

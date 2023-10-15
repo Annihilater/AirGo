@@ -83,6 +83,15 @@ func InitRouter() {
 		userRouterNoVerify.POST("/resetUserPassword", api.ResetUserPassword) //重置密码
 
 	}
+	// AirGo
+	AirGoRouter := RouterGroupStatic.Group("/airgo")
+	{
+		AirGoRouter.GET("/node/getNodeInfo", api.AGGetNodeInfo)
+		AirGoRouter.POST("/node/reportNodeStatus", api.AGReportNodeStatus)
+		AirGoRouter.GET("/user/getUserlist", api.AGGetUserlist)
+		AirGoRouter.POST("/user/reportUserTraffic", api.AGReportUserTraffic)
+	}
+
 	// 路由组
 	RouterGroup := Router.Group(global.Server.System.ApiPrefix) //使用前缀，默认为 /api
 	//user
@@ -132,6 +141,7 @@ func InitRouter() {
 		systemAdminRouter.POST("/updateThemeConfig", api.UpdateThemeConfig) //设置主题
 		systemAdminRouter.GET("/getSetting", api.GetSetting)                //获取系统设置
 		systemAdminRouter.POST("/updateSetting", api.UpdateSetting)         //修改系统设置
+		systemAdminRouter.GET("createx25519", api.Createx25519)             // reality x25519
 	}
 
 	//节点
