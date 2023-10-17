@@ -28,7 +28,7 @@ func Purchase(ctx *gin.Context) {
 	//fmt.Println("前端传的订单信息：", receiveOrder)
 	//根据订单号查询订单
 	receiveOrder.UserID = uIDInt //确认user id
-	sysOrder, err := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{}, model.Orders{UserID: receiveOrder.UserID, OutTradeNo: receiveOrder.OutTradeNo})
+	sysOrder, _, err := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{UserID: receiveOrder.UserID, OutTradeNo: receiveOrder.OutTradeNo})
 	if err != nil {
 		global.Logrus.Error("根据订单号查询订单error:", err.Error())
 		if err == gorm.ErrRecordNotFound {
@@ -56,7 +56,7 @@ func Purchase(ctx *gin.Context) {
 	var payParams = model.Pay{
 		ID: receiveOrder.PayID,
 	}
-	pay, err := service.CommonSqlFind[model.Pay, model.Pay, model.Pay](model.Pay{}, payParams)
+	pay, _, err := service.CommonSqlFind[model.Pay, model.Pay, model.Pay](payParams)
 	//fmt.Println("查询支付方式：", pay)
 	sysOrder.PayID = pay.ID        //支付方式id
 	sysOrder.PayType = pay.PayType //
@@ -148,7 +148,7 @@ func EpayNotify(ctx *gin.Context) {
 	var order = model.Orders{
 		OutTradeNo: epayRes.OutTradeNo,
 	}
-	sysOrder, _ := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{}, order)
+	sysOrder, _, _ := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](order)
 	if sysOrder.TradeStatus == model.OrderTRADE_SUCCESS {
 		ctx.String(200, "success")
 		return
@@ -170,7 +170,7 @@ func EpayNotify(ctx *gin.Context) {
 
 // 获取已激活支付列表
 func GetEnabledPayList(ctx *gin.Context) {
-	list, err := service.CommonSqlFind[model.Pay, string, []model.Pay](model.Pay{}, "status = true")
+	list, _, err := service.CommonSqlFind[model.Pay, string, []model.Pay]("status = true")
 	if err != nil {
 		global.Logrus.Error(err.Error())
 		response.Fail(err.Error(), nil, ctx)
@@ -181,7 +181,7 @@ func GetEnabledPayList(ctx *gin.Context) {
 
 // 获取全部支付列表
 func GetPayList(ctx *gin.Context) {
-	list, err := service.CommonSqlFind[model.Pay, string, []model.Pay](model.Pay{}, "")
+	list, _, err := service.CommonSqlFind[model.Pay, string, []model.Pay]("")
 	if err != nil {
 		global.Logrus.Error(err.Error())
 		response.Fail(err.Error(), nil, ctx)

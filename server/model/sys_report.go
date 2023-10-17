@@ -17,9 +17,10 @@ type FieldParamsReq struct {
 	PaginationParams PaginationParams  `json:"pagination_params"` //分页参数
 }
 type FieldParamsItem struct {
+	Operator       string `json:"operator"` // AND OR
 	Field          string `json:"field"`
 	FieldType      string `json:"field_type"`
-	Condition      string `json:"condition"`
+	Condition      string `json:"condition"` //= > < <> like
 	ConditionValue string `json:"condition_value"`
 }
 

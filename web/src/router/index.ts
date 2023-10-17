@@ -103,7 +103,6 @@ router.beforeEach(async (to, from, next) => {
     if (to.meta.title) NProgress.start();
     // const token = Session.get('token');
     const token = Local.get('token');
-    // console.log("to.path:",to.path)
     if (to.path === '/login' && !token) {
         next();
         NProgress.done();
@@ -118,10 +117,9 @@ router.beforeEach(async (to, from, next) => {
         } else if (token && to.path === '/login') {
             next('/home');
             NProgress.done();
-        } else if (token && to.path.substring(0, 8) === '/public/') {
+        } else if (token && to.path.substring(0, 8) === '/static/') {
             next();
             NProgress.done();
-
         } else {
             const storesRoutesList = useRoutesStore(pinia);
             const {routesListSate} = storeToRefs(storesRoutesList);

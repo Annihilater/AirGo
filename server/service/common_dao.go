@@ -10,29 +10,33 @@ import (
 )
 
 // 通用查询
-func CommonSqlFind[T1, T2, T3 any](modelType T1, params T2) (T3, error) {
+func CommonSqlFind[T1, T2, T3 any](params T2) (T3, int64, error) {
 	var res T3
 	var err error
+	var modelType T1
+	var total int64
 	if reflect.TypeOf(params).String() == reflect.String.String() {
-		err = global.DB.Model(&modelType).Where(params).Find(&res).Error
+		err = global.DB.Model(&modelType).Where(params).Count(&total).Find(&res).Error
 
 	} else {
-		err = global.DB.Where(&params).Find(&res).Error
+		err = global.DB.Where(&params).Count(&total).Find(&res).Error
 	}
-	return res, err
+	return res, total, err
 }
 
 // 通用查询带分页参数
-func CommonSqlFindWithPagination[T1, T2, T3 any](modelType T1, params T2, paginationParams model.PaginationParams) (T3, error) {
+func CommonSqlFindWithPagination[T1, T2, T3 any](params T2, paginationParams model.PaginationParams) (T3, int64, error) {
 	var res T3
 	var err error
+	var modelType T1
+	var total int64
 	if reflect.TypeOf(params).String() == reflect.String.String() {
-		err = global.DB.Model(&modelType).Where(params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Debug().Model(&modelType).Where(params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 
 	} else {
-		err = global.DB.Where(&params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Where(&params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 	}
-	return res, err
+	return res, total, err
 }
 
 // 通用查询,支持更多字段参数

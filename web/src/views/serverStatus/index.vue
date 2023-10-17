@@ -65,7 +65,7 @@ function getWsUrl(): string {
   }
   const url = apiUrl.slice(apiUrl.indexOf('//') + 2, apiUrl.length)
   const pre_url = apiUrl.slice(0, apiUrl.indexOf('//') + 2)
-  console.log(`pre_url:${pre_url} url:${url}`)
+  // console.log(`pre_url:${pre_url} url:${url}`)
   if (pre_url === 'https://') {
     return "wss://" + url  + apiStoreData.api.value.websocket_msg.path
   } else {

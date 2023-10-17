@@ -27,7 +27,7 @@ func InitLogrus() {
 
 func InitTheme() {
 	//res, err := service.GetThemeConfig()
-	res, err := service.CommonSqlFind[model.Theme, string, model.Theme](model.Theme{}, "id = 1")
+	res, _, err := service.CommonSqlFind[model.Theme, string, model.Theme]("id = 1")
 	if err != nil {
 		global.Logrus.Error("系统配置获取失败", err.Error())
 		return
@@ -38,7 +38,7 @@ func InitTheme() {
 // 系统配置
 func InitServer() {
 	//res, err := service.GetSetting()
-	res, err := service.CommonSqlFind[model.Server, string, model.Server](model.Server{}, "id = 1")
+	res, _, err := service.CommonSqlFind[model.Server, string, model.Server]("id = 1")
 	if err != nil {
 		global.Logrus.Error("系统配置获取失败", err.Error())
 		return

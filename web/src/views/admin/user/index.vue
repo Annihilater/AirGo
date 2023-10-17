@@ -22,15 +22,10 @@
           </el-icon>
           高级查询
         </el-button>
-
         <div v-if="state.isShowCollapse">
-
           <!--          report组件-->
           <ReportComponent ref="reportRef" @getReportData="getReportDataHandler"></ReportComponent>
-
         </div>
-
-
       </div>
       <el-table :data="userManageData.users.user_list" stripe style="width: 100%;flex: 1;">
         <el-table-column type="index" label="序号" width="60" fixed/>
@@ -64,9 +59,9 @@
         <el-table-column prop="subscribe_info.subscribe_url" label="通用订阅url" show-overflow-tooltip width="400">
           <template #default="scope">
             <el-tag type="info">
-              {{ serverStore.publicServerConfig.sub_url_pre }}user/getSub?link={{
+              {{ serverStore.publicServerConfig.backend_url }}user/getSub?link={{
                 scope.row.subscribe_info.subscribe_url
-              }}&type=1
+              }}&type=v2ray
             </el-tag>
           </template>
         </el-table-column>
@@ -158,7 +153,7 @@ const state = reactive({
     page_num: 1,
     page_size: 30,
   },
-})
+});
 // 打开新增用户弹窗
 const onOpenAddUser = (type: string) => {
   userDialogRef.value.openDialog(type);

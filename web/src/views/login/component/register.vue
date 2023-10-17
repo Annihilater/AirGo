@@ -152,7 +152,6 @@ const onGetEmailCode = () => {
     ElMessage.success(res.msg)
     handleTimeChange()
   })
-
 };
 //倒计时
 const handleTimeChange = () => {

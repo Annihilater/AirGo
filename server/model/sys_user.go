@@ -18,18 +18,17 @@ type User struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 	DeletedAt *time.Time `json:"-" gorm:"index"`
 
-	ID       int64     `json:"id"           gorm:"primary_key"`
-	UUID     uuid.UUID `json:"uuid"         gorm:"comment:用户UUID"`                                    // 用户UUID
-	UserName string    `json:"user_name"    gorm:"comment:用户登录名"`                                     // 用户登录名,邮箱
-	Password string    `json:"password"     gorm:"comment:用户登录密码"`                                    // 用户登录密码
-	NickName string    `json:"nick_name"    gorm:"default:系统用户;comment:用户昵称"`                         // 用户昵称
-	Avatar   string    `json:"avatar"       gorm:"default:/src/assets/icon/avatar.jpeg;comment:用户头像"` // 用户头像
-	Phone    string    `json:"phone"        gorm:"comment:用户手机号"`                                     // 用户手机号
-	//Email  string `json:"email"       gorm:"comment:用户邮箱"`                                                                                             // 用户邮箱
-	Enable         bool    `json:"enable"      gorm:"default:true;comment:用户是否被启用 true正常 false冻结"`
-	InvitationCode string  `json:"invitation_code" gorm:"comment:我的邀请码"`
-	ReferrerCode   string  `json:"referrer_code"   gorm:"comment:推荐人码"`
-	Remain         float64 `json:"remain"          gorm:"comment:余额"`
+	ID             int64     `json:"id"           gorm:"primary_key"`
+	UUID           uuid.UUID `json:"uuid"         gorm:"comment:用户UUID"`                                      // 用户UUID
+	UserName       string    `json:"user_name"    gorm:"comment:用户登录名"`                                    // 用户登录名,邮箱
+	Password       string    `json:"password"     gorm:"comment:用户登录密码"`                                  // 用户登录密码
+	NickName       string    `json:"nick_name"    gorm:"default:系统用户;comment:用户昵称"`                     // 用户昵称
+	Avatar         string    `json:"avatar"       gorm:"default:/src/assets/icon/avatar.jpeg;comment:用户头像"` // 用户头像
+	Phone          string    `json:"phone"        gorm:"comment:用户手机号"`                                    // 用户手机号
+	Enable         bool      `json:"enable"       gorm:"default:true;comment:用户是否被启用 true正常 false冻结"`
+	InvitationCode string    `json:"invitation_code" gorm:"comment:我的邀请码"`
+	ReferrerCode   string    `json:"referrer_code"   gorm:"comment:推荐人码"`
+	Remain         float64   `json:"remain"          gorm:"comment:余额"`
 	//角色组
 	RoleGroup []Role `json:"role_group" gorm:"many2many:user_and_role;"` //多对多
 	//订单
@@ -41,17 +40,18 @@ type User struct {
 // 附加订阅信息
 type SubscribeInfo struct {
 	Host           string     `json:"host"              gorm:"comment:用户混淆"`
-	ClientIP       string     `json:"client_ip"         gorm:"comment:用户的当前在线IP"`              //用户的当前在线IP
-	SubStatus      bool       `json:"sub_status"        gorm:"comment:订阅是否有效"`                 //订阅是否有效
-	SubscribeUrl   string     `json:"subscribe_url"     gorm:"comment:订阅链接"`                   //订阅链接
-	GoodsID        int64      `json:"goods_id"          gorm:"comment:商品ID"`                   //商品ID
-	ExpiredAt      *time.Time `json:"expired_at"        gorm:"comment:过期时间"`                   //过期时间
-	T              int64      `json:"t"                 gorm:"default:0;comment:总流量（Byte）"`    //总流量（Byte）
-	U              int64      `json:"u"                 gorm:"default:0;comment:上行流量"`         //上行流量（Byte）
-	D              int64      `json:"d"                 gorm:"default:0;comment:下行流量"`         //下行流量（Byte）
-	ResetDay       int64      `json:"reset_day"         gorm:"comment:流量重置日"`                  //流量重置日
-	NodeSpeedLimit int64      `json:"node_speedlimit"   gorm:"default:0;comment:限速Mbps（Mbps）"` //限速Mbps（Mbps）
-	NodeConnector  int64      `json:"node_connector"    gorm:"default:3;comment:连接客户端数"`       //连接客户端数
+	ClientIP       string     `json:"client_ip"         gorm:"comment:用户的当前在线IP"`
+	SubStatus      bool       `json:"sub_status"        gorm:"comment:订阅是否有效"`
+	SubscribeUrl   string     `json:"subscribe_url"     gorm:"comment:订阅链接"`
+	GoodsID        int64      `json:"goods_id"          gorm:"comment:商品ID"`
+	GoodsSubject   string     `json:"goods_subject"     gorm:"comment:商品标题"`
+	ExpiredAt      *time.Time `json:"expired_at"        gorm:"comment:过期时间"`
+	T              int64      `json:"t"                 gorm:"default:0;comment:总流量（Byte）"`
+	U              int64      `json:"u"                 gorm:"default:0;comment:上行流量"`
+	D              int64      `json:"d"                 gorm:"default:0;comment:下行流量"`
+	ResetDay       int64      `json:"reset_day"         gorm:"comment:流量重置日"`
+	NodeSpeedLimit int64      `json:"node_speedlimit"   gorm:"default:0;comment:限速Mbps（Mbps）"`
+	NodeConnector  int64      `json:"node_connector"    gorm:"default:3;comment:连接客户端数"`
 }
 
 // 用户与角色 多对多 表

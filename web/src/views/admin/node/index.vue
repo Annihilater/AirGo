@@ -61,9 +61,10 @@
         <el-table-column prop="port" label="节点端口" show-overflow-tooltip></el-table-column>
         <el-table-column prop="sort" label="协议类型" show-overflow-tooltip>
           <template #default="scope">
-            <el-tag type="success" v-if="scope.row.sort ===11">vmess</el-tag>
-            <el-tag type="warning" v-if="scope.row.sort ===15">vless</el-tag>
-            <el-tag type="info" v-if="scope.row.sort ===14">trojan</el-tag>
+            <el-button type="success" v-if="scope.row.node_type ==='vmess'">vmess</el-button>
+            <el-button type="warning" v-if="scope.row.node_type ==='vless'">vless</el-button>
+            <el-button type="info" v-if="scope.row.node_type ==='trojan'">trojan</el-button>
+            <el-button type="danger" v-if="scope.row.node_type ==='shadowrocks'">shadowrocks</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="total_up" label="上行流量(GB)" show-overflow-tooltip width="200">

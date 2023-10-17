@@ -50,7 +50,7 @@ func GetPictureList(ctx *gin.Context) {
 	if params.Search != "" {
 		text = "subject like" + " % " + params.Search + " % "
 	}
-	picList, err := service.CommonSqlFindWithPagination[model.Gallery, string, []model.Gallery](model.Gallery{}, text, params)
+	picList, _, err := service.CommonSqlFindWithPagination[model.Gallery, string, []model.Gallery](text, params)
 	if err != nil {
 		global.Logrus.Error("获取图片列表错误：", err.Error())
 		response.Fail("获取图片列表错误："+err.Error(), nil, ctx)

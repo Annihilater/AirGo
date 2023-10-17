@@ -31,7 +31,7 @@ func NewNodeShared(ctx *gin.Context) {
 
 // 获取节点列表
 func GetNodeSharedList(ctx *gin.Context) {
-	nodeArr, err := service.CommonSqlFind[model.NodeShared, string, []model.Node](model.NodeShared{}, "")
+	nodeArr, _, err := service.CommonSqlFind[model.NodeShared, string, []model.Node]("")
 	if err != nil {
 		global.Logrus.Error("GetNodeSharedList", err.Error())
 		response.Fail("GetNodeSharedList"+err.Error(), nil, ctx)

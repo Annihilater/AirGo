@@ -62,10 +62,8 @@ const state = reactive({
 //获取article列表
 const getArticleList = (params: object) => {
   request(apiStoreData.api.value.article_getArticle,params).then((res) => {
-    if (res.code === 0) {
       state.articleDate = res.data
       // console.log(state.articleDate)
-    }
   })
 }
 //打开详情弹窗

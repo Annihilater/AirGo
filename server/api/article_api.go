@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 获取全部文章
+// 获取文章
 func GetArticle(ctx *gin.Context) {
 	var params model.PaginationParams
 	err := ctx.ShouldBind(&params)
@@ -17,18 +17,18 @@ func GetArticle(ctx *gin.Context) {
 		response.Fail("获取文章参数错误", nil, ctx)
 		return
 	}
-	res, err := service.CommonSqlFindWithPagination[model.Article, string, []model.Article](model.Article{}, "title LIKE '%"+params.Search+"%'", params)
+	//fmt.Println("params:", params)
+	res, total, err := service.CommonSqlFindWithPagination[model.Article, string, []model.Article](params.Search, params)
 	if err != nil {
 		global.Logrus.Error("获取文章错误:", err)
 		response.Fail("获取文章错误", nil, ctx)
 		return
 	}
-	var total = model.ArticleWithTotal{
-		Total:       int64(len(res)),
+	var list = model.ArticleWithTotal{
+		Total:       total,
 		ArticleList: res,
 	}
-
-	response.OK("获取文章成功", total, ctx)
+	response.OK("获取文章成功", list, ctx)
 }
 
 // 新建文章

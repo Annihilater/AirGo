@@ -60,8 +60,9 @@
       <el-form-item v-if="payStoreData.payInfo.value.pay_type==='epay'" label="易支付商户密钥">
         <el-input v-model="payStoreData.payInfo.value.epay.epay_key"/>
       </el-form-item>
-      <el-form-item v-if="payStoreData.payInfo.value.pay_type==='epay'" label="api地址(页面跳转支付)">
+      <el-form-item v-if="payStoreData.payInfo.value.pay_type==='epay'" label="易支付api地址">
         <el-input v-model="payStoreData.payInfo.value.epay.epay_api_url"/>
+        <div style="color: #9b9da1">*页面跳转支付的地址，例如：http://abc.com/submit.php</div>
       </el-form-item>
 
       <!--      <el-form-item v-if="payStoreData.payInfo.value.pay_type==='epay'" label="异步通知地址">-->

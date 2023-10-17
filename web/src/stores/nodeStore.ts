@@ -58,7 +58,7 @@ export const useNodeStore = defineStore("nodeStore", {
 
                 security: 'none',//传输层安全类型 none,tls,reality
                 sni: '',
-                fp: '',
+                fp: 'chrom',
                 alpn: '',
                 allowInsecure: true,//tls 跳过证书验证
                 dest: '',

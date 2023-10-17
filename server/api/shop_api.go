@@ -12,7 +12,7 @@ import (
 
 // 查询全部已启用商品
 func GetAllEnabledGoods(ctx *gin.Context) {
-	goodsArr, err := service.CommonSqlFind[model.Goods, string, []model.Goods](model.Goods{}, "status = true ORDER BY goods_order")
+	goodsArr, _, err := service.CommonSqlFind[model.Goods, string, []model.Goods]("status = true ORDER BY goods_order")
 	if err != nil {
 		global.Logrus.Error("查询全部商品错误:", err.Error())
 		response.Fail("查询全部商品错误"+err.Error(), nil, ctx)

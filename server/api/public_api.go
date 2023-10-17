@@ -59,7 +59,7 @@ func GetMailCode(ctx *gin.Context) {
 	//fmt.Println("邮箱验证码参数：", u)
 	_, ok := global.LocalCache.Get(u.UserName + "emailcode")
 	if ok {
-		response.Fail("邮箱验证码获取频繁，请稍后重试！", nil, ctx)
+		response.Fail("邮箱验证码获取频繁，请60后重试！", nil, ctx)
 		return
 	}
 	//用户是否存在且是否有效

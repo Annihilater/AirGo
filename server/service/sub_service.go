@@ -5,6 +5,7 @@ import (
 	"AirGo/model"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"gorm.io/gorm"
 	"net/url"
 	"strconv"
@@ -13,55 +14,6 @@ import (
 	//"gopkg.in/yaml.v2"
 	"gopkg.in/yaml.v2"
 )
-
-// 节点信息
-func SSNodeInfo(nodeID int64) (model.SSNodeInfo, error) {
-	var node model.Node
-	err := global.DB.Where("id = ? and enabled = true", nodeID).First(&node).Error //节点号 是否启用
-	if err != nil {
-		return model.SSNodeInfo{}, err
-	}
-	var nodeInfo model.SSNodeInfo
-	//nodeInfo.NodeGroup = 0
-	//nodeInfo.NodeClass = 0
-	//nodeInfo.MuOnly = 1
-	nodeInfo.NodeSpeedlimit = node.NodeSpeedlimit
-	nodeInfo.TrafficRate = node.TrafficRate
-
-	switch node.NodeType {
-	case "vless":
-		nodeInfo.Sort = 15
-	case "vmess":
-		nodeInfo.Sort = 11
-	case "trojan":
-		nodeInfo.Sort = 14
-
-	}
-	switch node.NodeType {
-	case "vmess": //vmess
-		if node.Type == "http" && node.Network == "tcp" {
-			nodeInfo.Server = node.Address + ";" + strconv.FormatInt(node.Port, 10) + ";" + strconv.FormatInt(node.Aid, 10) + ";" + node.Network + ";" + node.Security + ";path=" + node.Path + "|host=" + node.Host + ";headertype=http"
-		} else if node.Network == "grpc" && node.Security != "" {
-			nodeInfo.Server = node.Address + ";" + strconv.FormatInt(node.Port, 10) + ";" + strconv.FormatInt(node.Aid, 10) + ";" + node.Network + ";" + node.Security + ";path=" + node.Path + "|host=" + node.Host + "|servicename=mygrpc"
-		}
-		nodeInfo.Server = node.Address + ";" + strconv.FormatInt(node.Port, 10) + ";" + strconv.FormatInt(node.Aid, 10) + ";" + node.Network + ";" + node.Security + ";path=" + node.Path + "|host=" + node.Host
-	case "vless": //vless
-		if node.Type == "http" && node.Network == "tcp" {
-			nodeInfo.Server = node.Address + ";" + strconv.FormatInt(node.Port, 10) + ";" + strconv.FormatInt(node.Aid, 10) + ";" + node.Network + ";" + node.Server + ";path=" + node.Path + "|host=" + node.Host + ";headertype=http" + "|enable_vless=true"
-		} else if node.Network == "grpc" && node.Security != "" {
-			nodeInfo.Server = node.Address + ";" + strconv.FormatInt(node.Port, 10) + ";" + strconv.FormatInt(node.Aid, 10) + ";" + node.Network + ";" + node.Security + ";path=" + node.Path + "|host=" + node.Host + "|servicename=mygrpc" + "|enable_vless=true"
-		}
-		nodeInfo.Server = node.Address + ";" + strconv.FormatInt(node.Port, 10) + ";" + strconv.FormatInt(node.Aid, 10) + ";" + node.Network + ";" + node.Security + ";path=" + node.Path + "|host=" + node.Host + "|enable_vless=true"
-
-	case "trojan": //trojan
-		if node.Network == "grpc" {
-			nodeInfo.Server = node.Address + ":" + strconv.FormatInt(node.Port, 10) + "|host=" + node.Host + "|grpc=1|servicename=mygrpc"
-		}
-		nodeInfo.Server = node.Address + ":" + strconv.FormatInt(node.Port, 10) + "|host=" + node.Host
-	}
-	return nodeInfo, nil
-
-}
 
 // 获取订阅
 func GetUserSub(url string, subType string) string {
@@ -94,27 +46,22 @@ func GetUserSub(url string, subType string) string {
 	copy(goods.Nodes[1:], goods.Nodes[0:])
 	goods.Nodes[0] = firstSubNode
 	//再插入共享的节点
-	nodeList, err := CommonSqlFind[model.NodeShared, string, []model.Node](model.NodeShared{}, "")
+	nodeList, _, err := CommonSqlFind[model.NodeShared, string, []model.Node]("")
 	if err == nil {
 		for _, v := range nodeList {
 			goods.Nodes = append(goods.Nodes, v)
 		}
 	}
 	//fmt.Println("nodes:", goods.Nodes)
-	//根据subType生成不同客户端订阅 1:v2rayng 2:clash 3 shadowrocket 4 Quantumult X
+	//根据subType生成不同客户端订阅
 	switch subType {
-	case "1":
+	case "v2ray":
 		return V2rayNGSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
-	case "2":
+	case "clash":
 		return ClashSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
-	case "3":
-		//return ShadowRocketSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host, name)
-		return V2rayNGSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
-	case "4":
-		//return QxSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
+	default:
 		return V2rayNGSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
 	}
-	return ""
 }
 
 // v2rayNG 订阅
@@ -154,8 +101,15 @@ func V2rayNGSubscribe(nodes *[]model.Node, uuid, host string) string {
 				subArr = append(subArr, res)
 			}
 			continue
+		case "shadowsocks":
+			if res := V2rayNGShadowsocks(v, newUUID, newHost); res != "" {
+				subArr = append(subArr, res)
+				fmt.Println("subArr:", subArr)
+			}
+			continue
 		}
 	}
+	fmt.Println(base64.StdEncoding.EncodeToString([]byte(strings.Join(subArr, "\r\n"))))
 	return base64.StdEncoding.EncodeToString([]byte(strings.Join(subArr, "\r\n")))
 }
 
@@ -186,7 +140,7 @@ func ClashSubscribe(nodes *[]model.Node, uuid, host string) string {
 
 		nameArr = append(nameArr, v.Remarks)
 
-		proxy := ClashVmessVlessNew(v, newUUID, newHost)
+		proxy := ClashVmessVlessTrojan(v, newUUID, newHost)
 		proxiesArr = append(proxiesArr, proxy)
 
 	}
@@ -216,9 +170,9 @@ func ClashSubscribe(nodes *[]model.Node, uuid, host string) string {
 
 }
 
-// {"add":"AirGo","aid":"0","alpn":"h2,http/1.1","fp":"qq","host":"www.baidu.com","id":"e0d5fe65-a5d1-4b8a-8d40-ed92a6a35d8b","net":"ws","path":"/path","port":"6666","ps":"到期时间:2024-03-06  |  剩余流量:20.00GB","scy":"auto","sni":"www.baidu.com","tls":"tls","type":"","v":"2"}
 // generate v2rayNG vmess
 func V2rayNGVmess(node model.Node, uuid, host string) string {
+	// {"add":"AirGo","aid":"0","alpn":"h2,http/1.1","fp":"qq","host":"www.baidu.com","id":"e0d5fe65-a5d1-4b8a-8d40-ed92a6a35d8b","net":"ws","path":"/path","port":"6666","ps":"到期时间:2024-03-06  |  剩余流量:20.00GB","scy":"auto","sni":"www.baidu.com","tls":"tls","type":"","v":"2"}
 	var vmess model.Vmess
 	vmess.V = node.V
 	vmess.Name = node.Remarks
@@ -252,11 +206,10 @@ func V2rayNGVmess(node model.Node, uuid, host string) string {
 	return "vmess://" + vmessStr
 }
 
-// generate  v2rayng vless
-// vless例子 vless://d342d11e-d424-4583-b36e-524ab1f0afa7@1.6.1.1:443?path=%2F%3Fed%3D2048&security=tls&encryption=none&alpn=h2,http/1.1&host=v2.airgoo.link&fp=randomized&flow=xtls-rprx-vision-udp443&type=ws&sni=v2.airgoo.link#v2.airgoo.link
-// vless例子 vless://d342d11e-d424-4583-b36e-524ab1f0afa7@1.6.1.4:443?path=%2F%3Fed%3D2048&security=reality&encryption=none&pbk=ppkk&host=v2.airgoo.link&fp=randomized&spx=ssxx&flow=xtls-rprx-vision-udp443&type=ws&sni=v2.airgoo.link&sid=ssdd#v2.airgoo.link
-// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
+// generate  v2rayng vless trojan
 func V2rayNGVlessTrojan(node model.Node, scheme, uuid, host string) string {
+	// vless例子 vless://d342d11e-d424-4583-b36e-524ab1f0afa7@1.6.1.4:443?path=%2F%3Fed%3D2048&security=reality&encryption=none&pbk=ppkk&host=v2.airgoo.link&fp=randomized&spx=ssxx&flow=xtls-rprx-vision-udp443&type=ws&sni=v2.airgoo.link&sid=ssdd#v2.airgoo.link
+	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
 	var vlessUrl url.URL
 	vlessUrl.Scheme = scheme
 
@@ -306,7 +259,7 @@ func V2rayNGVlessTrojan(node model.Node, scheme, uuid, host string) string {
 }
 
 // generate  Clash vmess vless trojan
-func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
+func ClashVmessVlessTrojan(v model.Node, uuid, host string) model.ClashProxy {
 	var proxy model.ClashProxy
 	switch v.NodeType {
 	case "vmess":
@@ -322,6 +275,10 @@ func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
 		proxy.Type = "trojan"
 		proxy.Uuid = uuid
 		proxy.Sni = v.Sni
+	case "shadowsocks":
+		proxy.Type = "ss"
+		proxy.Cipher = v.Scy
+		proxy.Password = v.UUID
 	}
 	if v.EnableTransfer {
 		proxy.Server = v.TransferAddress
@@ -355,6 +312,7 @@ func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
 		proxy.Servername = v.Sni
 		proxy.ClientFingerprint = v.Fingerprint
 		proxy.Alpn = append(proxy.Alpn, v.Alpn)
+		proxy.ClientFingerprint = v.Fingerprint
 	case "reality":
 		proxy.Tls = true
 		proxy.Servername = v.Sni
@@ -364,4 +322,16 @@ func ClashVmessVlessNew(v model.Node, uuid, host string) model.ClashProxy {
 		proxy.Alpn = append(proxy.Alpn, v.Alpn)
 	}
 	return proxy
+}
+
+func V2rayNGShadowsocks(v model.Node, uuid, host string) string {
+	//ss := "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTozMjJjZjAwMC0yODljLTRkYjAtYjFhMy1hMjRkY2ZiOTNjZGQ:8888@hz.jjynb.com:47691#%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%EF%BC%9A14.83%20GB"
+	//  Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTozMjJjZjAwMC0yODljLTRkYjAtYjFhMy1hMjRkY2ZiOTNjZGQ -> chacha20-ietf-poly1305:322cf000-289c-4db0-b1a3-a24dcfb93cdd
+	var urlV url.URL
+	urlV.Scheme = "ss"
+	urlV.User = url.UserPassword(base64.StdEncoding.EncodeToString([]byte(v.Scy+":"+uuid)), "")
+	urlV.Host = v.Address + ":" + fmt.Sprintf("%d", v.Port)
+	urlV.Fragment = v.Remarks
+	//fmt.Println(urlV.String())
+	return strings.ReplaceAll(urlV.String(), ":@", "@")
 }

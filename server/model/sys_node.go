@@ -30,7 +30,7 @@ type Node struct {
 	IsSharedNode    bool   `json:"is_shared_node"`                           //共享节点，不修改uuid和host
 	Server          string `json:"server"`                                   // sspanel的server配置信息字段
 	V               string `json:"v"   gorm:"default:2"`                     //
-	Scy             string `json:"scy" gorm:"default:auto"`                  //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero
+	Scy             string `json:"scy" gorm:"default:auto"`                  //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,aes-256-gcm,2022-blake3-aes-128-gcm,2022-blake3-aes-256-gcm,2022-blake3-chacha20-poly1305
 	Aid             int64  `json:"aid" gorm:"default:0"`                     //额外ID
 	VlessFlow       string `json:"flow"       gorm:"default:none"`           //流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
 	VlessEncryption string `json:"encryption" gorm:"default:none"`           //加密方式 none
@@ -200,7 +200,7 @@ type NodeShared struct {
 	IsSharedNode    bool   `json:"is_shared_node"`                           //共享节点，不修改uuid和host
 	Server          string `json:"server"`                                   // sspanel的server配置信息字段
 	V               string `json:"v"          gorm:"default:2"`              //
-	Scy             string `json:"scy"        gorm:"default:auto"`           //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero，vless选择none，否则v2rayng无法启动
+	Scy             string `json:"scy"        gorm:"default:auto"`           //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,aes-256-gcm,2022-blake3-aes-128-gcm,2022-blake3-aes-256-gcm,2022-blake3-chacha20-poly1305
 	Aid             int64  `json:"aid"        gorm:"default:0"`              //额外ID
 	VlessFlow       string `json:"flow"       gorm:"default:none"`           //流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
 	VlessEncryption string `json:"encryption" gorm:"default:none"`           //加密方式 none

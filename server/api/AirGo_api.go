@@ -21,7 +21,7 @@ func AGGetNodeInfo(ctx *gin.Context) {
 	id := ctx.Query("id")
 	//idInt64, _ := strconv.ParseInt(id, 10, 64)
 	fmt.Println("id:", id)
-	node, err := service.CommonSqlFind[model.Node, string, model.AGNodeInfo](model.Node{}, "id = "+id)
+	node, _, err := service.CommonSqlFind[model.Node, string, model.AGNodeInfo]("id = " + id)
 	if err != nil {
 		global.Logrus.Error("AGGetNodeInfo error,id=" + id)
 		return

@@ -17,7 +17,30 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-const apiPre = "/api"
+const (
+	apiPre = "/api"
+	// 默认邮件验证码样式
+	text1 = `<div >
+  <p >欢迎使用，请及时输入验证码，区分大小写</p>
+  <span style="font-size:30px">emailcode</span>
+</div>`
+	// 商品默认描述
+	text2 = `<h3 style="color:#00BFFF">究竟什么样的终点，才配得上这一路的颠沛流离---管泽元</h3>
+<h3 style="color:#DDA0DD">世界聚焦于你---管泽元</h3>`
+	text3 = `## 软件下载
+- [v2rayNG for Android](https://ghproxy.com/https://github.com/2dust/v2rayNG/releases/latest/download/v2rayNG_1.8.9_arm64-v8a.apk)
+- [Clash Meta for Android](https://ghproxy.com/https://github.com/MetaCubeX/ClashMetaForAndroid/releases/latest/download/cmfa-2.8.9-meta-arm64-v8a-release.apk)
+- [v2rayN for Windows](https://ghproxy.com/https://github.com/2dust/v2rayN/releases/latest/download/v2rayN-With-Core.zip)
+
+## 加入我们
+-[QQ](http://)
+-[Telegram](http://)`
+	text4 = `# 欢迎使用！最新活动如下：
+1. 免费注册体验！注册送流量
+2. 邀请返利
+
+**更多套餐请查看商店**`
+)
 
 // Gorm 初始化数据库并产生数据库全局变量
 // Author SliverHorn
@@ -179,6 +202,9 @@ func InsertInto(db *gorm.DB) error {
 		{ParentID: 0, Path: "/gallery", Name: "gallery", Component: "/gallery/index.vue", Meta: model.Meta{Title: "无限图库", Icon: "iconfont icon-step"}},                  //16
 		{ParentID: 0, Path: "/income", Name: "income", Component: "/income/index.vue", Meta: model.Meta{Title: "营收概览", Icon: "iconfont icon-xingqiu"}},                  //17
 		{ParentID: 0, Path: "/isp", Name: "isp", Component: "/isp/index.vue", Meta: model.Meta{Title: "套餐监控", Icon: "iconfont icon-xingqiu"}},                           //18
+
+		{ParentID: 0, Path: "/article/notice", Name: "notice", Component: "/article/index_notice.vue", Meta: model.Meta{Title: "公告", Icon: "ele-ChatLineSquare"}},   //19
+		{ParentID: 0, Path: "/article/knowledge", Name: "knowledge", Component: "/article/index_knowledge.vue", Meta: model.Meta{Title: "知识库", Icon: "fa fa-book"}}, //20
 	}
 	if err := db.Create(&DynamicRouteData).Error; err != nil {
 		return errors.New("sys_dynamic-router_data表数据初始化失败!")
@@ -220,6 +246,8 @@ func InsertInto(db *gorm.DB) error {
 		//{RoleID: 1, DynamicRouteID: 16}, //无限图库
 		{RoleID: 1, DynamicRouteID: 17}, //营收概览
 		{RoleID: 1, DynamicRouteID: 18}, //套餐监控
+		{RoleID: 1, DynamicRouteID: 19}, //公告
+		{RoleID: 1, DynamicRouteID: 20}, //知识库
 
 		//普通用户的权限
 		{RoleID: 2, DynamicRouteID: 11}, //首页
@@ -229,6 +257,8 @@ func InsertInto(db *gorm.DB) error {
 		{RoleID: 2, DynamicRouteID: 15}, //节点状态
 		//{RoleID: 2, DynamicRouteID: 16}, //无限图库
 		{RoleID: 2, DynamicRouteID: 18}, //套餐监控
+		{RoleID: 2, DynamicRouteID: 19}, //公告
+		{RoleID: 2, DynamicRouteID: 20}, //知识库
 	}
 	if err := global.DB.Create(&roleAndMenuData).Error; err != nil {
 		return errors.New("role_and_menu表数据初始化失败!")
@@ -414,24 +444,19 @@ func InsertInto(db *gorm.DB) error {
 		ID: 1,
 		Email: model.Email{
 			EmailContent: text1,
+			EmailSubject: "hello，我的宝！",
 		},
 	}
 	if err := global.DB.Create(&settingData).Error; err != nil {
 		return errors.New("server表数据初始化失败!")
 	}
+	//文章
+	articleData := []model.Article{
+		{Type: "home", Title: "首页自定义显示内容", Introduction: "首页自定义显示内容，可编辑，可显示与隐藏，不可删除！", Content: text3},
+		{Type: "home", Title: "首页弹窗内容", Introduction: "首页弹窗，可编辑，可显示与隐藏，不可删除！", Content: text4},
+	}
+	if err := global.DB.Create(&articleData).Error; err != nil {
+		return errors.New("article表数据初始化失败!")
+	}
 	return nil
 }
-
-// 默认邮件验证码样式
-const text1 = `
-<div >
-  <p >欢迎使用，请及时输入验证码，区分大小写</p>
-  <span style="font-size:30px">emailcode</span>
-</div>
-`
-
-// 商品默认描述
-const text2 = `
-<h3 style="color:#00BFFF">究竟什么样的终点，才配得上这一路的颠沛流离---管泽元</h3>
-<h3 style="color:#DDA0DD">世界聚焦于你---管泽元</h3>
-`

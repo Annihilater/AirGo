@@ -12,7 +12,7 @@ import (
 
 // 获取全部节点
 func GetAllNode(ctx *gin.Context) {
-	nodeArr, err := service.CommonSqlFind[model.Node, string, []model.Node](model.Node{}, "")
+	nodeArr, _, err := service.CommonSqlFind[model.Node, string, []model.Node]("")
 	if err != nil {
 		global.Logrus.Error("获取全部节点错误:", err)
 		response.Fail("获取全部节点错误", nil, ctx)

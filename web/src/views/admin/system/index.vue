@@ -152,7 +152,7 @@
             </el-form-item>
             <el-form-item label="邮箱别名">
               <el-input v-model="serverConfig.email.email_from_alias" placeholder="10010@foxmail.com"/>
-              <div style="color: #9b9da1">*例如：qq邮箱可以设置foxmil别名。发送邮件时优先显示别名。没有可忽略本项</div>
+              <div style="color: #9b9da1">*例如：qq邮箱可以设置foxmil别名。发送邮件时优先显示别名。无特殊情况可忽略本项</div>
             </el-form-item>
             <el-form-item label="账户昵称">
               <el-input v-model="serverConfig.email.email_nickname" placeholder="吊炸天机场管理员"/>
@@ -171,6 +171,7 @@
             <el-divider></el-divider>
             <el-form-item>
               <el-button @click="onSubmit" type="primary">保存</el-button>
+              <el-button @click="onTestEmail" >测试</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -195,12 +196,19 @@
       </el-tabs>
       <PayDialog ref="PayDialogRef" @refresh="payStore.getPayList()"></PayDialog>
     </el-card>
-
+    <el-dialog v-model="state.isShowTestEmailDialog" :title="state.title" width="80%" destroy-on-close center>
+      <el-input v-model="registerData.user_name" placeholder="输入电子邮件地址"/>
+      <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="onGetEmailCode">发送</el-button>
+      </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {defineAsyncComponent, onMounted, ref} from "vue";
+import {defineAsyncComponent, onMounted, reactive, ref} from "vue";
 
 import {useServerStore} from "/@/stores/serverStore";
 import {storeToRefs} from "pinia";
@@ -210,6 +218,7 @@ import {usePayStore} from "/@/stores/payStore";
 import {ElMessage} from "element-plus";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
+import {useUserStore} from "/@/stores/userStore";
 
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
@@ -221,6 +230,28 @@ const shopStore = useShopStore()
 const {goodsList} = storeToRefs(shopStore)
 const payStore = usePayStore()
 const payStoreData = storeToRefs(payStore)
+const userStore = useUserStore()
+const {registerData} = storeToRefs(userStore)
+
+const state = reactive({
+  isShowTestEmailDialog: false,
+  title: "电子邮件测试"
+});
+
+//测试邮件
+const onTestEmail=()=>{
+  state.isShowTestEmailDialog=true
+
+}
+//获取邮件验证码
+const onGetEmailCode = () => {
+  if (registerData.value.user_name === '') {
+    return
+  }
+  request(apiStoreData.staticApi.value.public_getEmailCode, userStore.registerData).then((res) => {
+    ElMessage.success(res.msg)
+  })
+};
 
 
 //打开支付编辑

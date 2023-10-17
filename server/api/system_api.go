@@ -38,7 +38,7 @@ func UpdateThemeConfig(ctx *gin.Context) {
 
 // 获取系统设置
 func GetSetting(ctx *gin.Context) {
-	res, err := service.CommonSqlFind[model.Server, string, model.Server](model.Server{}, "id = 1")
+	res, _, err := service.CommonSqlFind[model.Server, string, model.Server]("id = 1")
 
 	if err != nil {
 		global.Logrus.Error("系统设置获取错误:", err.Error())

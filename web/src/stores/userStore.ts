@@ -73,6 +73,7 @@ export const useUserStore = defineStore('userInfo', {
                     enable: true,
                     role_group: [] as RowRoleType[],
                     subscribe_info: {
+                        goods_subject: '',
                         sub_status: true,
                         expired_at: '',
                         t: 0,

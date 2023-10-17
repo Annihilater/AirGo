@@ -7,11 +7,13 @@
           <el-radio label="vmess">vmess</el-radio>
           <el-radio label="vless">vless</el-radio>
           <el-radio label="trojan">trojan</el-radio>
+          <el-radio label="shadowsocks">shadowsocks</el-radio>
+<!--          <el-radio label="shadowsocks-plugin">shadowsocks-plugin</el-radio>-->
         </el-radio-group>
       </el-form-item>
 
       <el-form-item label="remarks">
-        <el-input v-model="dialogData.nodeInfo.remarks"/>
+        <el-input v-model="dialogData.nodeInfo.remarks" placeholder="input node name"/>
       </el-form-item>
 
       <!--      <el-form-item label="uuid">-->
@@ -24,38 +26,62 @@
         <el-input v-model.number="dialogData.nodeInfo.port"/>
       </el-form-item>
 
-      <el-form-item label="scy" v-if="dialogData.nodeInfo.node_type==='vmess'">
-        <!--        <el-input v-model="dialogData.nodeInfo.scy"/>-->
-        <el-radio-group v-model="dialogData.nodeInfo.scy">
-          <el-radio label="auto">auto</el-radio>
-          <el-radio label="none">none</el-radio>
-          <el-radio label="chacha20-poly1305">chacha20-poly1305</el-radio>
-          <el-radio label="aes-128-gcm">aes-128-gcm</el-radio>
-          <el-radio label="zero">zero</el-radio>
-        </el-radio-group>
+      <el-form-item label="scy">
+        <el-select
+            v-model="dialogData.nodeInfo.scy"
+            filterable
+            allow-create
+            default-first-option
+            :reserve-keyword="false"
+            placeholder="输入支付logo url"
+            style="width: 100%"
+        >
+          <el-option
+              v-for="(v,k) in state.scyArr"
+              :key="k"
+              :label="v"
+              :value="v">
+          </el-option>
+        </el-select>
 
       </el-form-item>
       <el-form-item label="aid" v-if="dialogData.nodeInfo.node_type==='vmess'">
         <el-input v-model="dialogData.nodeInfo.aid"/>
       </el-form-item>
       <el-form-item label="flow" v-if="dialogData.nodeInfo.node_type==='vless'">
-        <el-radio-group v-model="dialogData.nodeInfo.flow">
-          <el-radio label="auto">none</el-radio>
-          <el-radio label="xtls-rprx-vision">xtls-rprx-vision</el-radio>
-          <el-radio label="xtls-rprx-vision-udp443">xtls-rprx-vision-udp443</el-radio>
-        </el-radio-group>
+          <el-select
+              v-model="dialogData.nodeInfo.flow"
+              filterable
+              allow-create
+              default-first-option
+              :reserve-keyword="false"
+              style="width: 100%"
+          >
+            <el-option
+                v-for="(v,k) in state.flowArr"
+                :key="k"
+                :label="v"
+                :value="v">
+            </el-option>
+          </el-select>
       </el-form-item>
-
-
       <el-form-item label="network">
-        <el-radio-group v-model="dialogData.nodeInfo.network">
-          <el-radio label="tcp">tcp</el-radio>
-          <el-radio label="kcp">kcp</el-radio>
-          <el-radio label="ws">ws</el-radio>
-          <el-radio label="h2">h2</el-radio>
-          <el-radio label="quic">quic</el-radio>
-          <el-radio label="grpc">grpc</el-radio>
-        </el-radio-group>
+        <el-select
+            v-model="dialogData.nodeInfo.network"
+            filterable
+            allow-create
+            default-first-option
+            :reserve-keyword="false"
+            style="width: 100%"
+        >
+          <el-option
+              v-for="(v,k) in state.networkArr"
+              :key="k"
+              :label="v"
+              :value="v">
+          </el-option>
+        </el-select>
+
       </el-form-item>
       <el-form-item label="type"
                     v-if="dialogData.nodeInfo.network==='tcp' || dialogData.nodeInfo.network==='kcp' || dialogData.nodeInfo.network==='quic'">
@@ -87,8 +113,6 @@
           </el-radio>
         </el-radio-group>
       </el-form-item>
-
-
       <el-form-item label="host">
         <el-input v-model="dialogData.nodeInfo.host"/>
       </el-form-item>
@@ -130,9 +154,24 @@
       <el-form-item label="sni" v-if="dialogData.nodeInfo.security==='tls' || dialogData.nodeInfo.security==='reality'">
         <el-input v-model="dialogData.nodeInfo.sni"/>
       </el-form-item>
-<!--      <el-form-item label="fp" v-if="dialogData.nodeInfo.security==='tls' ||dialogData.nodeInfo.security==='reality'">-->
-<!--        <el-input v-model="dialogData.nodeInfo.fp"/>-->
-<!--      </el-form-item>-->
+      <el-form-item label="fp" v-if="dialogData.nodeInfo.security==='tls' ||dialogData.nodeInfo.security==='reality'">
+        <el-select
+            v-model="dialogData.nodeInfo.fp"
+            filterable
+            allow-create
+            default-first-option
+            :reserve-keyword="false"
+            style="width: 100%"
+        >
+          <el-option
+              v-for="(v,k) in state.fpArr"
+              :key="k"
+              :label="v"
+              :value="v">
+          </el-option>
+        </el-select>
+
+      </el-form-item>
 <!--      <el-form-item label="alpn" v-if="dialogData.nodeInfo.security==='tls'">-->
 <!--        <el-input v-model="dialogData.nodeInfo.alpn"/>-->
 <!--      </el-form-item>-->
@@ -228,7 +267,41 @@ const state = reactive({
     {dest:"swdist.apple.com:443",sni:"swdist.apple.com"},
     {dest:"blog.api.www.cloudflare.com:443",sni:"blog.api.www.cloudflare.com"},
     {dest:"www.icloud.com:443",sni:"www.icloud.com"},
-  ] as RealityItem[]
+  ] as RealityItem[],
+  scyArr:[
+      "auto",
+      "none",
+      "chacha20-poly1305",
+      "aes-128-gcm",
+      "aes-256-gcm",
+      "2022-blake3-aes-128-gcm",
+      "2022-blake3-aes-256-gcm",
+      "2022-blake3-chacha20-poly1305",
+  ],
+  flowArr:[
+      "none",
+      "xtls-rprx-vision",
+      "xtls-rprx-vision-udp443",
+  ],
+  networkArr:[
+      "ws",
+      "tcp",
+      "kcp",
+      "quic",
+      "grpc",
+  ],
+  fpArr:[
+      "chrome",
+      "firefox",
+      "safari",
+      "ios",
+      "android",
+      "edge",
+      "360",
+      "qq",
+      "random",
+      "randomized",
+  ],
 })
 
 // 打开弹窗

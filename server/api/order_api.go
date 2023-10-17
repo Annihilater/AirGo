@@ -50,7 +50,7 @@ func GetOrderByUserID(ctx *gin.Context) {
 	var params = model.PaginationParams{PageSize: 10} //显示用户最近10条订单
 	//err := ctx.ShouldBind(&params)
 	//res, err := service.GetOrderByUserID(uIDInt, &params)
-	res, err := service.CommonSqlFindWithPagination[model.Orders, string, []model.Orders](model.Orders{}, "user_id = "+strconv.FormatInt(uIDInt, 10)+" ORDER BY id desc", params)
+	res, _, err := service.CommonSqlFindWithPagination[model.Orders, string, []model.Orders]("user_id = "+strconv.FormatInt(uIDInt, 10)+" ORDER BY id desc", params)
 	if err != nil {
 		global.Logrus.Error("获取订单 error:", err)
 		response.Fail("订单获取错误"+err.Error(), nil, ctx)
@@ -177,7 +177,7 @@ func PreHandleOrder(ctx *gin.Context) (*model.Orders, string) {
 			//套餐流量剩余率大于设定的阈值才进行处理
 			if rate >= global.Server.System.DeductionThreshold {
 				//查找旧套餐价格
-				order, _ := service.CommonSqlFind[model.Orders, string, model.Orders](model.Orders{}, "user_id = "+strconv.FormatInt(uIDInt, 10)+" ORDER BY id desc LIMIT 1")
+				order, _, _ := service.CommonSqlFind[model.Orders, string, model.Orders]("user_id = " + strconv.FormatInt(uIDInt, 10) + " ORDER BY id desc LIMIT 1")
 				if order.ReceiptAmount != "" { //使用 实收金额 进行判断
 					receiptAmount, _ := strconv.ParseFloat(order.ReceiptAmount, 64)
 					deductionAmount := receiptAmount * rate

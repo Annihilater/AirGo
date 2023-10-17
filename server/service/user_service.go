@@ -77,7 +77,7 @@ func NewUserSubscribe(u *model.User) *model.User {
 		Subject: global.Server.System.DefaultGoods,
 	}
 	//查询默认套餐
-	g, err := CommonSqlFind[model.Goods, model.Goods, model.Goods](model.Goods{}, goods)
+	g, _, err := CommonSqlFind[model.Goods, model.Goods, model.Goods](goods)
 	if err != nil {
 		return u
 	}
@@ -143,13 +143,14 @@ func UpdateUserSubscribe(order *model.Orders) error {
 // 处理用户订阅信息
 func HandleUserSubscribe(u *model.User, goods *model.Goods) *model.User {
 	u.SubscribeInfo.T = goods.TotalBandwidth * 1024 * 1024 * 1024 // TotalBandwidth单位：GB。总流量单位：B
-	u.SubscribeInfo.U = 0                                         //用户已用流量清零 //如果用struct ,gorm 不会更新“零值”
-	u.SubscribeInfo.D = 0                                         //用户已用流量清零 //如果用struct ,gorm 不会更新“零值”
+	u.SubscribeInfo.U = 0
+	u.SubscribeInfo.D = 0
 	if u.SubscribeInfo.SubscribeUrl == "" {
 		u.SubscribeInfo.SubscribeUrl = encrypt_plugin.RandomString(8) //随机字符串订阅url
 	}
-	u.SubscribeInfo.GoodsID = goods.ID //当前订购的套餐
-	u.SubscribeInfo.SubStatus = true   //订阅状态
+	u.SubscribeInfo.GoodsID = goods.ID           //当前订购的套餐
+	u.SubscribeInfo.GoodsSubject = goods.Subject //套餐标题
+	u.SubscribeInfo.SubStatus = true             //订阅状态
 	t := time.Now().AddDate(0, 0, int(goods.ExpirationDate))
 	u.SubscribeInfo.ExpiredAt = &t //过期时间
 	if goods.NodeConnector != 0 {
