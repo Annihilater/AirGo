@@ -6,10 +6,10 @@ import (
 	"AirGo/service"
 	"AirGo/utils/encrypt_plugin"
 	"AirGo/utils/response"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -19,16 +19,12 @@ func AGGetNodeInfo(ctx *gin.Context) {
 		return
 	}
 	id := ctx.Query("id")
-	//idInt64, _ := strconv.ParseInt(id, 10, 64)
-	fmt.Println("id:", id)
 	node, _, err := service.CommonSqlFind[model.Node, string, model.AGNodeInfo]("id = " + id)
 	if err != nil {
-		global.Logrus.Error("AGGetNodeInfo error,id=" + id)
+		global.Logrus.Error("AGGetNodeInfo error,id="+id, err.Error())
 		return
 	}
-	b, _ := json.Marshal(node)
-
-	fmt.Println("AGGetNodeInfo:", string(b))
+	node.ServerKey = "QEvz/u1futsY/4g5FAXJ9ceYX9c9I5vC1BHFgxYyc7Y="
 	ctx.JSON(200, node)
 
 }
@@ -40,19 +36,19 @@ func AGReportNodeStatus(ctx *gin.Context) {
 	var AGNodeStatus model.AGNodeStatus
 	err := ctx.ShouldBind(&AGNodeStatus)
 	if err != nil {
-		fmt.Println("err:", err)
+		global.Logrus.Error("error", err.Error())
 		return
 	}
-	fmt.Println("AGNodeStatus:", AGNodeStatus)
+	//fmt.Println("AGNodeStatus:", AGNodeStatus)
 	cacheStatus, ok := global.LocalCache.Get(strconv.FormatInt(AGNodeStatus.ID, 10) + "status")
 	if ok && cacheStatus != nil {
 		oldStatus := cacheStatus.(model.NodeStatus)
-		fmt.Println("old status:", oldStatus)
+		//fmt.Println("old status:", oldStatus)
 		oldStatus.CPU = AGNodeStatus.CPU
 		oldStatus.Mem = AGNodeStatus.Mem
 		oldStatus.Disk = AGNodeStatus.Disk
 		//oldStatus.Uptime=AGNodeStatus.Uptime
-		fmt.Println("new status:", oldStatus)
+		//fmt.Println("new status:", oldStatus)
 		global.LocalCache.Set(strconv.FormatInt(AGNodeStatus.ID, 10)+"status", oldStatus, 2*time.Minute) //2分钟后过期
 	}
 	ctx.String(200, "success")
@@ -64,14 +60,15 @@ func AGGetUserlist(ctx *gin.Context) {
 		return
 	}
 	id := ctx.Query("id")
-	fmt.Println("id:", id)
-
-	//节点号 是否启用？
+	//节点是否启用
+	node, _, _ := service.CommonSqlFind[model.Node, string, model.Node]("id = " + id)
+	if !node.Enabled {
+		return
+	}
 	//节点属于哪些goods
 	nodeIDInt, _ := strconv.ParseInt(id, 10, 64)
 	goods, err := service.FindGoodsByNodeID(nodeIDInt)
 	if err != nil {
-		fmt.Println("err:", err)
 		return
 	}
 	//goods属于哪些用户
@@ -79,14 +76,21 @@ func AGGetUserlist(ctx *gin.Context) {
 	for _, v := range goods {
 		goodsArr = append(goodsArr, v.ID)
 	}
-	fmt.Println("goodsArr:", goodsArr)
 	var users []model.AGUserInfo
 	err = global.DB.Model(&model.User{}).Where("goods_id in (?) and sub_status = ?", goodsArr, true).Find(&users).Error
 	if err != nil {
-		fmt.Println("err:", err)
+		global.Logrus.Error("error,id="+id, err.Error())
 		return
 	}
-	fmt.Println("AGGetUserlist:", users)
+	switch node.NodeType {
+	case "shadowsocks":
+		if !strings.HasPrefix(node.Scy, "2022") {
+			for _, v := range users {
+				v.Passwd = v.UUID.String()
+			}
+		}
+	default:
+	}
 	ctx.JSON(200, users)
 
 }
@@ -99,11 +103,10 @@ func AGReportUserTraffic(ctx *gin.Context) {
 	var AGUserTraffic model.AGUserTraffic
 	err := ctx.ShouldBind(&AGUserTraffic)
 	if err != nil {
-		fmt.Println("err:", err)
+		global.Logrus.Error("error", err.Error())
 		return
 	}
-	fmt.Println("AGUserTraffic:", AGUserTraffic)
-
+	//fmt.Println("AGUserTraffic:", AGUserTraffic)
 	// 处理流量统计
 	var userIds []int64
 	var userArr []model.User

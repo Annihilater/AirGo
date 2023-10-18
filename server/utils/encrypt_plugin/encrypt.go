@@ -227,3 +227,9 @@ func ExecuteX25519(str string) (string, string, error) {
 out:
 	return publicKeyStr, privateKeyStr, err
 }
+
+func RandomBase64(n int) string {
+	b := make([]byte, n)
+	rand.Read(b)
+	return base64.StdEncoding.EncodeToString(b)
+}

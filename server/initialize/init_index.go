@@ -3,7 +3,6 @@ package initialize
 import (
 	"AirGo/global"
 	"AirGo/model"
-	"fmt"
 )
 
 func InitializeAll() {
@@ -16,7 +15,6 @@ func InitializeAll() {
 			RegisterTables()      //创建table
 			InsertInto(global.DB) //导入数据
 		} else {
-			fmt.Println("AutoMigrate")
 			RegisterTables() //AutoMigrate 自动迁移 schema
 		}
 	} else {

@@ -17,28 +17,6 @@ type AGNodeStatusItem struct {
 	Uptime uint64
 }
 
-//type AGNodeInfo struct {
-//	NodeType          string // Must be V2ray, Trojan, and Shadowsocks
-//	NodeID            int
-//	Port              uint32
-//	SpeedLimit        uint64 // Bps
-//	AlterID           uint16
-//	TransportProtocol string
-//	FakeType          string
-//	Host              string
-//	Path              string
-//	EnableTLS         bool
-//	EnableVless       bool
-//	VlessFlow         string
-//	CypherMethod      string
-//	ServerKey         string
-//	ServiceName       string
-//	Header            json.RawMessage
-//	//NameServerConfig  []*conf.NameServerConfig
-//	EnableREALITY bool
-//	REALITYConfig *AGREALITYConfig
-//}
-
 type AGNodeInfo struct {
 	ID             int64  `json:"id"`
 	NodeSpeedlimit int64  `json:"node_speedlimit"` //节点限速/Mbps
@@ -49,8 +27,9 @@ type AGNodeInfo struct {
 	Port           int64  `json:"port"`            //端口
 
 	//vmess参数
-	Scy string `json:"scy"` //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,zero，vless选择none，否则v2rayng无法启动
-	Aid int64  `json:"aid"` //额外ID
+	Scy       string `json:"scy"`
+	ServerKey string `json:"server_key"`
+	Aid       int64  `json:"aid"`
 	//vless参数
 	VlessFlow string `json:"flow"` //流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
 
@@ -73,21 +52,10 @@ type AGNodeInfo struct {
 	ShortId     string `json:"sid"`
 	SpiderX     string `json:"spx"`
 }
-
-//	type UserInfo struct {
-//		UID         int
-//		Email       string
-//		UUID        string
-//		Passwd      string
-//		Port        uint32
-//		AlterID     uint16
-//		Method      string
-//		SpeedLimit  uint64 // Bps
-//		DeviceLimit int
-//	}
 type AGUserInfo struct {
 	ID       int64     `json:"id"`
 	UUID     uuid.UUID `json:"uuid"`
+	Passwd   string    `json:"passwd"`
 	UserName string    `json:"user_name"`
 }
 

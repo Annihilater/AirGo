@@ -56,16 +56,16 @@ func GetUserSub(url string, subType string) string {
 	//根据subType生成不同客户端订阅
 	switch subType {
 	case "v2ray":
-		return V2rayNGSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
+		return V2rayNGSubscribe(&goods.Nodes, u)
 	case "clash":
 		return ClashSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
 	default:
-		return V2rayNGSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
+		return V2rayNGSubscribe(&goods.Nodes, u)
 	}
 }
 
 // v2rayNG 订阅
-func V2rayNGSubscribe(nodes *[]model.Node, uuid, host string) string {
+func V2rayNGSubscribe(nodes *[]model.Node, user model.User) string {
 	var subArr []string
 	for _, v := range *nodes {
 		//剔除禁用节点
@@ -78,11 +78,11 @@ func V2rayNGSubscribe(nodes *[]model.Node, uuid, host string) string {
 			newUUID = v.UUID
 
 		} else {
-			newUUID = uuid
-			if host == "" {
+			newUUID = user.UUID.String()
+			if user.SubscribeInfo.Host == "" {
 				newHost = v.Host
 			} else {
-				newHost = host
+				newHost = user.SubscribeInfo.Host
 			}
 		}
 		switch v.NodeType {
@@ -102,14 +102,12 @@ func V2rayNGSubscribe(nodes *[]model.Node, uuid, host string) string {
 			}
 			continue
 		case "shadowsocks":
-			if res := V2rayNGShadowsocks(v, newUUID, newHost); res != "" {
+			if res := V2rayNGShadowsocks(v, newUUID, user); res != "" {
 				subArr = append(subArr, res)
-				fmt.Println("subArr:", subArr)
 			}
 			continue
 		}
 	}
-	fmt.Println(base64.StdEncoding.EncodeToString([]byte(strings.Join(subArr, "\r\n"))))
 	return base64.StdEncoding.EncodeToString([]byte(strings.Join(subArr, "\r\n")))
 }
 
@@ -324,14 +322,16 @@ func ClashVmessVlessTrojan(v model.Node, uuid, host string) model.ClashProxy {
 	return proxy
 }
 
-func V2rayNGShadowsocks(v model.Node, uuid, host string) string {
-	//ss := "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTozMjJjZjAwMC0yODljLTRkYjAtYjFhMy1hMjRkY2ZiOTNjZGQ:8888@hz.jjynb.com:47691#%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%EF%BC%9A14.83%20GB"
-	//  Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTozMjJjZjAwMC0yODljLTRkYjAtYjFhMy1hMjRkY2ZiOTNjZGQ -> chacha20-ietf-poly1305:322cf000-289c-4db0-b1a3-a24dcfb93cdd
+func V2rayNGShadowsocks(v model.Node, uuid string, user model.User) string {
+	if !v.IsSharedNode {
+		if strings.HasPrefix(v.Scy, "2022") {
+			uuid = user.Passwd
+		}
+	}
 	var urlV url.URL
 	urlV.Scheme = "ss"
-	urlV.User = url.UserPassword(base64.StdEncoding.EncodeToString([]byte(v.Scy+":"+uuid)), "")
+	urlV.User = url.UserPassword(v.Scy+":"+uuid, "")
 	urlV.Host = v.Address + ":" + fmt.Sprintf("%d", v.Port)
 	urlV.Fragment = v.Remarks
-	//fmt.Println(urlV.String())
 	return strings.ReplaceAll(urlV.String(), ":@", "@")
 }

@@ -19,12 +19,13 @@ type User struct {
 	DeletedAt *time.Time `json:"-" gorm:"index"`
 
 	ID             int64     `json:"id"           gorm:"primary_key"`
-	UUID           uuid.UUID `json:"uuid"         gorm:"comment:用户UUID"`                                      // 用户UUID
-	UserName       string    `json:"user_name"    gorm:"comment:用户登录名"`                                    // 用户登录名,邮箱
-	Password       string    `json:"password"     gorm:"comment:用户登录密码"`                                  // 用户登录密码
-	NickName       string    `json:"nick_name"    gorm:"default:系统用户;comment:用户昵称"`                     // 用户昵称
-	Avatar         string    `json:"avatar"       gorm:"default:/src/assets/icon/avatar.jpeg;comment:用户头像"` // 用户头像
-	Phone          string    `json:"phone"        gorm:"comment:用户手机号"`                                    // 用户手机号
+	UUID           uuid.UUID `json:"uuid"         gorm:"comment:用户UUID"`
+	UserName       string    `json:"user_name"    gorm:"comment:用户登录名"`
+	Password       string    `json:"password"     gorm:"comment:用户登录密码"`
+	Passwd         string    `json:"passwd"       gorm:"comment:用户密码"`
+	NickName       string    `json:"nick_name"    gorm:"default:系统用户;comment:用户昵称"`
+	Avatar         string    `json:"avatar"       gorm:"default:/src/assets/icon/avatar.jpeg;comment:用户头像"`
+	Phone          string    `json:"phone"        gorm:"comment:用户手机号"`
 	Enable         bool      `json:"enable"       gorm:"default:true;comment:用户是否被启用 true正常 false冻结"`
 	InvitationCode string    `json:"invitation_code" gorm:"comment:我的邀请码"`
 	ReferrerCode   string    `json:"referrer_code"   gorm:"comment:推荐人码"`
