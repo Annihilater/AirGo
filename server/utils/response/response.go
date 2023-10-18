@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	ERROR   = 1
-	SUCCESS = 0
+	ERROR      = 1
+	SUCCESS    = 0
+	TOKENERROR = 401
 )
 
 // 序列化器

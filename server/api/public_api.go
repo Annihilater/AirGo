@@ -7,6 +7,7 @@ import (
 	"AirGo/utils/mail_plugin"
 	"AirGo/utils/response"
 	"github.com/gin-gonic/gin"
+	"strings"
 	"sync"
 	"time"
 )
@@ -55,9 +56,10 @@ func GetMailCode(ctx *gin.Context) {
 		response.Fail("邮箱验证码参数错误"+err.Error(), nil, ctx)
 		return
 	}
+	//fmt.Println("邮箱验证码参数：", u)
 	_, ok := global.LocalCache.Get(u.UserName + "emailcode")
 	if ok {
-		response.Fail("邮箱验证码获取频繁", nil, ctx)
+		response.Fail("邮箱验证码获取频繁，请60后重试！", nil, ctx)
 		return
 	}
 	//用户是否存在且是否有效
@@ -77,7 +79,18 @@ func GetMailCode(ctx *gin.Context) {
 	}(&wg)
 	//发送邮件
 	go func(wg *sync.WaitGroup) {
-		err = mail_plugin.SendEmail(global.EmailDialer, u.UserName, randomStr, global.Server.Email.EmailContent)
+		//判断别名邮箱
+		from := global.Server.Email.EmailFrom
+		if global.Server.Email.EmailFromAlias != "" {
+			from = global.Server.Email.EmailFromAlias
+		}
+		//选择验证码模
+		originalText := strings.Replace(global.Server.Email.EmailContent, "emailcode", randomStr, -1)
+		err = mail_plugin.SendEmail(global.EmailDialer, from, global.Server.Email.EmailNickname, u.UserName, global.Server.Email.EmailSubject, originalText)
+		//fmt.Println(from)
+		//fmt.Println(global.Server.Email.EmailNickname)
+		//fmt.Println(u.UserName)
+		//fmt.Println(global.Server.Email.EmailSubject)
 		if err != nil {
 			global.Logrus.Error("验证码获取失败:", err.Error())
 			//response.OK("验证码获取失败"+err.Error(), nil, ctx)

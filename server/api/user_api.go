@@ -43,7 +43,6 @@ func Register(ctx *gin.Context) {
 	//校验邮箱验证码
 	if global.Server.System.EnableEmailCode {
 		cacheEmail, ok := global.LocalCache.Get(u.UserName + "emailcode")
-		global.LocalCache.Delete(u.UserName + "emailcode")
 		if ok {
 			if cacheEmail != u.EmailCode {
 				response.Fail("邮箱验证码校验错误", nil, ctx)
@@ -66,6 +65,7 @@ func Register(ctx *gin.Context) {
 		response.Fail("注册错误"+err.Error(), nil, ctx)
 		return
 	}
+	global.LocalCache.Delete(u.UserName + "emailcode")
 	response.OK("注册成功", nil, ctx)
 }
 
@@ -125,7 +125,7 @@ func Login(c *gin.Context) {
 			return
 		} else {
 			token = tokenNew
-			fmt.Println("tokenNew:", tokenNew)
+			//fmt.Println("tokenNew:", tokenNew)
 			go func(l *model.UserLogin, token string) {
 				global.LocalCache.Set(l.UserName+"token", token, ep)
 			}(&l, token)
@@ -145,7 +145,6 @@ func ChangeSubHost(ctx *gin.Context) {
 		response.Fail("获取信息,uID参数错误", nil, ctx)
 		return
 	}
-
 	var host model.SubHost
 	err := ctx.ShouldBind(&host)
 	if err != nil || len(host.Host) > 100 {
@@ -199,16 +198,15 @@ func GetUserlist(ctx *gin.Context) {
 
 // 新建用户
 func NewUser(ctx *gin.Context) {
-	var u model.NewUser
+	var u model.User
 	err := ctx.ShouldBind(&u)
 	if err != nil {
 		global.Logrus.Error("新建用户参数错误:", err.Error())
 		response.Fail("新建用户参数错误"+err.Error(), nil, ctx)
 		return
 	}
-	var user = u.User
-	user.UUID = uuid.NewV4()
-	err = service.Register(&user)
+	//fmt.Println("新建用户:", u.RoleGroup)
+	err = service.NewUser(u)
 	if err != nil {
 		global.Logrus.Error("新建用户错误:", err.Error())
 		response.Fail("新建用户错误"+err.Error(), nil, ctx)
@@ -219,25 +217,27 @@ func NewUser(ctx *gin.Context) {
 
 // 编辑用户信息
 func UpdateUser(ctx *gin.Context) {
-	var u model.NewUser
+	var u model.User
 	err := ctx.ShouldBind(&u)
 	if err != nil {
 		global.Logrus.Error("修改用户参数错误:", err.Error())
 		response.Fail("修改用户参数错误"+err.Error(), nil, ctx)
 		return
 	}
-	var user = u.User
+	fmt.Println("编辑用户信息:", u.SubscribeInfo.ExpiredAt)
+	//处理角色
+	service.DeleteUserRoleGroup(&u)
+	var roleArr []string
+	for _, v := range u.RoleGroup {
+		roleArr = append(roleArr, v.RoleName)
+	}
+	roles, _ := service.FindRoleIdsByRoleNameArr(roleArr)
+	u.RoleGroup = roles
 
-	err = service.SaveUser(&user)
+	err = service.SaveUser(&u)
 	if err != nil {
 		global.Logrus.Error("修改用户错误 error:", err)
 		response.Fail("修改用户错误"+err.Error(), nil, ctx)
-		return
-	}
-	err = service.UpdateUserRoleGroup(u.RoleList, &user)
-	if err != nil {
-		global.Logrus.Error("修改用户角色错误 error:", err)
-		response.Fail("修改用户角色错误"+err.Error(), nil, ctx)
 		return
 	}
 	response.OK("修改用户成功", nil, ctx)
@@ -311,7 +311,6 @@ func ResetUserPassword(ctx *gin.Context) {
 	}
 	//校验邮箱验证码
 	emailcode, _ := global.LocalCache.Get(u.UserName + "emailcode")
-	global.LocalCache.Delete(u.UserName + "emailcode")
 	if emailcode != u.EmailCode {
 		response.Fail("邮箱验证码错误", nil, ctx)
 		return
@@ -327,6 +326,7 @@ func ResetUserPassword(ctx *gin.Context) {
 		response.Fail("重置密码错误"+err.Error(), nil, ctx)
 		return
 	}
+	//global.LocalCache.Delete(u.UserName + "emailcode")
 	response.OK("重置密码成功", nil, ctx)
 
 }

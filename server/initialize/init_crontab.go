@@ -2,8 +2,10 @@ package initialize
 
 import (
 	"AirGo/global"
+	"AirGo/model"
 	"AirGo/service"
 	"github.com/robfig/cron/v3"
+	"time"
 )
 
 // 秒级操作,函数没执行完就跳过本次函数,打印任务日志
@@ -45,8 +47,10 @@ func UserCrontab() {
 // 定时清理数据库(traffic)
 func CleanDBTraffic() {
 	c := cron.New()
-	_, err := c.AddFunc("1 1 1 * *", func() {
-		err := service.CleanDBTraffic()
+	_, err := c.AddFunc("1 1 1 * *", func() { //分 时 日 月 星期
+		y, m, _ := time.Now().Date()
+		startTime := time.Date(y, m-2, 1, 0, 0, 0, 0, time.Local)
+		err := global.DB.Where("created_at < ?", startTime).Delete(&model.TrafficLog{}).Error
 		if err != nil {
 			global.Logrus.Error("service.UserExpiryCheck error:", err)
 		}

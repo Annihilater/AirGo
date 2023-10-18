@@ -97,18 +97,11 @@
 
 
 import {onMounted, reactive, watch} from "vue";
-//report store
 import {useReportStore} from "/@/stores/reportStore"
 import {storeToRefs} from "pinia";
 
 const reportStore = useReportStore()
 const reportStoreData = storeToRefs(reportStore)
-//report api
-import {useReportApi} from "/@/api/report";
-import {ElMessage} from "element-plus";
-
-const reportApi = useReportApi()
-
 //搜索条件
 
 const stringConditionList = ["=", "<>", "like"]
@@ -140,7 +133,6 @@ const onSubmit = (params?: object) => {
     return
   }
   //调用父组件 getReportData()方法
-  // emits('getReportData', reportTable.value)
   emits('getReportData')
 }
 

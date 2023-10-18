@@ -7,6 +7,7 @@
             <template #header>
               <div class="card-header">
                 <el-text class="card-header-left">套餐详情</el-text>
+                <el-text size="large" type="primary">{{userInfos.subscribe_info.goods_subject}}</el-text>
               </div>
             </template>
             <div class="card-text">
@@ -42,67 +43,87 @@
           </el-card>
         </div>
       </el-col>
-    </el-row>
-    <el-row :gutter="10">
       <el-col :xs="24" :sm="14" :md="14" :lg="16" :xl="16">
         <div class="home-card-item">
           <el-card class="box-card">
             <template #header>
               <div class="card-header">
                 <el-text class="card-header-left">订阅地址</el-text>
-                <el-button type="primary" text plain class="button" @click="onResetSub">重置订阅链接</el-button>
+                <el-button type="primary" size="large" text plain class="button" @click="onResetSub">重置订阅链接</el-button>
               </div>
             </template>
             <div>
-              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub(1)" type="primary" plain>
-                复制v2rayNG订阅
+              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub('v2ray')" type="primary" plain>
+                复制通用订阅订阅
               </el-button>
-              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub(2)" type="success" plain>
+              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub('clash')" type="success" plain>
                 复制Clash Meta订阅
-              </el-button>
-              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub(3)" type="info" plain>
-                复制shadowrocket订阅
-              </el-button>
-              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub(4)" type="warning" plain>
-                复制Quantumult X订阅
               </el-button>
             </div>
           </el-card>
         </div>
       </el-col>
+      <el-col :xs="24" :sm="14" :md="14" :lg="16" :xl="16">
+        <div class="home-card-item" >
+          <div class="box-card">
+            <v-md-preview :text="articleStoreData.articleID1.value.content"></v-md-preview>
+          </div>
+        </div>
+      </el-col>
     </el-row>
+    <el-dialog v-model="state.isShowDialog" :title="state.title" width="80%" destroy-on-close center>
+      <v-md-preview :text="articleStoreData.articleID2.value.content"></v-md-preview>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-//时间转换
+
 import {DateStrtoTime} from "/@/utils/formatTime";
-//api
-import {useUserApi} from '/@/api/user/index'
-
-const userApi = useUserApi()
-
-//store
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 import {useUserStore} from "/@/stores/userStore";
 import {onMounted, reactive} from 'vue';
+import {ElMessage} from 'element-plus';
+import {Select} from '@element-plus/icons-vue'
+import commonFunction from '/@/utils/commonFunction';
+import {useArticleStore} from "/@/stores/articleStore";
 
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 const userStore = useUserStore()
 const {userInfos} = storeToRefs(userStore)
-//ElMessage
-import {ElMessage} from 'element-plus';
-//icon 
-import {Select} from '@element-plus/icons-vue'
-//复制剪切板
-import commonFunction from '/@/utils/commonFunction';
-
 const {copyText} = commonFunction();
+
+const articleStore =useArticleStore()
+const articleStoreData = storeToRefs(articleStore)
 //定义参数
 const state = reactive({
   host: {
     host: '',
-  }
+  },
+  isShowDialog:false,
 })
+
+//获取首页自定义内容
+const getArticleID1=()=>{
+  articleStore.getArticleList({search:"id=1 AND status=true",page_num:1,page_size:1}).then((res)=>{
+    //保存
+    articleStoreData.articleID1.value=res.data.article_list[0]
+  })
+}
+//获取首页弹窗内容
+const getArticleID2=()=>{
+  articleStore.getArticleList({search:"id=2 AND status=true",page_num:1,page_size:1}).then((res)=>{
+    //保存
+    articleStoreData.articleID2.value=res.data.article_list[0]
+    //显示弹窗
+    if (articleStoreData.articleID2.value.content !== ''){
+      state.isShowDialog = true
+    }
+  })
+}
 
 //修改混淆
 const onChangeHost = () => {
@@ -111,40 +132,31 @@ const onChangeHost = () => {
 }
 //重置订阅
 const onResetSub = () => {
-  userApi.resetSubApi().then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-      // window.location.reload()
-      userStore.getUserInfo()
-    }
+  request(apiStoreData.api.value.user_resetSub).then((res) => {
+    ElMessage.success(res.msg)
+    // window.location.reload()
+    userStore.getUserInfo()
   })
 }
-const v2rayNGSub = (type: number) => {
+const v2rayNGSub = (type: string) => {
   switch (type) {
-    case 1:
-      //v2rayNG订阅
-      copyText(userStore.subUrl+"&type=1")
+    case "v2ray":
+      //通用订阅；v2rayNG订阅
+      copyText(userStore.subUrl + "&type=v2ray")
       break
-    case 2:
+    case "clash":
       //Clash订阅
-      copyText(userStore.subUrl+"&type=2")
-      break
-    case 3:
-      //ShadowRocket订阅
-      copyText(userStore.subUrl+"&type=3")
-      break
-    case 4:
-      //Qx订阅
-      copyText(userStore.subUrl+"&type=4")
+      copyText(userStore.subUrl + "&type=clash")
       break
     default:
-      copyText(userStore.subUrl+"&type=1")
-      break;
+      copyText(userStore.subUrl + "&type=v2ray")
+      break
   }
 }
 // 页面加载时
 onMounted(() => {
-  userStore.getUserInfo()
+  getArticleID1();
+  getArticleID2();
 });
 
 </script>
@@ -158,15 +170,10 @@ onMounted(() => {
 }
 
 .home-card-item {
-  width: 100%;
-  height: 100%;
-  border-radius: 4px;
-  transition: all ease 0.3s;
-  padding: 20px;
+  padding: 10px;
   overflow: hidden;
   background: var(--el-color-white);
   color: var(--el-text-color-primary);
-  border: 1px solid var(--next-border-color-light);
 }
 
 .el-card {

@@ -1,7 +1,7 @@
 system:
   admin-email: admin@oicq.com
   admin-password: adminadmin
-  http-port: 80
+  http-port: 8899
   https-port: 443
   db-type: sqlite
 mysql:

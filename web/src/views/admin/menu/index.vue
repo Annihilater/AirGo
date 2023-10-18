@@ -52,16 +52,13 @@
 </template>
 
 <script setup lang="ts" name="systemMenu">
-import {defineAsyncComponent, ref, onMounted, reactive} from 'vue';
+import {defineAsyncComponent, onMounted, reactive, ref} from 'vue';
 import {RouteRecordRaw} from 'vue-router';
-import {ElMessageBox, ElMessage} from 'element-plus';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import {storeToRefs} from 'pinia';
 import {useRoutesStore} from '/@/stores/routesStore';
 
-// 引入组件
 const MenuDialog = defineAsyncComponent(() => import('/@/views/admin/menu/dialog.vue'));
-
-// 定义变量内容
 const stores = useRoutesStore();
 const {allRoutesList} = storeToRefs(stores);
 const menuDialogRef = ref();
@@ -77,7 +74,7 @@ const state = reactive({
   } as Route
 });
 
-// 获取路由数据，真实请从接口获取
+// 获取路由数据
 const getTableData = () => {
   state.tableData.loading = true;
   stores.setAllRoutesList()
@@ -110,14 +107,12 @@ const onTableRowDel = (row: RouteRecordRaw) => {
     type: 'warning',
   })
       .then(() => {
-        //请求删除 row为该路由
         //console.log("删除当前行 row:",row)
         stores.delDynamicRoute(row)
         setTimeout(() => {
           getTableData();
           ElMessage.success('删除成功');
-        }, 1000);       //延时3秒。防止没完成就重新请求列表
-        //await setBackEndControlRefreshRoutes() // 刷新菜单，未进行后端接口测试
+        }, 1000);
       })
       .catch(() => {
       });

@@ -55,13 +55,14 @@ bash <(curl -Ls https://raw.githubusercontent.com/ppoonk/AirGo/v2/server/scripts
 
 ### 2-1-4 配置ssl
 
-使用debian，ununtu，centos系统，执行以下命令，根据提示申请证书
+- 使用debian，ununtu，centos系统，执行以下命令，根据提示申请证书
 
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/ppoonk/AirGo/v2/server/scripts/install.sh)
 ```
 
-如果使用自定义ssl，只需在安装目录（/usr/local/AirGo/）下，配置 `air.cer`，`air.key`
+- 如果使用自定义ssl，只需在安装目录（/usr/local/AirGo/）下，配置 `air.cer`，`air.key`
+- 配置完ssl，需重启服务生效
 
 ### 2-1-5 前端部署到[Vercel](https://vercel.com)，实现前后分离
 
@@ -78,7 +79,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/ppoonk/AirGo/v2/server/scripts
 
 ### 2-2-2 配置文件
 
-修改/usr/local/AirGo/config.yaml，根据自己的情况修改数据库、默认管理员等参数，并且将**http端口设置为非80端口**，**https设置为非443端口**，避免和宝塔面板端口冲突
+- 修改/usr/local/AirGo/config.yaml，根据自己的情况修改数据库、默认管理员等参数，并且将**http端口设置为非80端口**，**https设置为非443端口**，避免和宝塔面板端口冲突
 
 ### 2-2-3 启动
 同2-1-3
@@ -90,8 +91,75 @@ bash <(curl -Ls https://raw.githubusercontent.com/ppoonk/AirGo/v2/server/scripts
 ### 2-2-5 前端部署到[Vercel](https://vercel.com)，实现前后分离
 同2-1-5
 
-# 3 对接XrayR等后端
-本项目使用sspanel同名api，所以对接只需将面板类型设置为`sspanel`即可
+## 2-4 Docker部署
 
-# 4 其他说明
+- 在合适的目录新建配置文件，例如：/$PWD/air/config.yaml，配置文件内容如下：
+
+```
+system:
+  admin-email: admin@oicq.com
+  admin-password: adminadmin
+  http-port: 80
+  https-port: 443
+  db-type: sqlite
+mysql:
+  address: mysql.sql.com
+  port: 3306
+  config: charset=utf8mb4&parseTime=True&loc=Local
+  db-name: imdemo
+  username: imdemo
+  password: xxxxxx
+  max-idle-conns: 10
+  max-open-conns: 100
+sqlite:
+  path: ./air.db
+
+```
+- 根据自己的需求，修改配置文件，启动docker命令参考如下：
+
+```
+docker run -tid \
+  -v $PWD/air/config.yaml:/air/config.yaml \
+  -p 80:80 \
+  -p 443:443 \
+  --name airgo \
+  --restart always \
+  --privileged=true \
+  ppoiuty/airgo:latest
+```
+
+## 2-5 手动安装
+linux,darwin 下载对应压缩包，解压后启动：`./AirGo -start`
+
+
+# 3 对接XrayR等后端
+```
+2.1.6版本适配XrayR，启用AirGo面板类型，搭配XrayR-for-AirGo使用
+```
+XrayR-for-AirGo项目地址：[https://github.com/ppoonk/XrayR-for-AirGo](https://github.com/ppoonk/XrayR-for-AirGo)
+## 3.1 直接安装
+
+```
+bash <(curl -Ls https://raw.githubusercontent.com/ppoonk/XrayR-for-AirGo/main/scripts/manage.sh)
+```
+
+## 3.2 docker安装
+- docker仓库：[https://hub.docker.com/repository/docker/ppoiuty/xrayr](https://hub.docker.com/repository/docker/ppoiuty/xrayr)
+- 安装方式同XrayR官方
+
+## 3.2 XrayR配置文件说明
+默认路径 /usr/local/XrayR/config.yml。以下字段需注意：
+- `PanelType`为 AirGo
+- `ApiHost`必填
+- `ApiKey`必填
+- `NodeID`必填
+- `NodeType`必填
+- `DisableLocalREALITYConfig`设为true，reality配置由远程下发
+- `EnableVless`无需理会，配置由远程下发
+
+# 4 开发注意事项
+- 手动编译，脚本在`项目/server/scripts/install.sh`
+
+
+
 

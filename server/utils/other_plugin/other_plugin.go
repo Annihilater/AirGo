@@ -1,6 +1,7 @@
 package other_plugin
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"reflect"
@@ -75,9 +76,9 @@ func StructToMap(data interface{}) map[string]interface{} {
 	return m
 }
 
-// m3=获取结构体字段数组，如  [name:aaa,age:18]
 // m1=获取结构体字段英文名和中文名map，如  name:名字
 // m2=获取结构体字段类型map，如  name:string
+// m3=获取结构体字段数组，如  [name:aaa,age:18]
 func GetStructFieldMap(data interface{}) ([]string, map[string]interface{}, map[string]interface{}) {
 
 	m1 := make([]string, 0)
@@ -150,23 +151,44 @@ func GetStructFieldMap(data interface{}) ([]string, map[string]interface{}, map[
 
 }
 
-// golang struct 动态创建
-func RegisterType(elem ...interface{}) map[string]reflect.Type {
-	var typeRegistry = make(map[string]reflect.Type)
-	for i := 0; i < len(elem); i++ {
-		t := reflect.TypeOf(elem[i])
-		typeRegistry[t.Name()] = t
-	}
-	return typeRegistry
-}
-func NewStruct(name string, typeRegistry map[string]reflect.Type) (interface{}, bool) {
-	elem, ok := typeRegistry[name]
-	fmt.Println("elem", elem)
-	if !ok {
-		return nil, false
-	}
-	return reflect.New(elem).Elem().Interface(), true
+func SimpleCopyProperties(dst, src any) (any, error) {
+	dstType, dstValue := reflect.TypeOf(dst), reflect.ValueOf(dst)
+	srcType, srcValue := reflect.TypeOf(src), reflect.ValueOf(src)
 
+	// dst必须结构体指针类型
+	if dstType.Kind() != reflect.Ptr || dstType.Elem().Kind() != reflect.Struct {
+		return nil, errors.New("dst type should be a struct pointer")
+	}
+	// src必须为结构体或者结构体指针，.Elem()类似于*ptr的操作返回指针指向的地址反射类型
+	if srcType.Kind() == reflect.Ptr {
+		srcType, srcValue = srcType.Elem(), srcValue.Elem()
+	}
+	if srcType.Kind() != reflect.Struct {
+		return nil, errors.New("src type should be a struct or a struct pointer")
+	}
+
+	// 取具体内容
+	dstType, dstValue = dstType.Elem(), dstValue.Elem()
+
+	// 属性个数
+	propertyNums := dstType.NumField()
+
+	for i := 0; i < propertyNums; i++ {
+		// 属性
+		property := dstType.Field(i)
+		// 待填充属性值
+		propertyValue := srcValue.FieldByName(property.Name)
+
+		// 无效，说明src没有这个属性 || 属性同名但类型不同
+		if !propertyValue.IsValid() || property.Type != propertyValue.Type() {
+			continue
+		}
+
+		if dstValue.Field(i).CanSet() {
+			dstValue.Field(i).Set(propertyValue)
+		}
+	}
+	return dstValue, nil
 }
 
 // gin.Context中获取user id

@@ -28,8 +28,8 @@ func ParseJwt() gin.HandlerFunc {
 			token = token[7:]
 		}
 		claims, err := jwt_plugin.ParseTokenHs256(token, global.Server.JWT.SigningKey)
-		if err != nil {
-			response.Fail(err.Error(), nil, c)
+		if err != nil { //token过期，或其他解析错误
+			response.Result(response.TOKENERROR, err.Error(), nil, c)
 			c.Abort()
 			return
 		}

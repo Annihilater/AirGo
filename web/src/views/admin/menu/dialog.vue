@@ -117,18 +117,12 @@
 </template>
 
 <script setup lang="ts">
-import {defineAsyncComponent, reactive, onMounted, ref} from 'vue';
+import {defineAsyncComponent, onMounted, reactive, ref} from 'vue';
 import {storeToRefs} from 'pinia';
 import {useRoutesStore} from '/@/stores/routesStore';
 // import { setBackEndControlRefreshRoutes } from "/@/router/backEnd";
-
-// 定义子组件向父组件传值/事件
 const emit = defineEmits(['refresh']);
-
-// 引入组件
 const IconSelector = defineAsyncComponent(() => import('/@/components/iconSelector/index.vue'));
-
-// 定义变量内容
 const menuDialogFormRef = ref();
 const stores = useRoutesStore();
 const {allRoutesList} = storeToRefs(stores);
@@ -194,7 +188,6 @@ const onCancel = () => {
 const changeCheckMenu = (checkValue: any) => {
   // console.log("checkValue:", checkValue)
   state.menuForm.parent_id = checkValue[checkValue.length - 1]
-
 }
 // 提交
 const onSubmit = () => {
@@ -202,14 +195,14 @@ const onSubmit = () => {
     stores.newDynamicRoute(state.menuForm)
     setTimeout(() => {
       emit('refresh');
-    }, 3000);       //延时3秒。防止没新建完成就重新请求列表
-    closeDialog(); // 关闭弹窗
+    }, 1000);
+    closeDialog();
   } else {
     //请求
     stores.updateDynamicRoute(state.menuForm)
     setTimeout(() => {
       emit('refresh');
-    }, 3000);
+    }, 1000);
     closeDialog(); // 关闭弹窗
   }
 };

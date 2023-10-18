@@ -46,7 +46,9 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         meta: {
             isKeepAlive: true,
         },
-        children: [],
+        children: [
+
+        ],
     },
 
 ];
@@ -91,4 +93,19 @@ export const staticRoutes: Array<RouteRecordRaw> = [
             title: '登录',
         },
     },
+    {
+        path: '/static',
+        name: 'static',
+        children:[
+            {
+                path: 'showArticle',
+                name: 'showArticle',
+                component: () => import('/@/views/article/show_article.vue'),
+                meta: {
+                    title: '详情',
+                },
+            },
+        ],
+    },
+
 ];

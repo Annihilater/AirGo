@@ -9,7 +9,7 @@ mv web ../server/web/
 cd ../server
 
 # 本机编译
-CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -o AirGo -ldflags='-s -w --extldflags "-static -fpic"' main.go
+CGO_ENABLED=1 go build -o AirGo -ldflags='-s -w --extldflags "-static -fpic"' main.go
 
 
 # ubuntu/debian 交叉编译 arm64

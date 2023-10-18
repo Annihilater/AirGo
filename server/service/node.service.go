@@ -3,53 +3,12 @@ package service
 import (
 	"AirGo/global"
 	"AirGo/model"
-	"gorm.io/gorm/clause"
 	"strconv"
 	"time"
 )
 
-// 根据node name 模糊查询节点
-func GetNodeByName(remarks string) ([]model.Node, error) {
-	var nodes []model.Node
-	err := global.DB.Where("remarks like ?", ("%" + remarks + "%")).Order("node_order").Find(&nodes).Error
-	return nodes, err
-}
-
-// 查询全部节点
-func GetAllNode() (*[]model.Node, error) {
-	var nodes []model.Node
-	err := global.DB.Order("node_order").Find(&nodes).Error
-	if err != nil {
-		return nil, err
-	}
-	return &nodes, nil
-}
-
-// 新建节点
-func NewNode(node *model.Node) error {
-	//node.ID = 0 //清空节点id 防止插入失败
-	err := global.DB.Create(&node).Error
-	return err
-}
-
-// 删除节点
-func DeleteNode(node *model.Node) error {
-	//删除关联
-	err := global.DB.Where("node_id = ?", node.ID).Delete(&model.GoodsAndNodes{}).Error
-	if err != nil {
-		return err
-	}
-	err = global.DB.Where(&model.Node{ID: node.ID}).Delete(&model.Node{}).Error
-	return err
-}
-
-// 更新节点
-func UpdateNode(node *model.Node) error {
-	return global.DB.Save(&node).Error
-}
-
 // 查询节点流量
-func GetNodeTraffic(params model.QueryParamsWithDate) model.NodesWithTotal {
+func GetNodeTraffic(params model.PaginationParams) model.NodesWithTotal {
 	var nodesWithTotal model.NodesWithTotal
 	var startTime, endTime time.Time
 	//时间格式转换
@@ -108,24 +67,4 @@ func GetNodesStatus() *[]model.NodeStatus {
 		}
 	}
 	return &nodestatusArr
-}
-
-// 插入节点流量统计
-func NewTrafficLog(t *model.TrafficLog) error {
-	return global.DB.Create(&t).Error
-}
-
-// 定时清理数据库(traffic)
-func CleanDBTraffic() error {
-	y, m, _ := time.Now().Date()
-	startTime := time.Date(y, m-2, 1, 0, 0, 0, 0, time.Local)
-	return global.DB.Where("created_at < ?", startTime).Delete(&model.TrafficLog{}).Error
-}
-
-// 节点排序
-func NodeSort(nodeArr *[]model.Node) error {
-	return global.DB.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns([]string{"node_order"}),
-	}).Create(&nodeArr).Error
 }

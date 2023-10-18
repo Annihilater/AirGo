@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts" name="app">
-import {defineAsyncComponent, computed, ref, onBeforeMount, onMounted, onUnmounted, nextTick, watch} from 'vue';
+import {computed, defineAsyncComponent, nextTick, onBeforeMount, onMounted, onUnmounted, ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import {storeToRefs} from 'pinia';
@@ -18,10 +18,10 @@ import other from '/@/utils/other';
 import {Local, Session} from '/@/utils/storage';
 import mittBus from '/@/utils/mitt';
 import setIntroduction from '/@/utils/setIconfont';
-import router from "/@/router";
-
+import {useServerStore} from "/@/stores/serverStore";
+import {useUserStore} from "/@/stores/userStore";
+const userStore = useUserStore()
 // 引入组件
-
 const Setings = defineAsyncComponent(() => import('/@/layout/navBars/breadcrumb/setings.vue'));
 const CloseFull = defineAsyncComponent(() => import('/@/layout/navBars/breadcrumb/closeFull.vue'));
 
@@ -32,9 +32,7 @@ const route = useRoute();
 const stores = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
-//server store
-import {useServerStore} from "/@/stores/serverStore";
-const serverStore=useServerStore()
+const serverStore = useServerStore()
 
 // 设置锁屏时组件显示隐藏
 const setLockScreen = computed(() => {
@@ -46,8 +44,6 @@ const setLockScreen = computed(() => {
 const getGlobalComponentSize = computed(() => {
   return other.globalComponentSize();
 });
-//
-
 //设置初始化，防止刷新时恢复默认
 onBeforeMount(() => {
   // 设置批量第三方 icon 图标
@@ -56,7 +52,7 @@ onBeforeMount(() => {
   setIntroduction.jsCdn();
 });
 
-//组件被挂载之前,获取布局配置,公共配置
+//组件被挂载之前,获取布局配置,公共配置,
 onBeforeMount(() => {
   storesThemeConfig.getThemeConfig()
   serverStore.getPublicServerConfig();//获取public config
@@ -71,6 +67,11 @@ onMounted(() => {
     // 获取缓存中的全屏配置
     if (Session.get('isTagsViewCurrenFull')) {
       stores.setCurrenFullscreen(Session.get('isTagsViewCurrenFull'));
+    }
+    //如果存在token，刷新页面时获取用户信息
+    const token = Local.get('token');
+    if (token) {
+      userStore.getUserInfo()//获取用户信息
     }
   });
 });

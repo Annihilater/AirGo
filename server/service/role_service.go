@@ -20,6 +20,18 @@ func FindRoleIdsByuId(uId int64) ([]int64, error) {
 	return roleIds, nil
 }
 
+// 根据角色名的数组查询角色数组
+func FindRoleIdsByRoleNameArr(nameArr []string) ([]model.Role, error) {
+	var roles []model.Role
+	//err := global.DB.Model(&model.Role{}).Select("id").Where("role_name in ?", nameArr).Find(&roles).Error
+	err := global.DB.Model(&model.Role{}).Where("role_name in ?", nameArr).Find(&roles).Error
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
+
+}
+
 // 分页获取角色列表
 func GetRoleList(roleParams *model.PaginationParams) (*model.RolesWithTotal, error) {
 	var roleArr model.RolesWithTotal
@@ -71,13 +83,6 @@ func DelRole(id int64) error {
 	//最后删除角色
 	err = global.DB.Where("id = ?", id).Delete(&model.Role{}).Error
 	return err
-}
-
-// 更新用户关联的角色组 by 角色名数组
-func UpdateUserRoleGroup(roles []string, user *model.User) error {
-	var roleArr []model.Role
-	global.DB.Where("role_name in ?", roles).Find(&roleArr)
-	return global.DB.Model(&user).Association("RoleGroup").Replace(roleArr)
 }
 
 // 删除用户关联的角色组

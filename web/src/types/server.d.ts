@@ -22,8 +22,11 @@ declare interface System {
     enable_email_code: boolean;
     enable_login_email_code: boolean;
     is_multipoint: boolean;
+
+    backend_url: string;
+    api_prefix: string;
+
     sub_name: string;
-    sub_url_pre: string;
     muKey: string;
     default_goods: string;
     enabled_rebate: boolean;    //是否开启返利
@@ -50,6 +53,7 @@ declare interface Pay {
 
 declare interface Email {
     email_from: string;
+    email_from_alias: string;
     email_secret: string;
     email_host: string;
     email_port: number;

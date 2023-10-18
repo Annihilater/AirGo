@@ -41,7 +41,8 @@
       </el-col>
       <el-col :span="1"></el-col>
       <el-col :span="10">
-        <el-button class="login-content-code" type="primary" :disabled="state.isCountDown" @click="onGetEmailCode">
+        <el-button class="login-content-code" type="primary" :disabled="state.isCountDown || loginData.user_name === ''"
+                   @click="onGetEmailCode">
           {{ state.isCountDown ? `${state.countDownTime}s后重新获取` : "获取验证码" }}
         </el-button>
       </el-col>
@@ -76,42 +77,31 @@
         </el-button>
       </el-col>
     </el-form-item>
-    <div>
-      <el-text size="default" type="info" style="font-style: italic;">{{ state.oneWord }}</el-text>
-    </div>
   </el-form>
 </template>
 
 <script setup lang="ts" name="loginAccount">
-import {reactive, computed, onMounted, ref} from 'vue';
+import {computed, reactive, ref} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 import {Session} from '/@/utils/storage';
 import {formatAxis} from '/@/utils/formatTime';
 import {NextLoading} from '/@/utils/loading';
-//后端路由
 import {initBackEndControlRoutes} from '/@/router/backEnd';
-//route
 import {useRoute, useRouter} from 'vue-router';
+import {storeToRefs} from 'pinia';
+import {useUserStore} from "/@/stores/userStore";
+import {useThemeConfig} from '/@/stores/themeConfig';
+import {request} from "/@/utils/request";
+import {useApiStore} from "/@/stores/apiStore";
 
 const route = useRoute();
 const router = useRouter();
-//user store
-import {storeToRefs} from 'pinia';
-import {useUserStore} from "/@/stores/userStore";
-
 const userStore = useUserStore()
 const {loginData} = storeToRefs(userStore)
-
-//theme store
-import {useThemeConfig} from '/@/stores/themeConfig';
-
 const storesThemeConfig = useThemeConfig();
 const {themeConfig} = storeToRefs(storesThemeConfig);
-//api
-import {usePublicApi} from '/@/api/public/index'
-import service from "/@/utils/request";
-
-const publicApi = usePublicApi()
+const apiStore = useApiStore()
+const apiStoreData = storeToRefs(apiStore)
 //定义参数
 const state = reactive({
   enableResetPassword: false,
@@ -121,7 +111,6 @@ const state = reactive({
   loading: {
     signIn: false,
   },
-  oneWord: '',
 });
 
 // 时间获取
@@ -135,11 +124,8 @@ const onResetPassword = () => {
 //确认重置密码
 const onSubmitResetPassword = () => {
   userStore.submitResetPassword().then((res) => {
-    if (res.code === 0) {
-      ElMessage.success(res.msg)
-    } else {
+    ElMessage.success(res.msg)
 
-    }
   })
 }
 // 登录
@@ -185,12 +171,10 @@ const onGetEmailCode = () => {
     return
   }
   state.isCountDown = true
-  publicApi.getEmailCodeApi(loginData.value).then((res) => {
-    if (res.code === 0) {
-      state.isCountDown = true
-      ElMessage.success(res.msg)
-      handleTimeChange()
-    }
+  request(apiStoreData.staticApi.value.public_getEmailCode, loginData.value).then((res) => {
+    state.isCountDown = true
+    ElMessage.success(res.msg)
+    handleTimeChange()
   })
 
 };
@@ -206,25 +190,17 @@ const handleTimeChange = () => {
     }, 1000);
   }
 };
-//one word
-const oneWord = () => {
-  service({
-    url: 'https://api.xygeng.cn/one/get/',
-  }).then((res: any) => {
-    const r: string = res
-    state.oneWord = r.slice(15, r.length - 1)
-  })
-}
+
 //表单验证
 const ruleFormRef = ref<FormInstance>()
 const loginRules = reactive<FormRules<RegisterForm>>({
   user_name: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 4, max: 40, message: '长度4～40', trigger: 'blur' },
+    {required: true, message: '请输入用户名', trigger: 'blur'},
+    {min: 4, max: 40, message: '长度4～40', trigger: 'blur'},
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 4, max: 20, message: '密码长度4～20', trigger: 'blur' },
+    {required: true, message: '请输入密码', trigger: 'blur'},
+    {min: 4, max: 20, message: '密码长度4～20', trigger: 'blur'},
   ],
 })
 
@@ -240,9 +216,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   })
 }
 
-onMounted(() => {
-  oneWord()
-});
 
 </script>
 

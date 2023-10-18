@@ -126,7 +126,6 @@ func Dialer(dns string, timeOut time.Duration) *net.Dialer {
 
 // 读取http响应的内容
 func ReadDate(resp *http.Response) string {
-
 	// 是否有 gzip
 	gzipFlag := false
 	for k, v := range resp.Header {
