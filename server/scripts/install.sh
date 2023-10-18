@@ -24,7 +24,7 @@ ipv4_local=""
 
 get_system_type(){
 if [ "$system" == "Darwin" ]; then
-  system="daiwin-10.14"
+  system="darwin-10.14"
 else
   system="linux"
 fi

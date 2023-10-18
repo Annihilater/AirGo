@@ -128,55 +128,38 @@ docker run -tid \
   ppoiuty/airgo:latest
 ```
 
-
-
 ## 2-5 手动安装
 linux,darwin 下载对应压缩包，解压后启动：`./AirGo -start`
 
-# 5 关于套餐监控
->本人是个免流佬，这个功能纯粹是免流用的，可能大部分人用不到，可以跳过。免流一般用青龙面板或者1ts这个app监控流量，我参考部分开源项目，然后用安卓的KWGT这个组件app，写了个简单的流量监控组件。
-支持联通，电信手机号。
-## 5-1 功能简介
-<table>
-<tr>
-    <td> <img src="https://wiki.airgoo.link/assets/home.368f2b00.jpeg">
-</table>
 
-## 5-1 下载
+# 3 对接XrayR等后端
+```
+2.1.6版本适配XrayR，启用AirGo面板类型，搭配XrayR-for-AirGo使用
+```
+XrayR-for-AirGo项目地址：[https://github.com/ppoonk/XrayR-for-AirGo](https://github.com/ppoonk/XrayR-for-AirGo)
+## 3.1 直接安装
 
-[KWGT下载](https://www.123pan.com/s/oIT9-qhyxH.html)
+```
+bash <(curl -Ls https://raw.githubusercontent.com/ppoonk/XrayR-for-AirGo/main/scripts/manage.sh)
+```
 
-[AirGo插件下载---<font color=red>更新时间：2023-08-31</font>](https://www.123pan.com/s/oIT9-QxyxH.html)
+## 3.2 docker安装
+- docker仓库：[https://hub.docker.com/repository/docker/ppoiuty/xrayr](https://hub.docker.com/repository/docker/ppoiuty/xrayr)
+- 安装方式同XrayR官方
 
+## 3.2 XrayR配置文件说明
+默认路径 /usr/local/XrayR/config.yml。以下字段需注意：
+- `PanelType`为 AirGo
+- `ApiHost`必填
+- `ApiKey`必填
+- `NodeID`必填
+- `NodeType`必填
+- `DisableLocalREALITYConfig`设为true，reality配置由远程下发
+- `EnableVless`无需理会，配置由远程下发
 
-## 5-2 安装
-
-- 安装KWGT，在桌面添加Kustom Widget，先选择4x4尺寸，在添加插件后可自行调整大小
-![kwgt1](https://wiki.airgoo.link/assets/kwgt1.efa3c135.jpg)
-- 注册登录机场。点击菜单栏-流量监控，登录自己的手机号，然后复制url
-- 打开KWGT，点击 `导入`，导入AirGo插件-`AirGo.kwgt`
-  ![kwgt1](https://wiki.airgoo.link/assets/kwgt2.8ecfb18e.jpg)
-- 点击-编辑
-  ![kwgt1](https://wiki.airgoo.link/assets/kwgt3.6465d5e9.jpg)
-
-- 点击-全局变量-url
-![kwgt1](https://wiki.airgoo.link/assets/kwgt4.a953bb41.jpg)
-
-- 在公式编辑器里粘贴上面复制的url，<font color=red>点击右上角对号保存！然后再点击右上角保存按钮再次保存！</font>
-![kwgt1](https://wiki.airgoo.link/assets/kwgt5.0ef0f989.jpg)
-
-- 然后回到桌面，点击一次手动刷新按钮，等待一会，看是否刷新出流量使用详情
-![kwgt1](https://wiki.airgoo.link/assets/kwgt6.7813848b.jpg)
-
-
-
-# 4 对接XrayR等后端
-本项目使用sspanel同名api，所以对接只需将面板类型设置为`sspanel`即可
-
-# 5 开发注意事项
+# 4 开发注意事项
 - 手动编译，脚本在`项目/server/scripts/install.sh`
 
-# 6 其他说明
 
 
 

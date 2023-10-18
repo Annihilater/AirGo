@@ -1,13 +1,3 @@
-#执行本action脚本，需要注意以下几点：
-#1、github右上角头像--->Settings--->Developer Settings--->Personal access token--->fine-grained tokens--->generate new token
-#注意，该密钥只显示一次，务必保存！！！！
-#修改密钥权限：1、Repository permissions 全部设为 非 No access（里边选项太多，懒得一一研究，索性全允许了）
-#           2、Account permissions 中 Codespaces user secrets设为 非 No access，可能你用 github Codespaces 编译时用到
-#2、项目-Settings--->Secrets and variables ---> Actions--->New repository secret,名称随意，但是要和脚本中【 repo_token: ${{ secrets.ACTION_TOKEN }} 】保持一致，密钥值填步骤1申请的值。
-#该密钥用来提交release。
-#3、项目-Settings--->Secrets and variables ---> Actions--->New repository secret，新建 DOCKERHUB_USERNAME，DOCKERHUB_TOKEN 两个令牌，名字可以自定义，但是要和下面的保持一致。
-#  DOCKERHUB_USERNAME=你的hub.docker.com用户名
-#  DOCKERHUB_TOKEN=你的hub.docker.com toekn，可在hub.docker.com toekn获得
 name: auto build release
 on:
   release:
