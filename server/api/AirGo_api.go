@@ -6,6 +6,7 @@ import (
 	"AirGo/service"
 	"AirGo/utils/encrypt_plugin"
 	"AirGo/utils/response"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -85,12 +86,15 @@ func AGGetUserlist(ctx *gin.Context) {
 	switch node.NodeType {
 	case "shadowsocks":
 		if !strings.HasPrefix(node.Scy, "2022") {
-			for _, v := range users {
-				v.Passwd = v.UUID.String()
+			fmt.Println(1)
+			for k, _ := range users {
+				users[k].Passwd = users[k].UUID.String()
 			}
 		}
 	default:
 	}
+	b, _ := json.Marshal(users)
+	fmt.Println("user:", string(b))
 	ctx.JSON(200, users)
 
 }
