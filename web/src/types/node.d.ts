@@ -2,13 +2,10 @@ declare interface NodeInfo {
     created_at: string;
     updated_at: string;
     id: number;
-    //sspanel 参数
+
     node_speedlimit: number; //节点限速/Mbps
     traffic_rate: number;    //倍率
-    node_type: string;       //类型 vless vmess trojan
-    server: string;
-    // type: string;//显示与隐藏
-
+    node_type: string;       //类型 vless vmess shadowsocks
     //共享节点额外需要的参数
     uuid: string;
     //基础参数

@@ -12,7 +12,8 @@
                    inactive-text="隐藏"
                    style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
       </el-form-item>
-      <el-form-item label="类型" v-if="articleStoreData.currentArticle.value.id !== 1 && articleStoreData.currentArticle.value.id !== 2">
+      <el-form-item label="类型"
+                    v-if="articleStoreData.currentArticle.value.id !== 1 && articleStoreData.currentArticle.value.id !== 2">
         <el-radio-group v-model="articleStoreData.currentArticle.value.type">
           <el-radio label="notice">公告</el-radio>
           <el-radio label="knowledge">知识库</el-radio>
@@ -36,14 +37,12 @@
 <script setup lang="ts">
 // 定义子组件向父组件传值/事件
 import {useArticleStore} from "/@/stores/articleStore";
-
-const emit = defineEmits(['refresh']);
-
 import {reactive} from "vue";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 
+const emit = defineEmits(['refresh']);
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
 const articleStore = useArticleStore()
@@ -65,7 +64,7 @@ const openDialog = (type: string, row?: any) => {
     state.isShowDialog = true
     articleStoreData.currentArticle.value.id = 0
   } else {
-    articleStoreData.currentArticle.value=row
+    articleStoreData.currentArticle.value = row
     state.type = type
     state.title = "修改文章"
     state.isShowDialog = true

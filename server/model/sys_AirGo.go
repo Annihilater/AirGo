@@ -2,6 +2,7 @@ package model
 
 import (
 	uuid "github.com/satori/go.uuid"
+	"time"
 )
 
 type AGNodeStatus struct {
@@ -85,4 +86,13 @@ type AGREALITYConfig struct {
 type AGREALITYx25519 struct {
 	PublicKey  string `json:"public_key"`
 	PrivateKey string `json:"private_key"`
+}
+
+// 数据库 traffic_log 流量统计表
+type TrafficLog struct {
+	CreatedAt time.Time `json:"created_at"`
+	ID        int64     `json:"id"      gorm:"primary_key"`
+	NodeID    int64     `json:"node_id" gorm:"comment:节点ID"`
+	U         int64     `json:"u"       gorm:"comment:上行流量 bit"`
+	D         int64     `json:"d"       gorm:"comment:下行流量 bit"`
 }

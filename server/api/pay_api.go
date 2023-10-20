@@ -25,7 +25,6 @@ func Purchase(ctx *gin.Context) {
 		response.Fail("订单参数获取错误", nil, ctx)
 		return
 	}
-	//fmt.Println("前端传的订单信息：", receiveOrder)
 	//根据订单号查询订单
 	receiveOrder.UserID = uIDInt //确认user id
 	sysOrder, _, err := service.CommonSqlFind[model.Orders, model.Orders, model.Orders](model.Orders{UserID: receiveOrder.UserID, OutTradeNo: receiveOrder.OutTradeNo})
@@ -39,7 +38,6 @@ func Purchase(ctx *gin.Context) {
 			return
 		}
 	}
-	//fmt.Println("查询的系统订单：", sysOrder)
 	//0元购，跳过支付
 	totalAmountFloat64, _ := strconv.ParseFloat(sysOrder.TotalAmount, 10)
 	if totalAmountFloat64 == 0 {
@@ -57,7 +55,6 @@ func Purchase(ctx *gin.Context) {
 		ID: receiveOrder.PayID,
 	}
 	pay, _, err := service.CommonSqlFind[model.Pay, model.Pay, model.Pay](payParams)
-	//fmt.Println("查询支付方式：", pay)
 	sysOrder.PayID = pay.ID        //支付方式id
 	sysOrder.PayType = pay.PayType //
 
@@ -86,7 +83,6 @@ func Purchase(ctx *gin.Context) {
 		}
 
 		res, err := service.TradePreCreatePay(client, &sysOrder)
-		//fmt.Println("AlipayTradePreCreatePay res:", res)
 		if err != nil {
 			response.Fail("alipay error："+err.Error(), nil, ctx)
 			return
@@ -136,14 +132,12 @@ func AlipayNotify(ctx *gin.Context) {
 
 // 易支付异步回调
 func EpayNotify(ctx *gin.Context) {
-
 	var epayRes model.EpayResultResponse
 	err := ctx.ShouldBindQuery(&epayRes)
 	if err != nil {
 		global.Logrus.Error(err.Error())
 		return
 	}
-	//fmt.Println("易支付异步通知", epayRes)
 	//查询原始订单
 	var order = model.Orders{
 		OutTradeNo: epayRes.OutTradeNo,
@@ -153,7 +147,6 @@ func EpayNotify(ctx *gin.Context) {
 		ctx.String(200, "success")
 		return
 	}
-	//fmt.Println("查询原始订单:", sysOrder)
 	sysOrder.TradeNo = epayRes.TradeNo
 	sysOrder.ReceiptAmount = epayRes.Money  //实收金额
 	sysOrder.BuyerPayAmount = epayRes.Money //付款金额

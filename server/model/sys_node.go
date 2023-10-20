@@ -19,40 +19,37 @@ type Node struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	//基础参数
-	Remarks         string `json:"remarks"`                 //别名
-	Address         string `json:"address"`                 //地址
-	Port            int64  `json:"port"`                    //端口
-	NodeOrder       int64  `json:"node_order"`              //节点排序
-	Enabled         bool   `json:"enabled"`                 //是否为激活节点
-	NodeSpeedlimit  int64  `json:"node_speedlimit"`         //节点限速/Mbps
-	TrafficRate     int64  `json:"traffic_rate"`            //倍率
-	NodeType        string `json:"node_type"`               //节点类型 vless,vmess,trojan,shadowsocks
-	IsSharedNode    bool   `json:"is_shared_node"`          //共享节点，不修改uuid和host
-	Server          string `json:"server"`                  // sspanel的server配置信息字段
-	V               string `json:"v"   gorm:"default:2"`    //
-	Scy             string `json:"scy" gorm:"default:auto"` //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,aes-256-gcm,2022-blake3-aes-128-gcm,2022-blake3-aes-256-gcm,2022-blake3-chacha20-poly1305
-	ServerKey       string `json:"server_key"`
+	Remarks         string `json:"remarks"`                                  //别名
+	Address         string `json:"address"`                                  //地址
+	Port            int64  `json:"port"`                                     //端口
+	NodeOrder       int64  `json:"node_order"`                               //节点排序
+	Enabled         bool   `json:"enabled"`                                  //是否为激活节点
+	NodeSpeedlimit  int64  `json:"node_speedlimit"`                          //节点限速/Mbps
+	TrafficRate     int64  `json:"traffic_rate"`                             //倍率
+	NodeType        string `json:"node_type"`                                //节点类型 vless,vmess,trojan,shadowsocks
+	IsSharedNode    bool   `json:"is_shared_node"`                           //共享节点，不修改uuid和host
+	V               string `json:"v"   gorm:"default:2"`                     //
+	Scy             string `json:"scy"`                                      //加密方式 vless需要填 "none"，不能留空。none,auto,chacha20-poly1305,aes-128-gcm,aes-256-gcm,2022-blake3-aes-128-gcm,2022-blake3-aes-256-gcm,2022-blake3-chacha20-poly1305
+	ServerKey       string `json:"server_key"`                               //
 	Aid             int64  `json:"aid" gorm:"default:0"`                     //额外ID
-	VlessFlow       string `json:"flow"       gorm:"default:none"`           //流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
+	VlessFlow       string `json:"flow"`                                     //流控 null,xtls-rprx-vision,xtls-rprx-vision-udp443
 	VlessEncryption string `json:"encryption" gorm:"default:none"`           //加密方式 none
 	Network         string `json:"network" gorm:"default:ws"`                //传输协议 tcp,kcp,ws,h2,quic,grpc
-	Type            string `json:"type"    gorm:"default:none"`              //伪装类型 ws,h2：无    tcp,kcp：none，http    quic：none，srtp，utp，wechat-video，dtls，wireguard
+	Type            string `json:"type"    gorm:"default:none"`              //伪装类型 ws,h2：无    tcp,kcp：none，http    mKCP,quic：none，srtp，utp，wechat-video，dtls，wireguard
 	Host            string `json:"host"`                                     //伪装域名
-	Path            string `json:"path"    gorm:"default:/"`                 //path
+	Path            string `json:"path"    gorm:"default:/"`                 //path(ws,h2)
 	GrpcMode        string `json:"mode"    gorm:"default:multi"`             //grpc传输模式 gun，multi
-	ServiceName     string `json:"service_name" gorm:"default:service_name"` //
+	ServiceName     string `json:"service_name" gorm:"default:service_name"` //gRPC 的 ServiceName
 	Security        string `json:"security" gorm:"default:none"`             //传输层安全类型 none,tls,reality
 	Sni             string `json:"sni"`                                      //
 	Fingerprint     string `json:"fp"`                                       //
 	Alpn            string `json:"alpn"`                                     //
 	AllowInsecure   bool   `json:"allowInsecure" gorm:"default:true"`        //tls 跳过证书验证
-
-	Dest       string `json:"dest"`
-	PrivateKey string `json:"private_key"`
-
-	PublicKey string `json:"pbk"`
-	ShortId   string `json:"sid"`
-	SpiderX   string `json:"spx"`
+	Dest            string `json:"dest"`
+	PrivateKey      string `json:"private_key"`
+	PublicKey       string `json:"pbk"`
+	ShortId         string `json:"sid"`
+	SpiderX         string `json:"spx"`
 
 	//共享节点额外需要的参数
 	UUID string `json:"uuid"` //用户id
@@ -190,38 +187,38 @@ type NodeShared struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	//基础参数
-	Remarks         string `json:"remarks"`                        //别名
-	Address         string `json:"address"`                        //地址
-	Port            int64  `json:"port"`                           //端口
-	NodeOrder       int64  `json:"node_order"`                     //节点排序
-	Enabled         bool   `json:"enabled"`                        //是否为激活节点
-	NodeSpeedlimit  int64  `json:"node_speedlimit"`                //节点限速/Mbps
-	TrafficRate     int64  `json:"traffic_rate"`                   //倍率
-	NodeType        string `json:"node_type"`                      //节点类型 vless,vmess,trojan
-	IsSharedNode    bool   `json:"is_shared_node"`                 //共享节点，不修改uuid和host
-	Server          string `json:"server"`                         // sspanel的server配置信息字段
-	V               string `json:"v"          gorm:"default:2"`    //
-	Scy             string `json:"scy"        gorm:"default:auto"` //加密方式 auto,none,chacha20-poly1305,aes-128-gcm,aes-256-gcm,2022-blake3-aes-128-gcm,2022-blake3-aes-256-gcm,2022-blake3-chacha20-poly1305
-	ServerKey       string `json:"server_key"`
-	Aid             int64  `json:"aid"        gorm:"default:0"`              //额外ID
-	VlessFlow       string `json:"flow"       gorm:"default:none"`           //流控 none,xtls-rprx-vision,xtls-rprx-vision-udp443
+	Remarks         string `json:"remarks"`                                  //别名
+	Address         string `json:"address"`                                  //地址
+	Port            int64  `json:"port"`                                     //端口
+	NodeOrder       int64  `json:"node_order"`                               //节点排序
+	Enabled         bool   `json:"enabled"`                                  //是否为激活节点
+	NodeSpeedlimit  int64  `json:"node_speedlimit"`                          //节点限速/Mbps
+	TrafficRate     int64  `json:"traffic_rate"`                             //倍率
+	NodeType        string `json:"node_type"`                                //节点类型 vless,vmess,trojan,shadowsocks
+	IsSharedNode    bool   `json:"is_shared_node"`                           //共享节点，不修改uuid和host
+	V               string `json:"v"   gorm:"default:2"`                     //
+	Scy             string `json:"scy"`                                      //加密方式 vless需要填 "none"，不能留空.none,auto,chacha20-poly1305,aes-128-gcm,aes-256-gcm,2022-blake3-aes-128-gcm,2022-blake3-aes-256-gcm,2022-blake3-chacha20-poly1305
+	ServerKey       string `json:"server_key"`                               //
+	Aid             int64  `json:"aid" gorm:"default:0"`                     //额外ID
+	VlessFlow       string `json:"flow"`                                     //流控 null,xtls-rprx-vision,xtls-rprx-vision-udp443
 	VlessEncryption string `json:"encryption" gorm:"default:none"`           //加密方式 none
 	Network         string `json:"network" gorm:"default:ws"`                //传输协议 tcp,kcp,ws,h2,quic,grpc
-	Type            string `json:"type"    gorm:"default:none"`              //伪装类型 ws,h2：无    tcp,kcp：none，http    quic：none，srtp，utp，wechat-video，dtls，wireguard
+	Type            string `json:"type"    gorm:"default:none"`              //伪装类型 ws,h2：无    tcp,kcp：none，http    mKCP,quic：none，srtp，utp，wechat-video，dtls，wireguard
 	Host            string `json:"host"`                                     //伪装域名
-	Path            string `json:"path"    gorm:"default:/"`                 //path
+	Path            string `json:"path"    gorm:"default:/"`                 //path(ws,h2)
 	GrpcMode        string `json:"mode"    gorm:"default:multi"`             //grpc传输模式 gun，multi
-	ServiceName     string `json:"service_name" gorm:"default:service_name"` //
+	ServiceName     string `json:"service_name" gorm:"default:service_name"` //gRPC 的 ServiceName
 	Security        string `json:"security" gorm:"default:none"`             //传输层安全类型 none,tls,reality
 	Sni             string `json:"sni"`                                      //
 	Fingerprint     string `json:"fp"`                                       //
-	Alpn            string `json:"alpn"`                                     //tls
+	Alpn            string `json:"alpn"`                                     //
 	AllowInsecure   bool   `json:"allowInsecure" gorm:"default:true"`        //tls 跳过证书验证
-	Dest            string `json:"dest"`                                     //
-	PrivateKey      string `json:"private_key"`                              //
-	PublicKey       string `json:"pbk"`                                      //
-	ShortId         string `json:"sid"`                                      //
-	SpiderX         string `json:"spx"`                                      //
+	Dest            string `json:"dest"`
+	PrivateKey      string `json:"private_key"`
+	PublicKey       string `json:"pbk"`
+	ShortId         string `json:"sid"`
+	SpiderX         string `json:"spx"`
+
 	//共享节点额外需要的参数
 	UUID string `json:"uuid"` //用户id
 	//中转参数

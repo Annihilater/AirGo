@@ -31,8 +31,7 @@ func Register(u *model.User) error {
 			UserName:       u.UserName,
 			NickName:       u.UserName,
 			Password:       encrypt_plugin.BcryptEncode(u.Password),
-			Passwd:         encrypt_plugin.RandomBase64(32), // shadowsocks2022 Key = "openssl rand -base64 32" and multi users needn't cipher method
-			RoleGroup:      []model.Role{{ID: 2}},           //默认角色
+			RoleGroup:      []model.Role{{ID: 2}}, //默认角色
 			InvitationCode: encrypt_plugin.RandomString(8),
 			ReferrerCode:   u.ReferrerCode,
 		}
@@ -62,7 +61,6 @@ func NewUser(u model.User) error {
 		u.RoleGroup = roles
 		u.UUID = uuid.NewV4()
 		u.Password = encrypt_plugin.BcryptEncode(u.Password)
-		u.Passwd = encrypt_plugin.RandomBase64(32) // shadowsocks2022 Key = "openssl rand -base64 32" and multi users needn't cipher method
 		u.InvitationCode = encrypt_plugin.RandomString(8)
 		return CreateUser(NewUserSubscribe(&u))
 	}

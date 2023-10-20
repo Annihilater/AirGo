@@ -3,6 +3,7 @@ package service
 import (
 	"AirGo/global"
 	"AirGo/model"
+	"AirGo/utils/encrypt_plugin"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -18,9 +19,11 @@ import (
 // 获取订阅
 func GetUserSub(url string, subType string) string {
 	//查找用户
+	fmt.Println(url, subType)
 	var u model.User
 	err := global.DB.Where("subscribe_url = ? and sub_status = 1 and d + u < t", url).First(&u).Error
 	if err != nil {
+		fmt.Println(err)
 		return ""
 	}
 	//根据goodsID 查找具体的节点
@@ -56,6 +59,7 @@ func GetUserSub(url string, subType string) string {
 	//根据subType生成不同客户端订阅
 	switch subType {
 	case "v2ray":
+		fmt.Println(1)
 		return V2rayNGSubscribe(&goods.Nodes, u)
 	case "clash":
 		return ClashSubscribe(&goods.Nodes, u.UUID.String(), u.SubscribeInfo.Host)
@@ -210,48 +214,45 @@ func V2rayNGVlessTrojan(node model.Node, scheme, uuid, host string) string {
 	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
 	var vlessUrl url.URL
 	vlessUrl.Scheme = scheme
-
 	vlessUrl.User = url.UserPassword(uuid, "")
-
 	vlessUrl.Host = node.Address + ":" + strconv.FormatInt(node.Port, 10)
 	values := url.Values{}
-
 	switch scheme {
 	case "vless":
-		values.Add("encryption", "none")
+		values.Add("encryption", node.Scy)
 		values.Add("type", node.Network)
-
-		values.Add("host", host)
-
-		values.Add("path", node.Path)
 		values.Add("flow", node.VlessFlow)
+		switch node.Network {
+		case "ws":
+			values.Add("host", host)
+			values.Add("path", node.Path)
+		case "tcp":
+			values.Add("headerType", node.Type)
+			values.Add("host", host)
+		case "kcp", "quic":
+			values.Add("headerType", node.Type)
+		case "grpc":
+			values.Add("mode", node.GrpcMode)
+			values.Add("serviceName", node.ServiceName)
+		}
+		switch node.Security {
+		case "tls":
+			values.Add("security", node.Security)
+			values.Add("alpn", node.Alpn)
+			values.Add("fp", node.Fingerprint)
+			values.Add("sni", node.Sni)
+		case "reality":
+			values.Add("security", node.Security)
+			values.Add("pbk", node.PublicKey)
+			values.Add("fp", node.Fingerprint)
+			values.Add("spx", node.SpiderX)
+			values.Add("sni", node.Sni)
+			values.Add("sid", node.ShortId)
+		}
 	case "trojan":
-		values.Add("headerType", node.Type)
-		values.Add("type", node.Network)
-
-		values.Add("host", host)
-
-		values.Add("path", node.Path)
-
 	}
-	switch node.Security {
-	case "tls":
-		values.Add("security", node.Security)
-		values.Add("alpn", node.Alpn)
-		values.Add("fp", node.Fingerprint)
-		values.Add("sni", node.Sni)
-	case "reality":
-		values.Add("security", node.Security)
-		values.Add("pbk", node.PublicKey)
-		values.Add("fp", node.Fingerprint)
-		values.Add("spx", node.SpiderX)
-		values.Add("sni", node.Sni)
-		values.Add("sid", node.ShortId)
-	}
-
 	vlessUrl.RawQuery = values.Encode()
 	vlessUrl.Fragment = node.Remarks
-
 	//return vlessUrl.String()
 	return strings.ReplaceAll(vlessUrl.String(), ":@", "@")
 }
@@ -322,16 +323,38 @@ func ClashVmessVlessTrojan(v model.Node, uuid, host string) model.ClashProxy {
 	return proxy
 }
 
-func V2rayNGShadowsocks(v model.Node, uuid string, user model.User) string {
-	if !v.IsSharedNode {
-		if strings.HasPrefix(v.Scy, "2022") {
+func V2rayNGShadowsocks(n model.Node, uuid string, user model.User) string {
+	if !n.IsSharedNode {
+		if strings.HasPrefix(n.Scy, "2022") {
 			uuid = user.Passwd
 		}
 	}
 	var urlV url.URL
 	urlV.Scheme = "ss"
-	urlV.User = url.UserPassword(v.Scy+":"+uuid, "")
-	urlV.Host = v.Address + ":" + fmt.Sprintf("%d", v.Port)
-	urlV.Fragment = v.Remarks
+	switch strings.HasPrefix(n.Scy, "2022") {
+	case true:
+		p1 := n.Scy
+		p2 := n.ServerKey
+		if p2 == "" {
+			p2 = encrypt_plugin.RandomString(32)
+		}
+		p3 := user.UUID.String()
+		if p1 == "2022-blake3-aes-128-gcm" {
+			p2 = p2[:16]
+			p3 = p3[0:16]
+		}
+		p2 = base64.StdEncoding.EncodeToString([]byte(p2))
+		p3 = base64.StdEncoding.EncodeToString([]byte(p3))
+		p := base64.StdEncoding.EncodeToString([]byte(p1 + ":" + p2 + ":" + p3))
+		urlV.User = url.UserPassword(p, "")
+	default:
+		p1 := n.Scy
+		p2 := user.UUID.String()
+		p := base64.StdEncoding.EncodeToString([]byte(p1 + ":" + p2))
+		urlV.User = url.UserPassword(p, "")
+	}
+
+	urlV.Host = n.Address + ":" + fmt.Sprintf("%d", n.Port)
+	urlV.Fragment = n.Remarks
 	return strings.ReplaceAll(urlV.String(), ":@", "@")
 }

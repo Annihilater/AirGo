@@ -1,12 +1,11 @@
 <template>
   <el-dialog v-model="state.isShowDialog" :title="state.title" width="769px" destroy-on-close>
-    <el-form :model="goodsManageData.currentGoods" label-width="120px">
+    <el-form :model="goodsManageData.currentGoods" label-width="80px">
       <el-form-item label="商品标题">
         <el-input v-model="goodsManageData.currentGoods.subject"/>
       </el-form-item>
-
-      <el-form-item label="描述(支持HTML编辑)">
-        <el-input v-model="goodsManageData.currentGoods.des" type="textarea" autosize/>
+      <el-form-item label="描述">
+        <v-md-editor v-model="goodsManageData.currentGoods.des" height="400px"></v-md-editor>
       </el-form-item>
       <el-form-item label="价格">
         <el-col :span="4">
@@ -19,11 +18,8 @@
           <span class="text-gray-500">RMB</span>
         </el-col>
       </el-form-item>
-
-
       <el-form-item label="总流量">
         <el-col :span="4">
-          <!-- input会自动将数字类型转换为了字符串类型，导致form表单提交后端报错，解决方案是Vue的修饰符 -->
           <el-input v-model.number="goodsManageData.currentGoods.total_bandwidth" type="number"/>
         </el-col>
         <el-col :span="2" style="text-align: center">
@@ -33,7 +29,6 @@
           <span class="text-gray-500">GB</span>
         </el-col>
       </el-form-item>
-
       <el-form-item label="有效期">
         <el-col :span="4">
           <el-input v-model.number="goodsManageData.currentGoods.expiration_date" type="number"/>
@@ -44,16 +39,13 @@
         <el-col :span="18">
           <span class="text-gray-500">天</span>
         </el-col>
-
       </el-form-item>
-
       <el-form-item label="是否显示">
         <el-col :span="4">
           <el-switch v-model="goodsManageData.currentGoods.status" inline-prompt active-text="开启" inactive-text="关闭"
                      style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
         </el-col>
       </el-form-item>
-
       <el-form-item label="关联节点">
         <el-transfer
             :data="nodeManageData.nodes.node_list"
@@ -64,7 +56,6 @@
                   label: 'remarks',
                   }"
             :titles="['全部节点', '选中节点']"
-
         />
       </el-form-item>
     </el-form>

@@ -19,7 +19,7 @@ func CommonSqlFind[T1, T2, T3 any](params T2) (T3, int64, error) {
 		err = global.DB.Model(&modelType).Where(params).Count(&total).Find(&res).Error
 
 	} else {
-		err = global.DB.Where(&params).Count(&total).Find(&res).Error
+		err = global.DB.Model(&modelType).Where(&params).Count(&total).Find(&res).Error
 	}
 	return res, total, err
 }
@@ -31,10 +31,10 @@ func CommonSqlFindWithPagination[T1, T2, T3 any](params T2, paginationParams mod
 	var modelType T1
 	var total int64
 	if reflect.TypeOf(params).String() == reflect.String.String() {
-		err = global.DB.Debug().Model(&modelType).Where(params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Model(&modelType).Where(params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 
 	} else {
-		err = global.DB.Where(&params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Model(&modelType).Where(&params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 	}
 	return res, total, err
 }
@@ -63,8 +63,8 @@ func CommonSqlFindWithFieldParams(fieldParams model.FieldParamsReq) (any, int64,
 	data = model.StringAndSlice[fieldParams.TableName]
 
 	var total int64
-	err := global.DB.Debug().Raw(totalSql).Scan(&total).Error
-	err = global.DB.Debug().Raw(dataSql).Scan(&data).Error
+	err := global.DB.Raw(totalSql).Scan(&total).Error
+	err = global.DB.Raw(dataSql).Scan(&data).Error
 	return data, total, err
 }
 
@@ -89,7 +89,7 @@ func CommonSqlSave[T1 any](data T1) error {
 func CommonSqlUpdate[T1, T2 any](modelType T1, data T2, params string) error {
 	var err error
 	//保存多列
-	err = global.DB.Debug().Model(&modelType).Where(params).Updates(&data).Error
+	err = global.DB.Model(&modelType).Where(params).Updates(&data).Error
 	return err
 }
 

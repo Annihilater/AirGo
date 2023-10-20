@@ -272,9 +272,11 @@ func InsertInto(db *gorm.DB) error {
 		return errors.New("goods表数据初始化失败!")
 	}
 	//插入node
+	key1 := utils.RandomString(32)
+	key2 := utils.RandomString(32)
 	nodeData := []model.Node{
-		{Remarks: "测试节点1", Address: "www.10010.com", Path: "/path", Port: 5566, NodeType: "vless", Enabled: true},
-		{Remarks: "测试节点2", Address: "www.10086.com", Path: "/path", Port: 5566, NodeType: "vless", Enabled: true},
+		{Remarks: "测试节点1", Address: "www.10010.com", Path: "/path", Port: 5566, NodeType: "vless", Enabled: true, ServerKey: key1},
+		{Remarks: "测试节点2", Address: "www.10086.com", Path: "/path", Port: 5566, NodeType: "vless", Enabled: true, ServerKey: key2},
 	}
 	if err := global.DB.Create(&nodeData).Error; err != nil {
 		return errors.New("node表数据初始化失败!")

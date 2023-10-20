@@ -28,7 +28,7 @@
           </el-button>
         </el-col>
         <el-col :span="4">
-          <el-button size="default" type="success" class="ml10" @click="onOpenEditNode('add')">
+          <el-button size="default" type="success" class="ml10" @click="onOpenEditNode('新建节点','vless')">
             <el-icon>
               <ele-FolderAdd/>
             </el-icon>
@@ -58,13 +58,13 @@
         <el-table-column prop="remarks" label="节点名称" show-overflow-tooltip width="200"></el-table-column>
         <el-table-column prop="id" label="节点ID" show-overflow-tooltip width="60"></el-table-column>
         <el-table-column prop="address" label="节点地址" show-overflow-tooltip width="150"></el-table-column>
-        <el-table-column prop="port" label="节点端口" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="sort" label="协议类型" show-overflow-tooltip>
+        <el-table-column prop="port" label="节点端口" width="80" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="sort" label="协议类型" width="120" show-overflow-tooltip>
           <template #default="scope">
             <el-button type="success" v-if="scope.row.node_type ==='vmess'">vmess</el-button>
             <el-button type="warning" v-if="scope.row.node_type ==='vless'">vless</el-button>
             <el-button type="info" v-if="scope.row.node_type ==='trojan'">trojan</el-button>
-            <el-button type="danger" v-if="scope.row.node_type ==='shadowrocks'">shadowrocks</el-button>
+            <el-button type="danger" v-if="scope.row.node_type ==='shadowsocks'">shadowsocks</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="total_up" label="上行流量(GB)" show-overflow-tooltip width="200">
@@ -181,8 +181,8 @@ const state = reactive({
 })
 
 //打开新建节点，修改节点弹窗
-function onOpenEditNode(type: string, row?: Object) {
-  nodeDialogRef.value.openDialog(type, row)
+function onOpenEditNode(title: string, nodeType: string, row?: NodeInfo) {
+  nodeDialogRef.value.openDialog(title, nodeType, row)
 }
 
 //打开节点排序弹窗

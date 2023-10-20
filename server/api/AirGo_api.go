@@ -6,7 +6,7 @@ import (
 	"AirGo/service"
 	"AirGo/utils/encrypt_plugin"
 	"AirGo/utils/response"
-	"encoding/json"
+	"encoding/base64"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -25,7 +25,14 @@ func AGGetNodeInfo(ctx *gin.Context) {
 		global.Logrus.Error("AGGetNodeInfo error,id="+id, err.Error())
 		return
 	}
-	node.ServerKey = "QEvz/u1futsY/4g5FAXJ9ceYX9c9I5vC1BHFgxYyc7Y="
+	if node.NodeType == "shadowsocks" {
+		switch node.Scy {
+		case "2022-blake3-aes-128-gcm":
+			node.ServerKey = base64.StdEncoding.EncodeToString([]byte(node.ServerKey[:16]))
+		default:
+			node.ServerKey = base64.StdEncoding.EncodeToString([]byte(node.ServerKey))
+		}
+	}
 	ctx.JSON(200, node)
 
 }
@@ -85,19 +92,27 @@ func AGGetUserlist(ctx *gin.Context) {
 	}
 	switch node.NodeType {
 	case "shadowsocks":
-		if !strings.HasPrefix(node.Scy, "2022") {
-			fmt.Println(1)
+		switch strings.HasPrefix(node.Scy, "2022") {
+		case true:
+			for k, _ := range users {
+				p := users[k].UUID.String()
+				if node.Scy == "2022-blake3-aes-128-gcm" {
+					p = p[:16]
+				}
+				p = base64.StdEncoding.EncodeToString([]byte(p)) //openssl rand -base64 32
+				users[k].Passwd = p
+			}
+		default:
 			for k, _ := range users {
 				users[k].Passwd = users[k].UUID.String()
 			}
 		}
 	default:
 	}
-	b, _ := json.Marshal(users)
-	fmt.Println("user:", string(b))
 	ctx.JSON(200, users)
 
 }
+
 func AGReportUserTraffic(ctx *gin.Context) {
 	//验证key
 	if global.Server.System.MuKey != ctx.Query("key") {
@@ -110,7 +125,11 @@ func AGReportUserTraffic(ctx *gin.Context) {
 		global.Logrus.Error("error", err.Error())
 		return
 	}
-	//fmt.Println("AGUserTraffic:", AGUserTraffic)
+	//查询节点倍率
+	node, _, _ := service.CommonSqlFind[model.Node, string, model.Node]("id = " + fmt.Sprintf("%d", AGUserTraffic.ID))
+	if node.TrafficRate <= 0 {
+		node.TrafficRate = 1
+	}
 	// 处理流量统计
 	var userIds []int64
 	var userArr []model.User
@@ -122,8 +141,8 @@ func AGReportUserTraffic(ctx *gin.Context) {
 		var user model.User
 		userIds = append(userIds, v.UID)
 		user.ID = v.UID
-		user.SubscribeInfo.U = v.Upload
-		user.SubscribeInfo.D = v.Download
+		user.SubscribeInfo.U = v.Upload * node.TrafficRate
+		user.SubscribeInfo.D = v.Download * node.TrafficRate
 		userArr = append(userArr, user)
 		//该节点总流量
 		trafficLog.D = trafficLog.U + v.Upload
